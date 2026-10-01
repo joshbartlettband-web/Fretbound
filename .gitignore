@@ -1,0 +1,12 @@
+*.keystore
+*.jks
+android/bin/
+android/obj/
+android/assets/index.html
+__pycache__/
+*.apk
+out/
+test.html
+test_*.html
+*.png.tmp
+*keystore*.txt

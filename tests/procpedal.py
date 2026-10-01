@@ -20,7 +20,7 @@ def proc(f):
     c=c.resize((nw,nh),Image.LANCZOS); a=np.asarray(c).copy(); al=a[:,:,3]>150; a[:,:,3]=al*255
     rgb=Image.fromarray(a[:,:,:3]).quantize(colors=48,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
     out=Image.new('RGBA',(W,H),(0,0,0,0)); o=np.asarray(rgb).copy(); oa=np.dstack([o,al*255]).astype(np.uint8)
-    out.paste(Image.fromarray(oa),((W-nw)//2,H-nh-1)); out.save('art/pedals/'+os.path.basename(f),optimize=True); return os.path.getsize('art/pedals/'+os.path.basename(f))
+    out.paste(Image.fromarray(oa),((W-nw)//2,H-nh-1)); out.save('art/pedals/'+os.path.basename(f)[:-4]+'.png',optimize=True); return os.path.getsize('art/pedals/'+os.path.basename(f)[:-4]+'.png')
 if __name__=='__main__' and '--embed' not in sys.argv:
     tot=0
     for f in sorted(glob.glob('art/gemini_test/pedals/*.jpg')): tot+=proc(f)

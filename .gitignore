@@ -9,3 +9,4 @@ out/
 test.html
 test_*.html
 *.png.tmp
+*keystore*.txt

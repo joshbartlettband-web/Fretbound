@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fretbound art shoot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--wall:#22160F;--wall2:#2C1D14;--paper:#EBDDBD;--paper2:#DCCBA3;--ink:#2A1A10;--ink2:#6A5038;--red:#B3322A;--gold:#E9B04A;--done:#3E7A46;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*::before,*::after{box-sizing:inherit}
+html,body{margin:0;background:var(--wall);color:var(--paper);font-family:'Atkinson Hyperlegible',system-ui,sans-serif;font-size:17px;line-height:1.45}
+body{background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 2px,transparent 2px 22px),repeating-linear-gradient(90deg,rgba(0,0,0,.12) 0 2px,transparent 2px 46px)}
+main{max-width:640px;margin:0 auto;padding:22px 16px 60px}
+h1{font-family:'Jersey 10',monospace;font-weight:normal;font-size:52px;line-height:.95;margin:6px 0 6px;color:var(--gold);text-shadow:3px 3px 0 #000}
+.lede{color:#D8C8A8;margin:0 0 18px;max-width:34em}
+.flow{background:var(--wall2);border:2px solid #4A3424;padding:12px 14px 4px;margin:0 0 22px}
+.flow h2,.sec{font-family:'Jersey 10',monospace;font-weight:normal;font-size:30px;line-height:1;margin:0 0 8px;color:var(--paper)}
+.flow ol{margin:0;padding-left:1.3em}.flow li{margin:0 0 8px}
+.sec{margin:28px 0 10px}
+.progress{font-size:15px;color:#C8B898;margin:-4px 0 12px}
+.card{position:relative;background:var(--paper);color:var(--ink);margin:0 0 16px;padding:14px 14px 14px 26px;box-shadow:4px 4px 0 #000;transform:rotate(var(--tilt,0deg))}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:12px;background:var(--strip)}
+.card::after{content:"";position:absolute;top:-9px;left:50%;width:70px;height:18px;margin-left:-35px;background:rgba(240,230,200,.55);transform:rotate(-2deg)}
+.card h3{font-family:'Jersey 10',monospace;font-weight:normal;font-size:30px;line-height:1;margin:2px 0 4px}
+.card .why{margin:0 0 10px;color:var(--ink2);font-size:16px}
+.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+button.copy{font:700 17px 'Atkinson Hyperlegible',sans-serif;background:var(--red);color:#FFF4E0;border:0;padding:12px 18px;box-shadow:3px 3px 0 #000;cursor:pointer;min-height:48px}
+button.copy:active{transform:translate(2px,2px);box-shadow:1px 1px 0 #000}
+button.copy.ok{background:var(--done)}
+label.got{display:flex;align-items:center;gap:8px;font-weight:700;cursor:pointer;min-height:48px;padding:0 4px}
+label.got input{width:26px;height:26px;accent-color:var(--done)}
+.card.is-done{background:var(--paper2)}.card.is-done h3{text-decoration:line-through;text-decoration-thickness:3px;text-decoration-color:var(--done)}
+details{margin-top:10px;font-size:15px}summary{cursor:pointer;color:var(--ink2);font-weight:700;padding:6px 0}
+pre{white-space:pre-wrap;font:14px/1.4 'Atkinson Hyperlegible',sans-serif;background:#F6EDD6;border:1px dashed #B09A70;padding:10px;margin:6px 0 0;color:var(--ink)}
+.fixes .card{--strip:#8A6A4A}
+.fix{display:flex;justify-content:space-between;gap:10px;align-items:center;border-top:1px dashed #B09A70;padding:10px 0}
+.fix:first-of-type{border-top:0;padding-top:2px}.fix p{margin:0;font-size:16px}
+.fix button.copy{padding:8px 12px;min-height:44px;font-size:15px;flex:none}
+.later{color:#D8C8A8;font-size:16px}.later li{margin:0 0 6px}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+@media (prefers-reduced-motion:reduce){.card{transform:none}}
+</style></head>
+<body><main>
+<h1>Fretbound art shoot</h1>
+<p class="lede">Painted backdrops for the title screen, and a proper world map for backstage. Tap a card's button to copy its whole prompt, paste it into Gemini, and tick it off when you have an image you like.</p>
+<section class="flow" aria-labelledby="flowh"><h2 id="flowh">How it works</h2><ol>
+<li>Tap <b>Copy prompt</b>, then paste it into Gemini. Ask for two or three versions and keep the best.</li>
+<li>If something is off (text, a road, the horizon too high), use the fix lines at the bottom.</li>
+<li>Download your favourite and tick its box here. Your ticks are saved on this phone.</li>
+<li>Send the images to me in one message and say which is which, for example "1 is North America, 2 is Africa". I'll remove the watermark, line up the horizon, crisp up the pixels and match the colours, then show you before and after.</li>
+</ol></section>
+
+<h2 class="sec">Title screen backdrops</h2>
+<p class="progress" id="prog1"></p>
+<div id="backdrops"></div>
+
+<h2 class="sec">Backstage</h2>
+<div id="backstage"></div>
+
+<h2 class="sec">Second pass: Europe</h2>
+<div id="second"></div>
+
+<h2 class="sec">Fix lines</h2>
+<div class="fixes"><div class="card" id="fixcard"></div></div>
+
+<h2 class="sec">Later, if these work</h2>
+<ul class="later"><li>The 21 venue stages behind each cutting contest.</li><li>The motel at dawn behind the Van menu.</li><li>The Green Room and the Backstage corridor.</li></ul>
+</main>
+<script>
+const STYLE='Style: detailed 16-bit pixel art, like a SNES or Neo Geo game background. Crisp square pixels, no anti-aliasing or blur. A limited palette of about 48 colours, with dithered gradients in the sky. Painterly lighting: warm rim light on edges that face the light, and atmospheric haze that makes far layers paler. No text, letters, logos, signatures, borders, frames, people, vehicles or roads.';
+const LAYOUT='Layout: 16:9 landscape, 1920 by 1080. This is the background for a video game title screen. The horizon is a flat line about 60% of the way down the image. Everything below the horizon is plain, flat, dark ground with no detail, because the game draws a road over it. The main landmark and the sun or moon sit inside the middle third of the image, low in the sky just above the horizon, because phones crop the sides. Keep the top quarter of the sky simple, because the game logo sits there.';
+const ITEMS=[
+ {id:'na',title:'North America',strip:'linear-gradient(#1A0C2C,#6E1E44,#DC6428,#F8A840)',why:'Desert sunset. Replaces the striped sun and mesas drawn in code.',
+  scene:'Scene: the American Southwest desert at sunset. A huge setting sun with horizontal bands of heat shimmer sits just above the horizon, slightly right of centre. Red sandstone mesas and buttes along the horizon on both sides, with a far range of purple mountains between them. A few small clouds lit pink and orange from below. The sky runs from deep violet at the top through magenta to orange and gold at the horizon.'},
+ {id:'af',title:'Africa',strip:'linear-gradient(#3A1420,#C24A1E,#F8A830,#FFD060)',why:'Savanna sunset with the snow-capped mountain.',
+  scene:'Scene: the East African savanna at sunset. A large snow-capped volcano stands on the horizon just right of centre, its left slope catching orange light. A big low sun beside it. Flat-topped acacia trees and two tiny giraffe silhouettes along the horizon. The sky runs from dusky purple at the top to blazing orange and gold at the horizon.'},
+ {id:'sa',title:'South America',strip:'linear-gradient(#2A2850,#7A5A8A,#E89AA0,#FFE2B8)',why:'The Andes at dawn.',
+  scene:'Scene: the Andes at dawn. A snow-capped volcano in the middle of the image, flanked by jagged snowy peaks. A small green terraced hillside and a tiny white adobe chapel with a bell tower just left of centre. Two condors circling high. Soft pink and gold sunrise light on the snow, violet shadows, a pale sky.'},
+ {id:'eu',title:'Europe',strip:'linear-gradient(#0E1630,#2E3E60,#8A8A98,#D8B8A0)',why:'Done, but replaced by the second pass below.',
+  scene:'Scene: rolling green hills in Europe at blue-hour twilight after rain. A small stone castle with a few lit windows on a hill left of centre, a village with a church spire right of centre, a row of tall cypress trees and a distant windmill. A thin crescent moon above the castle. The sky runs from deep blue to a soft peach glow at the horizon, with a few clouds breaking up.'},
+ {id:'as',title:'Asia',strip:'linear-gradient(#1A0E30,#5A2A6A,#C04A7A,#F0A0A0)',why:'Misty mountains, a pagoda and a neon city.',
+  scene:'Scene: misty mountains in East Asia at dusk. Layered steep mountain ridges fading into mist, a tall pagoda silhouette on a ridge left of centre, and a distant city skyline with a pink and cyan neon glow along the horizon right of centre. A large pale full moon low in the sky. The sky runs from violet to rose at the horizon.'},
+ {id:'oc',title:'Oceania',strip:'linear-gradient(#1A1A40,#6A3A50,#E07A3A,#FFC870)',why:'Outback golden hour with the great red rock.',
+  scene:'Scene: the Australian outback at golden hour. A huge red sandstone monolith on the horizon in the middle of the image, glowing orange on its sunlit side. Scattered gum trees and spinifex grass along the horizon. A big empty sky from deep blue at the top to warm gold at the horizon, with the first stars appearing.'},
+ {id:'an',title:'Antarctica',strip:'linear-gradient(#040818,#0E2A4A,#2E8A7A,#9AE0C0)',why:'Polar night under the aurora, with a proper full moon.',
+  scene:'Scene: Antarctica in the polar night. Green and violet aurora curtains across the sky. A bright full moon low over the horizon, slightly right of centre, with soft shading and craters. Ice cliffs and jagged snowy ridges along the horizon, a small research station with warm lit windows on the left, and a few icebergs. A deep navy sky full of stars.'}
+];
+const MAP={id:'map',title:'World tour map',strip:'linear-gradient(#EADBB8,#C8A870,#7A2A28)',why:'The poster above the doors backstage. The game adds the pins and labels.',
+  text:'Image: an antique world map for a poster on a backstage wall. 3:2 landscape, 1536 by 1024. Aged cream parchment with darker worn edges. The seven continents drawn as simple, recognisable shapes, each tinted a different muted colour: North America orange, South America green, Europe blue, Africa gold, Asia red, Oceania teal, Antarctica pale ice blue. A pale blue-green sea with a few small wave marks. A small compass rose in the lower left corner. A thin dotted line winding between the continents, like a touring band\u2019s route. A dark red banner across the top edge, left blank. No labels anywhere, because the game adds them.\n\n'+STYLE.replace(', vehicles or roads',' or vehicles')};
+const SECOND=[
+ {id:'eu2',title:'Europe, take two',strip:'linear-gradient(#0E1630,#2E3E60,#8A8A98,#D8B8A0)',why:'Only far-away things, so it sits right behind the road. The castle becomes its own moving piece.',
+  text:'Scene: the European countryside at blue-hour twilight after rain, seen from a low country road at eye level. Everything is far away. A thin band of low, hazy blue-green hills runs along the horizon, no taller than a tenth of the image height, softened by mist. Tiny and distant on the horizon, just right of centre: a village with a church spire and a few warm lit windows. A small windmill far off on the left. A thin crescent moon in the middle third of the sky, low above the hills. Clouds breaking up after rain, lit peach from below near the horizon. The sky runs from deep blue at the top to a soft peach glow at the horizon. No castle, no trees or buildings in the foreground, nothing close to the viewer.\n\n'+LAYOUT+'\n\n'+STYLE},
+ {id:'castle',title:'Castle sprite',strip:'linear-gradient(#2E3E60,#5A6A80,#FFD27A)',why:'The castle on its hill, cut out, so it can drift slowly closer and pass by the road.',
+  text:'Image: a single medieval stone castle on a small grassy hill, as a game sprite. Seen from the front, at eye level, slightly from below. Square 1:1, 1024 by 1024. Grey stone walls, three towers with battlements, a gatehouse, and a few warm yellow lit windows. Lit by blue-hour twilight: cool blue light on the stone, a soft peach rim light on the right edges. The hill is smooth green grass and its base is a flat horizontal line at the bottom of the image. The castle and hill fill most of the frame. Background: one flat, solid magenta colour (#FF00FF) everywhere around the castle and hill, with no gradient, ground, shadow or sky.\n\nStyle: detailed 16-bit pixel art, like a SNES or Neo Geo game sprite. Crisp square pixels, no anti-aliasing or blur. A limited palette of about 48 colours. No text, letters, logos, signatures, borders, frames, people or vehicles.'}
+];
+const FIXES=[
+ ['It added words or letters','Remove all text, letters and signatures from the image. Change nothing else.'],
+ ['The horizon is too high','Move the horizon lower, about 60% of the way down, and make everything below it plain, flat, dark ground. Keep everything else the same.'],
+ ['It drew a road or a car','Remove the road and any vehicles. The ground below the horizon should be plain and flat. Keep everything else the same.'],
+ ['It looks smooth, not pixel art','Redo this as crisp 16-bit pixel art with large square pixels, no blur and no anti-aliasing. Keep the same scene and colours.'],
+ ['Magenta background is not flat','Make the background one flat, solid magenta colour (#FF00FF) with nothing else in it. Keep the castle exactly the same.'],
+ ['The landmark is off to the side','Keep the same scene, but move the main landmark and the sun or moon into the middle third of the image.']
+];
+const KEY='fretbound-art-checklist';
+let done={}; try{ done=JSON.parse(localStorage.getItem(KEY)||'{}')||{}; }catch(e){ done={}; }
+function persist(){ try{ localStorage.setItem(KEY,JSON.stringify(done)); }catch(e){} updateProgress(); }
+async function copyText(txt,btn,label){ let ok=false; try{ await navigator.clipboard.writeText(txt); ok=true; }catch(e){ const ta=document.createElement('textarea'); ta.value=txt; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.opacity='0'; document.body.appendChild(ta); ta.select(); try{ ok=document.execCommand('copy'); }catch(e2){} ta.remove(); }
+  btn.textContent=ok?'Copied':'Copy failed, open the text below'; btn.classList.toggle('ok',ok); clearTimeout(btn._t); btn._t=setTimeout(()=>{ btn.textContent=label; btn.classList.remove('ok'); },1800); }
+function card(item,full,tilt){ const el=document.createElement('article'); el.className='card'+(done[item.id]?' is-done':''); el.style.setProperty('--strip',item.strip); el.style.setProperty('--tilt',tilt+'deg');
+  el.innerHTML='<h3></h3><p class="why"></p><div class="row"><button class="copy" type="button">Copy prompt</button><label class="got"><input type="checkbox"> Got one I like</label></div><details><summary>Show the prompt</summary><pre></pre></details>';
+  el.querySelector('h3').textContent=item.title; el.querySelector('.why').textContent=item.why; el.querySelector('pre').textContent=full;
+  const b=el.querySelector('button'); b.setAttribute('aria-label','Copy prompt for '+item.title); b.onclick=()=>copyText(full,b,'Copy prompt');
+  const cb=el.querySelector('input'); cb.checked=!!done[item.id]; cb.onchange=()=>{ done[item.id]=cb.checked; el.classList.toggle('is-done',cb.checked); persist(); };
+  return el; }
+const tilts=[-0.6,0.5,-0.3,0.7,-0.5,0.4,-0.4];
+ITEMS.forEach((it,i)=>document.getElementById('backdrops').appendChild(card(it,it.scene+'\n\n'+LAYOUT+'\n\n'+STYLE,tilts[i])));
+document.getElementById('backstage').appendChild(card(MAP,MAP.text,0.4));
+SECOND.forEach((it,i)=>document.getElementById('second').appendChild(card(it,it.text,[0.5,-0.4][i])));
+const fc=document.getElementById('fixcard'); fc.innerHTML='<h3>If Gemini misses</h3><p class="why">Reply in the same Gemini chat with one of these.</p>';
+FIXES.forEach(([when,txt])=>{ const d=document.createElement('div'); d.className='fix'; d.innerHTML='<p></p><button class="copy" type="button">Copy</button>'; d.querySelector('p').textContent=when; const b=d.querySelector('button'); b.setAttribute('aria-label','Copy fix: '+when); b.onclick=()=>copyText(txt,b,'Copy'); fc.appendChild(d); });
+function updateProgress(){ const n=ITEMS.filter(i=>done[i.id]).length; document.getElementById('prog1').textContent=n+' of '+ITEMS.length+' backdrops done'+(done.map?', and the map':''); }
+updateProgress();
+</script>
+</body></html>

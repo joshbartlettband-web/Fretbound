@@ -19,7 +19,7 @@ def proc(f):
     pad=Image.new('RGBA',(w+60,h+60),(0,0,0,0)); pad.paste(c,(30,30)); c=pad.rotate(ang,resample=Image.BICUBIC)
     al=np.asarray(c)[:,:,3]>40; ys,xs=np.where(al); c=c.crop((xs.min(),ys.min(),xs.max()+1,ys.max()+1))
     s=LEN/c.width; c=c.resize((LEN,max(8,round(c.height*s))),Image.LANCZOS); a=np.asarray(c).copy(); al=a[:,:,3]>140
-    rgb=Image.fromarray(a[:,:,:3]).quantize(colors=40,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
+    rgb=Image.fromarray(np.clip(a[:,:,:3].astype(float)*1.10,0,255).astype(np.uint8)).quantize(colors=40,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
     out=Image.fromarray(np.dstack([np.asarray(rgb),al*255]).astype(np.uint8))
     h,w=al.shape; top=np.array([np.where(al[:,x])[0].min() if al[:,x].any() else 0 for x in range(w)]); bot=np.array([np.where(al[:,x])[0].max() if al[:,x].any() else 0 for x in range(w)]); hh=bot-top+1
     mx=hh.max(); xm=int(np.argmax(hh>0.8*mx)); xj=xm

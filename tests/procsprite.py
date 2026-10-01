@@ -25,7 +25,7 @@ def order(res,rows):
         if r[1][3]-groups[-1][-1][1][3]<(res[-1][1][3]-res[0][1][3])/(rows*2.2)+1: groups[-1].append(r)
         else: groups.append([r])
     return [g for grp in groups for g in sorted(grp,key=lambda r:r[1][0])]
-if __name__=='__main__' and sys.argv[1]!='--embed':
+if __name__=='__main__' and sys.argv[1] not in ('--embed','--embed-band'):
     src,outd,name=sys.argv[1:4]; HH=int(sys.argv[4]) if len(sys.argv)>4 else 108; os.makedirs(outd,exist_ok=True)
     im=Image.open(src); a,res=pieces(im); res=order(res,2); print(len(res),'poses found')
     first=res[0][1]; hn=first[3]-first[1]; s=HH/hn; print('scale',round(s,3),'neutral height px',hn)
@@ -41,7 +41,7 @@ if __name__=='__main__' and sys.argv[1]!='--embed':
     atlas=Image.new('RGBA',(CW*len(cells),CH),(0,0,0,0))
     for i,c in enumerate(cells): atlas.paste(c,(i*CW,0))
     a2=np.asarray(atlas).copy(); al=a2[:,:,3]>140
-    rgb=Image.fromarray(a2[:,:,:3]).quantize(colors=56,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
+    rgb=Image.fromarray(np.clip(a2[:,:,:3].astype(float)*float(os.environ.get('BRIGHT','1.10')),0,255).astype(np.uint8)).quantize(colors=56,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
     Image.fromarray(np.dstack([np.asarray(rgb),al*255]).astype(np.uint8)).save(f'{outd}/{name}_atlas.png',optimize=True)
     json.dump(dict(cw=CW,ch=CH,fx=FX,fy=FY,n=len(cells),poses=info),open(f'{outd}/{name}_meta.json','w'))
     print('atlas',os.path.getsize(f'{outd}/{name}_atlas.png')//1024,'KB')
@@ -54,3 +54,11 @@ def embed(names,path='index.html'):
     open(path,'w',encoding='utf-8').write(s[:a]+'/*SPRITES:BEGIN*/\nconst SPR_SRC='+json.dumps(src,separators=(',',':'))+', SPR_META='+json.dumps(meta,separators=(',',':'))+';\n/*SPRITES:END*/'+s[b:]); print('embedded',list(src))
 
 if __name__=='__main__' and sys.argv[1]=='--embed': embed(sys.argv[2:])
+
+def embed_band(names,path='index.html'):
+    import base64
+    src={n:'data:image/png;base64,'+base64.b64encode(open(f'art/sprites/band/{n}_atlas.png','rb').read()).decode() for n in names}; meta={n:json.load(open(f'art/sprites/band/{n}_meta.json')) for n in names}
+    for n in meta: meta[n].pop('poses',None)
+    s=open(path,encoding='utf-8').read(); a=s.index('/*BANDART:BEGIN*/'); b=s.index('/*BANDART:END*/')+len('/*BANDART:END*/')
+    open(path,'w',encoding='utf-8').write(s[:a]+'/*BANDART:BEGIN*/\nconst BANDART_SRC='+json.dumps(src,separators=(',',':'))+', BANDART_META='+json.dumps(meta,separators=(',',':'))+';\n/*BANDART:END*/'+s[b:]); print('embedded band',list(src))
+if __name__=='__main__' and sys.argv[1]=='--embed-band': embed_band(sys.argv[2:])

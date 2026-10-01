@@ -23,7 +23,7 @@ def proc(f):
     out.paste(Image.fromarray(oa),((W-nw)//2,H-nh-1)); out.save('art/pedals/'+os.path.basename(f),optimize=True); return os.path.getsize('art/pedals/'+os.path.basename(f))
 if __name__=='__main__' and '--embed' not in sys.argv:
     tot=0
-    for f in sorted(glob.glob('art/gemini_test/pedals/*.png')): tot+=proc(f)
+    for f in sorted(glob.glob('art/gemini_test/pedals/*.jpg')): tot+=proc(f)
     print('total',tot//1024,'KB for',len(glob.glob('art/pedals/*.png')),'pedals')
 def embed(path='index.html'):
     import base64,json

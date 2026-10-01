@@ -30,7 +30,7 @@ def proc(f):
     return out,dict(w=w,h=h,xj=int(xj),xn=int(xn),yc=round(yc,1),ang=round(ang,2))
 if __name__=='__main__' and '--embed' not in sys.argv:
     os.makedirs('art/guitars',exist_ok=True); meta={}
-    for f in sorted(glob.glob('art/gemini_test/guitars/*.png')):
+    for f in sorted(glob.glob('art/gemini_test/guitars/*.jpg')):
         i=os.path.basename(f)[:-4]; im,m=proc(f); im.save(f'art/guitars/{i}.png',optimize=True); meta[i]=m; print(i,m,os.path.getsize(f'art/guitars/{i}.png')//1024,'KB')
     json.dump(meta,open('art/guitars/meta.json','w'))
     # debug sheet: joint (red), nut (green), neck line (cyan)

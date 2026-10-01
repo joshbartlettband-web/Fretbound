@@ -162,11 +162,13 @@ h3{font-size:12px}
 #venueName{overflow:hidden;white-space:nowrap;text-overflow:ellipsis;color:var(--gold)}
 #callLabel{white-space:nowrap;color:var(--ink)}
 .icon-btn{font-family:var(--pixel);font-size:10px;color:var(--ink);background-color:#8E1E1E;background-image:linear-gradient(180deg,rgba(255,236,210,.16) 0 42%,rgba(0,0,0,0) 42%);border:2px solid var(--brass);padding:5px 8px;cursor:pointer;touch-action:manipulation;flex:none}
-.stage-wrap{padding:0;overflow:hidden;background:#000}
+.stage-wrap{padding:0;overflow:hidden;background:#000;display:flex;flex-direction:column}
 #stage{display:block;width:100%;height:auto;image-rendering:pixelated;object-fit:contain;background:#000}
-.dialog{position:absolute;left:6px;right:6px;bottom:6px;background:rgba(30,12,10,.95);border:2px solid var(--brass);box-shadow:0 0 0 2px var(--edge-dark);padding:5px 8px;font-size:18px;line-height:1.05;display:none;color:var(--ink)}
-.dialog.show{display:block}
-.dialog b{font-family:var(--pixel);font-size:8px;color:var(--amber);font-weight:normal;display:block;margin-bottom:3px}
+.dialog{position:static;background:#1E0C0A;border:0;border-top:2px solid var(--brass);box-shadow:none;padding:4px 8px 5px;font-size:18px;line-height:1.05;display:block;visibility:hidden;color:var(--ink);min-height:calc(2.3em + 11px);flex:none}
+.dialog.show{visibility:visible}
+.dialog b{font-family:var(--pixel);font-size:8px;color:var(--amber);font-weight:normal;display:inline;margin:0 7px 0 0}
+.stage-wrap .dialog{font-size:15px}
+@media (max-height:460px){ .stage-wrap .dialog{font-size:13px;padding:3px 6px 4px} .stage-wrap .dialog b{font-size:13px} }
 .scoreline{display:flex;align-items:center;gap:8px;padding:5px 8px}
 #tube{width:12px;height:24px;image-rendering:pixelated;flex:none}
 .sl-lab{font-family:var(--pixel);font-size:8px;color:var(--ink-dim)}
@@ -3220,9 +3222,9 @@ const PEDAL_IMG={};
 Object.keys(PEDAL_SRC).forEach(id=>{ const im=new Image(); im.onload=()=>{ PEDAL_IMG[id]=im; delete miniCache[id+'0']; delete miniCache[id+'1']; }; im.src=PEDAL_SRC[id]; });
 function pedalMini(p,on){
   const key=p.id+(on?'1':'0'); if(miniCache[key]){ const cc=cloneCv(miniCache[key]); cc.className='pm'; return cc; }
-  if(PEDAL_IMG[p.id]){ const IM=PEDAL_IMG[p.id], c=document.createElement('canvas'); c.width=84; c.height=120; c.className='pm'; const g=c.getContext('2d'); g.imageSmoothingEnabled=false; g.drawImage(IM,0,0);
+  if(PEDAL_IMG[p.id]) try{ const IM=PEDAL_IMG[p.id], c=document.createElement('canvas'); c.width=84; c.height=120; c.className='pm'; const g=c.getContext('2d'); g.imageSmoothingEnabled=false; g.drawImage(IM,0,0);
     if(on){ g.globalCompositeOperation='lighter'; g.globalAlpha=0.3; g.drawImage(IM,0,0); g.globalAlpha=1; g.globalCompositeOperation='source-over'; }
-    miniCache[key]=c; const cc=cloneCv(c); cc.className='pm'; return cc; }
+    miniCache[key]=c; const cc=cloneCv(c); cc.className='pm'; return cc; }catch(e){ console.error('pedal art error',p.id,e&&e.stack||e); delete PEDAL_IMG[p.id]; }
   // drawn at twice the old 42x60 grid: finer finish, bevels, screws, knob scales, an inset label window
   const S=2, A=PEDAL_ART[p.id], W=42*S, H=60*S, c=document.createElement('canvas'); c.width=W; c.height=H; c.className='pm'; const g=c.getContext('2d');
   const body=p.color, b3=rgbOf(body), lt2=mixHex(body,0.5), dk2=mixHex(body,-0.55), seed=p.id.charCodeAt(0)*13+p.id.length, O='#0A0404';
@@ -3802,6 +3804,9 @@ const BODY_SRC={"bard":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAABoCA
 const BODY_IMG={};
 Object.keys(BODY_SRC).forEach(id=>{ const im=new Image(); im.onload=()=>{ BODY_IMG[id]=im; h2cache.clear(); }; im.src=BODY_SRC[id]; });
 function h2frame(cid,q){
+  try{ return h2frame0(cid,q); }catch(e){ console.error('hero frame error',cid,e&&e.stack||e); delete BODY_IMG[cid]; delete GUITAR_IMG[H2P[cid]&&H2P[cid].guitar]; h2cache.clear(); return h2frame0(cid,q); }
+}
+function h2frame0(cid,q){
   const P=H2P[cid], K=h2skel(q), g=h2guitar(P.guitar,K.C,K.na), X=H2X[cid]||{};
   const L=[];
   if(BODY_IMG[cid]){ // a painted armless body; the arms are still drawn by the rig so the hands find the real frets
@@ -5584,9 +5589,11 @@ let lastT=0;
 function loop(ms){
   const t=ms/1000, dt=Math.min(0.05,t-(lastT||t)); lastT=t;
   processVis();
-  if(state.screen==='title') titleFrame(t);
-  else if(state.screen==='duel'){ drawStage(t,dt); drawNeck(t); }
-  applyShake();
+  try{
+    if(state.screen==='title') titleFrame(t);
+    else if(state.screen==='duel'){ drawStage(t,dt); drawNeck(t); }
+    applyShake();
+  }catch(e){ if(!loop.bad){ loop.bad=1; try{ console.error('frame error',e&&e.stack||e); }catch(_){} } }
   requestAnimationFrame(loop);
 }
 

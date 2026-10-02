@@ -460,5 +460,41 @@
 },
 "POSE_SRC/ghat": {
 "graded": "6a08878aaac54d71d5987241d61bceb87ac9d960"
+},
+"POSE_SRC/azmari": {
+"graded": "92af5b66a5e5629ccc6255765ed656a34abebb52"
+},
+"POSE_SRC/busker": {
+"graded": "42c4180475d6ac4d844ebb60fd0214e70b84de0f"
+},
+"POSE_SRC/carto": {
+"graded": "d4b65f1719e55976c52542cc8fad92883c92b417"
+},
+"POSE_SRC/dunes": {
+"graded": "f51f8f7be1281ac2cbd9cbf6b15e7da9334ad6e3"
+},
+"POSE_SRC/hermit": {
+"graded": "2b095ce93e213529cdf265478534a2631feefd29"
+},
+"POSE_SRC/juke": {
+"graded": "31e3e9c7b8d399dd3ad8053940107f61b23c263c"
+},
+"POSE_SRC/lou": {
+"graded": "e410806a0df0029e45f3bc51f5ba15185c30e91c"
+},
+"POSE_SRC/luthier": {
+"graded": "21fa5c59c9123b23a86b36cd79f902df2d176c45"
+},
+"POSE_SRC/monk": {
+"graded": "c8ce51226ea05ca0e90b00934f6f38367d644595"
+},
+"POSE_SRC/sebene": {
+"graded": "b566e478aafbe60a856f4a35ae1d60671b3c25d4"
+},
+"POSE_SRC/spur": {
+"graded": "018ab1895f2a4d80514b23b12a78a41a47eeed3a"
+},
+"POSE_SRC/tide": {
+"graded": "b6e23af374abb9f3930288dc42b1e55c3df11848"
 }
 }

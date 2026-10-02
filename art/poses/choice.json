@@ -40,5 +40,35 @@
   "B": 2,
   "calm": 3.4,
   "issues": []
+ },
+ "spur": {
+  "A": 2,
+  "B": 1,
+  "calm": 3.6,
+  "issues": []
+ },
+ "juke": {
+  "A": 2,
+  "B": 1,
+  "calm": 3.7,
+  "issues": []
+ },
+ "dunes": {
+  "A": 2,
+  "B": 1,
+  "calm": 5.0,
+  "issues": []
+ },
+ "sebene": {
+  "A": 2,
+  "B": 4,
+  "calm": 5.2,
+  "issues": []
+ },
+ "azmari": {
+  "A": 3,
+  "B": 1,
+  "calm": 6.4,
+  "issues": []
  }
 }

@@ -32,3 +32,7 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 - PR [#3](https://github.com/joshbartlettband-web/Fretbound/pull/3) (v1.44 to v1.51) is open against `main`.
 - `tests/gplay.py` was fixed (the neck could run off short screens). The older tests write PNGs into the repo root; they are in `.gitignore`.
 - After re-processing any Gemini art, run `python3 tests/grade.py`, and check that a second run leaves `index.html` byte-identical.
+
+## 6. Painted pose sets: rollout in progress
+- Done: bard, ghat (Tiger), lou, tide. Generated sheets exist for busker, hermit and monk (art/gemini_test/sheets/out, not in git). The rest of the roster is configured in `art/gemini_test/sheets/chars.py`.
+- Blocked on the Gemini project's MONTHLY SPENDING CAP (error 429, https://ai.studio/spend): adding prepaid credits did not lift it. Raise the cap, then `python3 art/gemini_test/sheets/run_all.py` resumes (it stops at the first quota error). Afterwards: `python3 tests/procposes.py --embed x`, `python3 tests/grade.py`, check every character on a stage at 3x (peacock, owl, penguin, fire spirit, gargoyle, horns), run the tests, release.

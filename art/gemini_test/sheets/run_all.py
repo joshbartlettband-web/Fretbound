@@ -6,28 +6,31 @@ from concurrent.futures import ThreadPoolExecutor
 HERE=os.path.dirname(os.path.abspath(__file__)); REPO=os.path.abspath(os.path.join(HERE,'..','..','..')); os.chdir(REPO)
 sys.path.insert(0,'tests'); sys.path.insert(0,HERE)
 import chars,procposes as PP
-SEM=threading.Semaphore(6); LOG=open(HERE+'/run.log','a'); LK=threading.Lock(); CHOICE_F='art/poses/choice.json'
+STOP=threading.Event(); SEM=threading.Semaphore(6); LOG=open(HERE+'/run.log','a'); LK=threading.Lock(); CHOICE_F='art/poses/choice.json'
 def log(*a):
     with LK: print(time.strftime('%H:%M:%S'),*a,file=LOG,flush=True)
 def gen(cid,w,n):
+    if STOP.is_set(): return False
     f=f'{HERE}/out/{cid}_{w}_{n}.png'
     if os.path.exists(f): return True
     for t in range(2):
         with SEM: r=subprocess.run(['python3',HERE+'/gen_sheet.py',cid,w,str(n)],cwd=HERE,capture_output=True,text=True)
         if os.path.exists(f): return True
         log(cid,w,n,'gen failed:',(r.stdout+r.stderr).strip()[-160:])
-        if '402' in r.stdout+r.stderr or 'RESOURCE_EXHAUSTED' in r.stdout+r.stderr: log('OUT OF CREDITS / QUOTA'); return False
+        if '402' in r.stdout+r.stderr or 'RESOURCE_EXHAUSTED' in r.stdout+r.stderr: log('OUT OF CREDITS / QUOTA: stopping the whole run (raise the monthly spend cap at https://ai.studio/spend, then run this again; it resumes)'); STOP.set(); return False
     return False
 def valid(cid,w,n):
     try:
         im,fg,m=PP.split(f'{HERE}/out/{cid}_{w}_{n}.png'); return m is not None
     except Exception as e: log(cid,w,n,'split error',e); return False
 def one(cid):
+    if STOP.is_set(): return
     H=chars.CH[cid]['height']; done=os.path.exists(f'art/poses/{cid}_atlas.png')
     if done: return
     if not gen(cid,'A',1): return
     ns=[2,3]
     for rnd in range(3):
+        if STOP.is_set(): return
         with ThreadPoolExecutor(5) as ex: list(ex.map(lambda a:gen(cid,*a),[('A',n) for n in ns]+[('B',n) for n in ([1,2,3] if rnd==0 else ns)]))
         As=[n for n in [1]+list(range(2,max(ns)+1)) if os.path.exists(f'{HERE}/out/{cid}_A_{n}.png') and valid(cid,'A',n)]
         Bs=[n for n in range(1,max(ns)+1) if os.path.exists(f'{HERE}/out/{cid}_B_{n}.png') and valid(cid,'B',n)]

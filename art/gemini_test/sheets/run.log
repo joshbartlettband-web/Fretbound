@@ -222,3 +222,5 @@ OSError: image file is truncated
 21:43:36 rio A 3 rate limited, waiting 40 s
 21:43:37 rio B 2 rate limited, waiting 40 s
 21:43:39 rio B 3 rate limited, waiting 40 s
+21:44:14 milonga A 1 rate limited, waiting 80 s
+21:44:20 rio A 3 rate limited, waiting 80 s

@@ -5,7 +5,7 @@
 import os,re,base64,shutil
 import numpy as np
 from PIL import Image
-H={'na':220,'af':218,'sa':224,'eu':214,'as':222,'oc':220,'an':221}
+H={'na':220,'af':224,'sa':224,'eu':214,'as':222,'oc':220,'an':221}
 os.makedirs('art/plates/orig',exist_ok=True)
 for cid,h in H.items():
     d=224-h

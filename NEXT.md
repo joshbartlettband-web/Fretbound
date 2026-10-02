@@ -9,25 +9,25 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 - Security note: the old keystore is still in the git history (file `fretbound-keystore-base64.txt`, removed in commit e1dce1f). If the repo is ever shared, clean the history or make a new key. Do not try to read the key out of git history yourself; the session safety check blocks it.
 - The phone may save a downloaded APK as `.zip`; rename it to `.apk` instead of extracting.
 
-## 2. Questions Josh has not answered yet
-(Answered 2026-10-02: crowd height is fine, colours are fine, stage lights on the Spur look terrific, North America's painted title works. Done in v1.45: painted roadside sets for all seven continents with the animations kept (windmill wheel, mill sails, giraffe, flag, kangaroo, llama), the Europe plate's windmill removed, the castle's jitter fixed, the Luthier's guitar reshaped. To check on the phone: the castle approach in portrait, the Luthier's twelve-string, and whether any painted object looks too big or too small next to its neighbours (sizes are the numbers in `tests/procroadside.py`, then re-run it and `grade.py` is not needed for these). Still code-drawn on the title: rocks, scrub, tufts, fences, walls, bales, mile and km posts, the pumpjack and a few small kinds.)
-2. **Clouds over the painted title skies.** The code-drawn grey clouds drift over every painted sky and look heavy on the bright ones (Africa). Drop them on painted skies, or lighten them?
-5. **How it runs on his phone**: smoothness of a full-band duel, the title screen, the Hollow Pine lights-out, the castle approach on the Europe title.
-6. **Shallow stages with a full band** (the mess hall, the Ghat) are crowded, and the keyboard player tends to stand right behind the caller. Fine, or should the band thin out or shift on those stages?
-7. **Depth scaling for the band.** Musicians further back could be drawn a little smaller on deep stages. Held off because scaling pixel art blurs it; the band is now a fixed size smaller than the fighters instead.
-8. From an earlier session, still open: Josh reported a critical error with the Monk (strings, pedals and player vanished). It was never reproduced. Ask for the device, browser, which night, and whether it was a resumed save.
+## 2. Questions for Josh
+1. **Clouds over the painted title skies.** The code-drawn grey clouds drift over every painted sky and look heavy on the bright ones (Africa). Drop them on painted skies, or lighten them?
+2. **How it runs on his phone:** a full-band duel, the title screen, the Hollow Pine lights-out, the castle approach on the Europe title (portrait), the Luthier's and Hermit's guitars, whether the light pools read as light, and whether any painted roadside object looks too big or small (sizes are in `tests/procroadside.py`).
+3. **Shallow stages with a full band** (the mess hall, the Ghat) are crowded, and the keyboard player tends to stand right behind the caller. Fine, or should the band thin out or shift?
+4. **Depth scaling for the band.** Musicians further back could be drawn a little smaller on deep stages. Held off because scaling pixel art blurs it.
+5. **The Monk critical error** (strings, pedals and player vanished) was never reproduced. Ask for the device, browser, which night, and whether it was a resumed save.
+6. **A real signing key** so builds update over each other (section 1).
 
 ## 3. Known problems not yet fixed
 - Stage lights (v1.44) are generic (`stageLights`): check on the phone that the pools and cones read as light and not as a stain. Amounts are the numbers in `stageLights`. The older code-stage fallbacks still aim cones at x 156 and 472 (only used if a plate fails to load).
 - **Some frame spikes remain**: about 10 frames over 33 ms per 400 at 4x CPU throttle, the worst about 50 to 60 ms (was 17 and 76). Ideas: warm more poses in the background, or build the first pose of each character before the night starts. Check on the real phone first.
-- **Painted callers and players never blink or change expression.** The rough arms noted in HANDOFF are also still there: the owl's pale arm blocks, Sebene's pink sleeves over the tail, Azmari's pale arms on the white robe, and the penguin's and Pole's dark arm bars.
+- **Painted callers and players never blink or change expression.** The hanging arms are gone (v1.46); a few fill seams may remain (owl, turtle, koala: check).
 - **The band has only two painted poses** per member; cut-out motion carries the rest. Tam's strum pose has a faint blur.
 
 ## 4. Not painted yet (still code-drawn)
-- Title roadside objects (see question 1). A painted ground beside the road was tried and backed out (it hides in the haze; see HANDOFF).
+- Title roadside: rocks, scrub, tufts, fences, walls, bales, mile and km posts, the pumpjack and a few small kinds. A painted ground beside the road was tried and backed out (see HANDOFF).
 - The crowd silhouettes, the seated band and player on the Van screen, the merch room, the backstage doors, the Green Room, and the panel frames.
 
 ## 5. Housekeeping
-- v1.44 is on `claude/serene-curie-omhjrg`, not merged to `main`. Ask Josh whether to open a PR.
+- PR [#3](https://github.com/joshbartlettband-web/Fretbound/pull/3) (v1.44 to v1.46) is open against `main`.
 - `tests/gplay.py` was fixed (the neck could run off short screens). The older tests write PNGs into the repo root; they are in `.gitignore`.
 - After re-processing any Gemini art, run `python3 tests/grade.py`, and check that a second run leaves `index.html` byte-identical.

@@ -20,6 +20,8 @@ def gen(cid,w,n):
         msg=(r.stdout+r.stderr).strip(); low=msg.lower()
         if 'spending cap' in low or 'spend cap' in low:
             log('SPENDING CAP: stopping the whole run (raise the monthly spend cap at https://ai.studio/spend, then run this again; it resumes)'); STOP.set(); return False
+        if '402' in msg or 'prepayment' in low or 'credits are depleted' in low:
+            log('CREDITS DEPLETED: stopping the whole run (top up at https://ai.studio/projects, then run this again; it resumes)'); STOP.set(); return False
         if '429' in msg or 'rate' in low or 'exhausted' in low or 'overloaded' in low or '503' in msg:
             log(cid,w,n,'rate limited, waiting',wait,'s'); time.sleep(wait); wait=min(wait*2,240); continue
         log(cid,w,n,'gen failed:',msg[-220:]); time.sleep(5)
@@ -33,10 +35,11 @@ def one(cid):
     H=chars.CH[cid]['height']; done=os.path.exists(f'art/poses/{cid}_atlas.png')
     if done: return
     if not gen(cid,'A',1): return
-    ns=[2,3]
+    LEAN=os.environ.get('LEAN')=='1'      # LEAN=1: two candidates per sheet (A1 A2, B1 B2) instead of three; set SHEET_SIZE=2K for the cheap size
+    ns=[2] if LEAN else [2,3]
     for rnd in range(3):
         if STOP.is_set(): return
-        with ThreadPoolExecutor(3) as ex: list(ex.map(lambda a:gen(cid,*a),[('A',n) for n in ns]+[('B',n) for n in ([1,2,3] if rnd==0 else ns)]))
+        with ThreadPoolExecutor(3) as ex: list(ex.map(lambda a:gen(cid,*a),[('A',n) for n in ns]+[('B',n) for n in (([1]+ns) if rnd==0 else ns)]))
         As=[n for n in [1]+list(range(2,max(ns)+1)) if os.path.exists(f'{HERE}/out/{cid}_A_{n}.png') and valid(cid,'A',n)]
         Bs=[n for n in range(1,max(ns)+1) if os.path.exists(f'{HERE}/out/{cid}_B_{n}.png') and valid(cid,'B',n)]
         best=None
@@ -49,7 +52,7 @@ def one(cid):
                     if best is None or sc<best[0]: best=(sc,a,b,res,rep)
         log(cid,'round',rnd,'As',As,'Bs',Bs,'best',None if not best else (best[1],best[2],best[0],best[4]['issues'][:2]))
         if best and not best[4]['issues']: break
-        ns=[max(ns)+1,max(ns)+2]
+        ns=[max(ns)+1] if LEAN else [max(ns)+1,max(ns)+2]
         if rnd==2: break
     if not best: log(cid,'NO USABLE CANDIDATE'); return
     sc,a,b,res,rep=best; out,meta=res; os.makedirs('art/poses',exist_ok=True); out.save(f'art/poses/{cid}_atlas.png',optimize=True); json.dump(meta,open(f'art/poses/{cid}_meta.json','w'))

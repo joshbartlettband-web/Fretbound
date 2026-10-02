@@ -2,7 +2,7 @@ import time
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page()
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); pg.click("#btnStart"); time.sleep(0.3)
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); pg.click("#btnStart"); time.sleep(0.3)
     out={}
     for L in ['drums','bass','comp','extra']:
         out[L]=pg.evaluate("window.__fb.grooveTest(null,{modes:[3],solo:'%s'})"%L)

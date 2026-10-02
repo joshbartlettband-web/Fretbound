@@ -6,7 +6,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
     for k in [int(x) for x in sys.argv[1].split(',')]:
         pg=b.new_page(viewport={"width":390,"height":844},device_scale_factor=2); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e)))
-        pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); pg.click("#btnStart"); time.sleep(0.3)
+        pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); pg.click("#btnStart"); time.sleep(0.3)
         pg.query_selector_all("#scr-chars .ctile")[k].click(); time.sleep(0.1); pg.click("#btnCharGo"); time.sleep(0.3)
         for i in range(3): pg.query_selector_all("#offer .ptile")[i].click(); time.sleep(0.05)
         pg.evaluate("document.getElementById('btnReady').click()"); time.sleep(0.3)

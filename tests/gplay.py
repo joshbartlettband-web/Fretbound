@@ -6,7 +6,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
     pg=b.new_page(viewport={"width":390,"height":760})
     errs=[]; pg.on("pageerror",lambda e: errs.append(str(e)))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4)
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4)
     pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3)
     for i in range(3): pg.query_selector_all("#offer .ptile")[i].click(); time.sleep(0.1)
     pg.evaluate("document.getElementById('btnReady').click()"); time.sleep(0.3)
@@ -36,7 +36,7 @@ with sync_playwright() as p:
                     if not s2['broken'][s] and s2['pos']<=f<s2['pos']+s2['win'] and 0<=f<=15: found=(s,f); break
                 if found: break
                 anyf=[midi-OPEN[s] for s in range(6) if not s2['broken'][s] and 0<=midi-OPEN[s]<=15][0]
-                pg.click("#navR" if anyf>=s2['pos']+s2['win'] else "#navL")
+                pg.click("#navR" if anyf>=s2['pos']+s2['win'] else "#navL"); time.sleep(0.35)   # let the neck finish sliding, or the tap lands on the old position
             s,f=found; g=s2['g']
             r=ev(pg,"(()=>{const r=document.getElementById('neck').getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height}})()")
             cc=f-s2['pos']; x=r['x']+((g['bounds'][cc]+g['bounds'][cc+1])/2)/g['cw']*r['w']; y=r['y']+g['sy'][s]/g['ch']*r['h']

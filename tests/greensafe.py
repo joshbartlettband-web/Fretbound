@@ -7,7 +7,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); errs=[]
     # 1+2: a saved run survives practice; a normal run afterwards is normal
     pg=b.new_page(viewport={"width":390,"height":844}); pg.on("pageerror",lambda e: errs.append(str(e.stack)[:400]))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.5); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.5); pg.evaluate("window.__fbNoRecruit=true")
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.5); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.5); pg.evaluate("window.__fbNoRecruit=true")
     pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3)
     for i in range(3): pg.query_selector_all("#offer .ptile")[i].click(); time.sleep(0.05)
     pg.evaluate("document.getElementById('btnReady').click()"); time.sleep(0.5)
@@ -29,7 +29,7 @@ with sync_playwright() as p:
     pg.close()
     # 2b: starting a brand-new normal run after practice
     pg=b.new_page(viewport={"width":390,"height":844}); pg.on("pageerror",lambda e: errs.append(str(e.stack)[:400]))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.5); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.5); pg.evaluate("window.__fbNoRecruit=true")
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.5); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.5); pg.evaluate("window.__fbNoRecruit=true")
     pg.evaluate("window.__fb.startPractice({preset:'all'})"); time.sleep(0.6); wait_phase(pg,'answer',200); pg.evaluate("window.__fb.finishPracticeSession()"); time.sleep(0.3); pg.click("#gsBack"); time.sleep(0.4); pg.click("#btnBsBack"); time.sleep(0.3)
     pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3)
     for i in range(3): pg.query_selector_all("#offer .ptile")[i].click(); time.sleep(0.05)
@@ -44,7 +44,7 @@ with sync_playwright() as p:
     print('NEW NORMAL RUN after practice:',st); pg.close()
     # 3: PRACTICE THESE from the Ear Report
     pg=b.new_page(viewport={"width":390,"height":844}); pg.on("pageerror",lambda e: errs.append(str(e.stack)[:400]))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.5); seed(pg)
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.5); seed(pg)
     pg.click("#btnBackstage"); time.sleep(0.3); pg.click("[data-door=ear]"); time.sleep(0.5)
     dis=pg.evaluate("document.getElementById('btnEarPractice').disabled"); lab=pg.evaluate("document.getElementById('btnEarPractice').innerText"); pg.click("#btnEarPractice"); time.sleep(0.5)
     print('PRACTICE THESE enabled:',not dis,lab,'| setup shows:',pg.evaluate("({on:[...document.querySelectorAll('.gchip.on')].map(e=>e.innerText),note:(document.querySelector('.gnote')||{}).innerText,sum:document.querySelector('.gsum').innerText})"))

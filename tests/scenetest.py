@@ -5,7 +5,7 @@ shots=[]
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); errs=[]
     pg=b.new_page(viewport={"width":844,"height":390},device_scale_factor=1); pg.on("pageerror",lambda e: errs.append(str(e.stack)[:400]))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.6); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.8)
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.6); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.8)
     print('start theme:',pg.evaluate("window.__fb.titleThemeId()"),'| picker:',pg.evaluate("document.getElementById('titleScene').innerText.replace(/\\n/g,' ')"))
     pg.click("#tsNext"); time.sleep(0.4); print('locked toast:',pg.evaluate("document.getElementById('tsToast').innerText"))
     for _ in range(5): pg.click(".title-foot"); time.sleep(0.08)

@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 from PIL import Image
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); pg=b.new_page(viewport={"width":360,"height":740},device_scale_factor=2); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e.stack)[:300]))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.4)
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.4)
     pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3)
     tours=pg.evaluate("[...document.querySelectorAll('[data-tour],.tour-row')].length"); 
     pg.evaluate("()=>{ window.__fb.state.tourSel=1; }")

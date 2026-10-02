@@ -1,0 +1,541 @@
+[
+ {
+  "id": "ogre",
+  "name": "OGRE DRIVE",
+  "color": "#FF9124",
+  "text": "+3 Hype if the call has a 4th or 5th in it.",
+  "art": {
+   "type": "DRIVE",
+   "flavor": "Mid-heavy grit, loud enough to wake a bridge.",
+   "knobs": 3,
+   "knob": "black",
+   "label": "#F4E6C8",
+   "tex": "grit",
+   "price": 4,
+   "em": [
+    "...GGGGGG...",
+    "..GggggggG..",
+    ".GgkggggkgG.",
+    ".GgyggggygG.",
+    ".GggggGgggG.",
+    ".GgkkkkkkgG.",
+    ".GwgggggwgG.",
+    "..GggggggG..",
+    "...GGGGGG..."
+   ],
+   "pal": {
+    "G": "#1E4A12",
+    "g": "#4A8A2A",
+    "k": "#1A0A06",
+    "y": "#FFE040",
+    "w": "#FFFFFF"
+   }
+  }
+ },
+ {
+  "id": "swamp",
+  "name": "SWAMP FUZZ",
+  "color": "#6D9124",
+  "text": "+1 Hype for each note you play on the three low strings.",
+  "art": {
+   "type": "FUZZ",
+   "flavor": "Thick, sputtering fuzz from somewhere below the waterline.",
+   "knobs": 2,
+   "knob": "cream",
+   "label": "#142018",
+   "tex": "hammer",
+   "price": 4,
+   "em": [
+    "............",
+    "..ee........",
+    ".eYe........",
+    "eeeeeeeeee..",
+    "ewewewewee..",
+    "eeeeeeeeeee.",
+    "~~~~~~~~~~~~",
+    ".~~~~.~~~~~.",
+    "............"
+   ],
+   "pal": {
+    "e": "#6A9A2A",
+    "Y": "#FFE040",
+    "w": "#F4ECDC",
+    "~": "#2A6A6A"
+   }
+  }
+ },
+ {
+  "id": "glass",
+  "name": "GLASS CHORUS",
+  "color": "#48DADA",
+  "text": "+8 Tone for each note you play at fret 7 or higher.",
+  "art": {
+   "type": "MODULATION",
+   "flavor": "Two voices a hair out of step, like light through old window glass.",
+   "knobs": 2,
+   "knob": "clear",
+   "label": "#0E2A2A",
+   "tex": "flake",
+   "price": 5,
+   "em": [
+    "....cCCc....",
+    "...cCWWCc...",
+    "..cCWccWCc..",
+    ".cCccccccCc.",
+    "..cCccccCc..",
+    "...cCccCc...",
+    "....cCCc....",
+    ".....cc.....",
+    "............"
+   ],
+   "pal": {
+    "c": "#48DADA",
+    "C": "#1E8A8A",
+    "W": "#FFFFFF"
+   }
+  }
+ },
+ {
+  "id": "echo",
+  "name": "ECHO WELL",
+  "color": "#2491DA",
+  "text": "Your last note scores its Tone a second time.",
+  "art": {
+   "type": "DELAY",
+   "flavor": "Drop a note in and wait for it to come back up.",
+   "knobs": 3,
+   "knob": "silver",
+   "label": "#F4E6C8",
+   "tex": "flake",
+   "price": 5,
+   "em": [
+    "....bbbb....",
+    "..bb....bb..",
+    ".b..bbbb..b.",
+    "b..b....b..b",
+    "b.b..WW..b.b",
+    "b..b....b..b",
+    ".b..bbbb..b.",
+    "..bb....bb..",
+    "....bbbb...."
+   ],
+   "pal": {
+    "b": "#1A4A7A",
+    "W": "#2491DA"
+   }
+  }
+ },
+ {
+  "id": "wyrm",
+  "name": "WYRM WAH",
+  "color": "#24B648",
+  "text": "+2 Hype for each half step or minor 3rd in the call.",
+  "art": {
+   "type": "FILTER",
+   "flavor": "Every note you pick makes it bark.",
+   "knobs": 1,
+   "knob": "black",
+   "label": "#F4E6C8",
+   "tex": "scales",
+   "price": 4,
+   "em": [
+    ".......SSSS.",
+    "......SSySSk",
+    ".....SS.....",
+    "....SS......",
+    "...SS.......",
+    "..SS....SS..",
+    "..SS...SS...",
+    "...SSSSS....",
+    "............"
+   ],
+   "pal": {
+    "S": "#1E6A2A",
+    "y": "#FFE040",
+    "k": "#C82A2A"
+   }
+  }
+ },
+ {
+  "id": "moon",
+  "name": "MOON OCTAVER",
+  "color": "#B691FF",
+  "text": "Your first note scores triple Tone.",
+  "art": {
+   "type": "PITCH",
+   "flavor": "Casts a shadow an octave below everything you play.",
+   "knobs": 2,
+   "knob": "gold",
+   "label": "#241A40",
+   "tex": "stars",
+   "price": 5,
+   "em": [
+    "...MMM....*.",
+    "..MMm.......",
+    ".MMm.....*..",
+    ".MM.........",
+    ".MM....*....",
+    ".MMm........",
+    "..MMm....*..",
+    "...MMM......",
+    "............"
+   ],
+   "pal": {
+    "M": "#FFF0B0",
+    "m": "#C8B880",
+    "*": "#FFFFFF"
+   }
+  }
+ },
+ {
+  "id": "cathedral",
+  "name": "CATHEDRAL VERB",
+  "color": "#DADAFF",
+  "text": "+10 Tone for each Replay you still have.",
+  "art": {
+   "type": "REVERB",
+   "flavor": "A stone hall around every note. Save your replays and it rings brighter.",
+   "knobs": 3,
+   "knob": "gold",
+   "label": "#9A9AAA",
+   "tex": "plain",
+   "price": 5,
+   "em": [
+    ".....kk.....",
+    "....kRBk....",
+    "...kRYBRk...",
+    "..kBRkkGBk..",
+    "..kRGkkBRk..",
+    "..kYBkkRYk..",
+    "..kBRkkGBk..",
+    "..kkkkkkkk..",
+    "............"
+   ],
+   "pal": {
+    "k": "#141420",
+    "R": "#E03A3A",
+    "B": "#3A6ADA",
+    "Y": "#FFD040",
+    "G": "#3AB05A"
+   }
+  }
+ },
+ {
+  "id": "dragon",
+  "name": "DRAGON STACK",
+  "color": "#DA2424",
+  "text": "x1.5 Hype if every note landed in the groove.",
+  "art": {
+   "type": "AMP",
+   "flavor": "A whole wall of amplifiers in one box. It rewards clean timing.",
+   "knobs": 4,
+   "knob": "black",
+   "label": "#1A0606",
+   "tex": "scales",
+   "price": 6,
+   "em": [
+    "..kk........",
+    "...kkk...fF.",
+    "..kkkkkk.fFf",
+    ".kkykkkkkfFF",
+    "kkkkkkkkkfFf",
+    ".kkwkwkkff..",
+    "..kk....f...",
+    "............",
+    "............"
+   ],
+   "pal": {
+    "k": "#E0A840",
+    "y": "#FF3A2A",
+    "w": "#FFFFFF",
+    "f": "#FF9124",
+    "F": "#FFE040"
+   }
+  }
+ },
+ {
+  "id": "iron",
+  "name": "IRON COMP",
+  "color": "#9191A0",
+  "text": "+1 Hype, and your groove window is twice as wide.",
+  "art": {
+   "type": "DYNAMICS",
+   "flavor": "Squeezes every note flat and even, and forgives loose timing.",
+   "knobs": 2,
+   "knob": "silver",
+   "label": "#F4E6C8",
+   "tex": "brushed",
+   "price": 4,
+   "em": [
+    "............",
+    "kkkkkkkkkkk.",
+    ".kSSSSSSSSk.",
+    "..kkSSSSkk..",
+    "....kSSk....",
+    "....kSSk....",
+    "..kkSSSSkk..",
+    ".kkkkkkkkkk.",
+    "............"
+   ],
+   "pal": {
+    "k": "#2A2A34",
+    "S": "#8A8A98"
+   }
+  }
+ },
+ {
+  "id": "goblin",
+  "name": "GOBLIN SCREAMER",
+  "color": "#3FA85A",
+  "text": "+2 Hype for each 3rd in the call.",
+  "art": {
+   "type": "OVERDRIVE",
+   "flavor": "A mid-hump screamer that sits right on top of the band.",
+   "knobs": 3,
+   "knob": "black",
+   "label": "#E8F0D8",
+   "tex": "plain",
+   "price": 5,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "basilisk",
+  "name": "BASILISK DIST",
+  "color": "#2A2630",
+  "text": "x1.5 Hype if the call has 4 or more notes.",
+  "art": {
+   "type": "DISTORTION",
+   "flavor": "Tight, hard clipping. One look and your notes turn to stone.",
+   "knobs": 3,
+   "knob": "silver",
+   "label": "#1A1618",
+   "tex": "scales",
+   "price": 7,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "hornet",
+  "name": "HORNET FUZZ",
+  "color": "#E8B818",
+  "text": "+1 Hype for each note you play on the three high strings.",
+  "art": {
+   "type": "OCTAVE FUZZ",
+   "flavor": "Buzzes an octave above whatever you feed it.",
+   "knobs": 2,
+   "knob": "black",
+   "label": "#1A1408",
+   "tex": "hammer",
+   "price": 5,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "tape",
+  "name": "TAPE WYVERN",
+  "color": "#C8A26A",
+  "text": "Every note scores half its Tone again.",
+  "art": {
+   "type": "TAPE ECHO",
+   "flavor": "Warbly repeats off a loop of old tape, a little slower each time.",
+   "knobs": 3,
+   "knob": "cream",
+   "label": "#3A2A1A",
+   "tex": "brushed",
+   "price": 5,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "slap",
+  "name": "SLAPBACK SPUR",
+  "color": "#C0302A",
+  "text": "+6 Tone for each note in the Pocket.",
+  "art": {
+   "type": "SLAPBACK",
+   "flavor": "One quick bounce off the back wall of a honky-tonk.",
+   "knobs": 2,
+   "knob": "silver",
+   "label": "#F4E6C8",
+   "tex": "flake",
+   "price": 3,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "phantom",
+  "name": "PHASE PHANTOM",
+  "color": "#F0741A",
+  "text": "+3 Hype if the call only climbs, or only falls.",
+  "art": {
+   "type": "PHASER",
+   "flavor": "A slow swirl, like something moving behind the amp.",
+   "knobs": 1,
+   "knob": "black",
+   "label": "#2A1206",
+   "tex": "plain",
+   "price": 5,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "tremor",
+  "name": "TREMOR TIDE",
+  "color": "#1E8A96",
+  "text": "+1 Hype for each note in the groove.",
+  "art": {
+   "type": "TREMOLO",
+   "flavor": "Volume that rises and falls like the tide, in time with the band.",
+   "knobs": 2,
+   "knob": "cream",
+   "label": "#E8F4F4",
+   "tex": "hammer",
+   "price": 3,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "rotary",
+  "name": "ROTARY SPIRIT",
+  "color": "#7A4E26",
+  "text": "+0.5 Hype for each true call in a row. A miss resets it.",
+  "art": {
+   "type": "ROTARY",
+   "flavor": "A spinning horn in a wooden cabinet. The longer it spins, the wilder it gets.",
+   "knobs": 2,
+   "knob": "gold",
+   "label": "#F4E6C8",
+   "tex": "grit",
+   "price": 7,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "owl",
+  "name": "ENVELOPE OWL",
+  "color": "#6A4AAE",
+  "text": "+5 Tone for each note higher than the one before it.",
+  "art": {
+   "type": "AUTO-WAH",
+   "flavor": "A filter that opens its eyes wider the harder you pick.",
+   "knobs": 3,
+   "knob": "clear",
+   "label": "#1A1030",
+   "tex": "stars",
+   "price": 5,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "twins",
+  "name": "HARMONY TWINS",
+  "color": "#E0609E",
+  "text": "+1 Hype for each different note name in the call.",
+  "art": {
+   "type": "HARMONIZER",
+   "flavor": "Two voices a third apart, always singing together.",
+   "knobs": 2,
+   "knob": "gold",
+   "label": "#FFF0F6",
+   "tex": "flake",
+   "price": 7,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "springtank",
+  "name": "SPRING TANK",
+  "color": "#6E9EC4",
+  "text": "+6 Tone for each Replay you have used tonight.",
+  "art": {
+   "type": "SPRING REVERB",
+   "flavor": "Surf-shop drip. Loves it when you listen twice.",
+   "knobs": 2,
+   "knob": "silver",
+   "label": "#E8F0F8",
+   "tex": "brushed",
+   "price": 3,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "halo",
+  "name": "SHIMMER HALO",
+  "color": "#F2E6C2",
+  "text": "x2 Tone on a HOT call. Otherwise +20 Tone.",
+  "art": {
+   "type": "SHIMMER VERB",
+   "flavor": "Reverb with an octave glowing above it. Brightest on the calls you once missed.",
+   "knobs": 3,
+   "knob": "gold",
+   "label": "#2A2440",
+   "tex": "stars",
+   "price": 10,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "troll",
+  "name": "TROLL BOOST",
+  "color": "#8A8C62",
+  "text": "+10 Tone.",
+  "art": {
+   "type": "CLEAN BOOST",
+   "flavor": "No tricks. Just louder, and a little meaner.",
+   "knobs": 1,
+   "knob": "black",
+   "label": "#F0ECD8",
+   "tex": "grit",
+   "price": 3,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "looper",
+  "name": "LICH LOOPER",
+  "color": "#34183E",
+  "text": "Gains +3 Tone for every true call this run. Now +0 Tone.",
+  "art": {
+   "type": "LOOPER",
+   "flavor": "It remembers every true call you play, and plays them all back at once.",
+   "knobs": 2,
+   "knob": "clear",
+   "label": "#0E0612",
+   "tex": "scales",
+   "price": 10,
+   "em": null,
+   "pal": null
+  }
+ },
+ {
+  "id": "gate",
+  "name": "GRAVE GATE",
+  "color": "#4A4A54",
+  "text": "+2 Hype if you did not replay this call.",
+  "art": {
+   "type": "NOISE GATE",
+   "flavor": "Shuts the hum out cold. Rewards the confident.",
+   "knobs": 1,
+   "knob": "silver",
+   "label": "#D8D8DC",
+   "tex": "brushed",
+   "price": 4,
+   "em": null,
+   "pal": null
+  }
+ }
+]

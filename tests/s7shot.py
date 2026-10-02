@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 from PIL import Image
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); pg=b.new_page(viewport={"width":390,"height":844},device_scale_factor=2); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e.stack)[:600]))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4)
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4)
     pg.evaluate("()=>{ Object.assign(window.__fb.META,{seven:1,sevenOn:1}); }")
     pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3)
     for i in range(3): pg.query_selector_all("#offer .ptile")[i].click(); time.sleep(0.05)

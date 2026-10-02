@@ -20,7 +20,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); errs=[]
     for vw,vh in [(360,740),(390,844),(740,360),(844,390)]:
         pg=b.new_page(viewport={"width":vw,"height":vh},device_scale_factor=2); pg.on("pageerror",lambda e: errs.append(str(e.stack)[:300]))
-        pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); seed(pg)
+        pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); seed(pg)
         pg.click("#btnBackstage"); time.sleep(0.4); pg.click("[data-door=ear]"); time.sleep(0.6)
         pg.evaluate("()=>{ const c=document.querySelector('.ear-map'); const r=c.getBoundingClientRect(), G=c.__geo; c.dispatchEvent(new PointerEvent('pointerdown',{clientX:r.left+G.lab+11.5*G.cw,clientY:r.top+4.5*G.rh,bubbles:true})); }"); time.sleep(0.2)
         pg.screenshot(path=f"ear_full_{vw}.png")

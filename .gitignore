@@ -10,3 +10,7 @@ test.html
 test_*.html
 *.png.tmp
 *keystore*.txt
+bandstage.png
+green_summary.png
+s5card.png
+s5stage.png

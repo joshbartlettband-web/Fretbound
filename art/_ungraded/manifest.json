@@ -1,0 +1,458 @@
+{
+"PEDAL_SRC/basilisk": {
+"graded": "d4d3b087be907f6e74e9c4c28da106b3136c23c8"
+},
+"PEDAL_SRC/cathedral": {
+"graded": "4d857d8527db43d3aa4b84e89a61fd3444b3d3eb"
+},
+"PEDAL_SRC/dragon": {
+"graded": "8e8f94d4fd6a81e4ea3b20519a4a945a9c0fc75e"
+},
+"PEDAL_SRC/echo": {
+"graded": "7e6313322b7a20617fcb7850c5cf858252cedb85"
+},
+"PEDAL_SRC/gate": {
+"graded": "dcffb8527873b23162214f8bef5ae6fba15a42ac"
+},
+"PEDAL_SRC/glass": {
+"graded": "f73d525a1c73bbdcbfd5cbd0481326a0172a9813"
+},
+"PEDAL_SRC/goblin": {
+"graded": "d765a4dcf3f74129db6f7d7b6431d9af6363ddf2"
+},
+"PEDAL_SRC/halo": {
+"graded": "c0d2695db1577efb090aca7a827dcdf3bf49ad3a"
+},
+"PEDAL_SRC/hornet": {
+"graded": "4cd50383cadea6dd26f2b17e196ccda53a15ebca"
+},
+"PEDAL_SRC/iron": {
+"graded": "a93ada79afa52b3e100568e182d75561927b9522"
+},
+"PEDAL_SRC/looper": {
+"graded": "a37abd48fef32284c92f105185e6bb86a59d3ca8"
+},
+"PEDAL_SRC/moon": {
+"graded": "2b6e6d8ef284964dfdf7e6cfb8fa0a60a8c5e738"
+},
+"PEDAL_SRC/ogre": {
+"graded": "66f12053a0b0334b186e93aaa6112c0d4ca70bfb"
+},
+"PEDAL_SRC/owl": {
+"graded": "8e78d2ef94e09eb146437e204923c4638e268d14"
+},
+"PEDAL_SRC/phantom": {
+"graded": "c5f4f2dc149b665d31c80a08f13b65f823fa8642"
+},
+"PEDAL_SRC/rotary": {
+"graded": "c06d2e8083a82f40cb40fe779a1cd438a370dd80"
+},
+"PEDAL_SRC/slap": {
+"graded": "a458e52f1bc9e5741c66c797f49cf9cf4cd20663"
+},
+"PEDAL_SRC/springtank": {
+"graded": "8b308c6b04adf719f6ab3b53bf7841432dd0bfb7"
+},
+"PEDAL_SRC/swamp": {
+"graded": "23cf730cfd5d6260ab0e560fdbcbcbe09dc2c9f6"
+},
+"PEDAL_SRC/tape": {
+"graded": "8985c5fcf09cf078179c9daf6a7dec4ba250aae5"
+},
+"PEDAL_SRC/tremor": {
+"graded": "694f53f71dc598993555042a246606ec5ac2b047"
+},
+"PEDAL_SRC/troll": {
+"graded": "a628f51cd96d1520afe79c7418da13908f7e7c6a"
+},
+"PEDAL_SRC/twins": {
+"graded": "1595f25caeb2af39df733575e74256c79c5bf7e4"
+},
+"PEDAL_SRC/wyrm": {
+"graded": "ca1fedaa7d43360728274f613155e2f1f06fad3a"
+},
+"GUITAR_SRC/baritone": {
+"graded": "ac38d8bf1dfdb81b0fb6a4cc96faec1a47edf1d1"
+},
+"GUITAR_SRC/humbucker": {
+"graded": "3695488861f773fec9f2fe21bbf518f0e37b980b"
+},
+"GUITAR_SRC/nylon": {
+"graded": "ed943656512806ccd7e30e6f8da17fb55e7f5276"
+},
+"GUITAR_SRC/resonator": {
+"graded": "a44132a1ffc71aa13d57471463219095a802c5dc"
+},
+"GUITAR_SRC/single": {
+"graded": "bcca6ef30dcf201aeda5c9b5021f1625fde4b647"
+},
+"GUITAR_SRC/twelve": {
+"graded": "f856cd02edf80b3ad3ba2871263c3f4b5152e13c"
+},
+"BODY_SRC/bard": {
+"graded": "d88434b34e076ec5357dd854937f2da77ba5db9f"
+},
+"BODY_SRC/monk": {
+"graded": "e08910761a607aafb6cdff5b17deed7b1ac976d0"
+},
+"BODY_SRC/busker": {
+"graded": "7395e0b061e2f31fb780812b30c43290ca471d8b"
+},
+"BODY_SRC/hermit": {
+"graded": "413559b4a2cb48e06878c2e93dc32e1867dd215a"
+},
+"BODY_SRC/luthier": {
+"graded": "abe4716f4a5b809f9a69aac24230556d7fa94d5c"
+},
+"BODY_SRC/carto": {
+"graded": "b002ab4aa5dc8be79de6327b7e349712a2b7495b"
+},
+"CALLER_SRC/aurora": {
+"graded": "8c68ca2d02da5629c000a61153d23c4b7161d4d9"
+},
+"CALLER_SRC/azmari": {
+"graded": "8f03990e67b64b0c843491aade9e09c233a19f1e"
+},
+"CALLER_SRC/bali": {
+"graded": "2cf112356bcad43610dc941c84fe1cb15e08ba17"
+},
+"CALLER_SRC/cave": {
+"graded": "75f4470251c63101ba11b8a5ca7ad80349bec967"
+},
+"CALLER_SRC/chicha": {
+"graded": "5e7618895d65d6a725652773d4a95ff475bd2d98"
+},
+"CALLER_SRC/dunes": {
+"graded": "f2b19f0d5f50610cbaee27a246c9817f7303b47e"
+},
+"CALLER_SRC/frost": {
+"graded": "300a3fe6755973d8ceb7ded636b736aba4d09239"
+},
+"CALLER_SRC/ghat": {
+"graded": "62640b077c959ccc3b5c8a30c9383bfeae266b84"
+},
+"CALLER_SRC/grotto": {
+"graded": "1591bb4d0a1fc32cf52b98e69627647d03a9e046"
+},
+"CALLER_SRC/juke": {
+"graded": "d73e991a12e0b2d34ae33a3fce62fd8d021bab85"
+},
+"CALLER_SRC/lanai": {
+"graded": "12f7dd6bf9d101d83fa05326bdaf227e341c975b"
+},
+"CALLER_SRC/mess": {
+"graded": "b83679221c59348fdf465bccc3f5ad201910f68c"
+},
+"CALLER_SRC/milonga": {
+"graded": "f6c1049240b5187b2f2e9420138a87507d4e935f"
+},
+"CALLER_SRC/outback": {
+"graded": "d6039ffd6f7745a57808ff0a9f1e9e0abf003aa0"
+},
+"CALLER_SRC/paris": {
+"graded": "2c34b84ca27d4e0e96d982bd686c75c0180cfc9e"
+},
+"CALLER_SRC/pole": {
+"graded": "6fb6e14f18451446e286944668b18ca5f6b771db"
+},
+"CALLER_SRC/rio": {
+"graded": "8de669ed179db6736408c645675ab5efa3ea025b"
+},
+"CALLER_SRC/sebene": {
+"graded": "c64a7f1c07e904235c6d6daba8c0b537bf84331f"
+},
+"CALLER_SRC/spur": {
+"graded": "9b035d8a3cb75b626391055d851bc62cb2bbd3cb"
+},
+"CALLER_SRC/tide": {
+"graded": "c4276f21691c3245a99168bf0daba409f938af37"
+},
+"CALLER_SRC/tokyo": {
+"graded": "0a727dace8e8488b2404225383c7b48b7e06e888"
+},
+"BANDART_SRC/lou": {
+"graded": "b356248f6741b7370b2e18447dab7c469fcb3d05"
+},
+"BANDART_SRC/rosa": {
+"graded": "9343ac8e91c4494ac1fc76ac5b9033cafcebf8ff"
+},
+"BANDART_SRC/dee": {
+"graded": "3a76c974e24bac68051a9a355ab527afff071e4b"
+},
+"BANDART_SRC/jo": {
+"graded": "0499b864483c4bce203eefafbadecbf246c5a68b"
+},
+"BANDART_SRC/hale": {
+"graded": "70cb64520981d01dea753dd0726dab500d4af835"
+},
+"BANDART_SRC/tam": {
+"graded": "39074f86f5213107ebb0782764c5638380b16dc7"
+},
+"BANDART_SRC/brass": {
+"graded": "43e0d04a0ee0c3d87f12b6c59acf9de0baf11b18"
+},
+"BANDART_SRC/brassb": {
+"graded": "3ce44854b4e602fdad3afac7c44a6dc51250c927"
+},
+"BANDART_SRC/brassc": {
+"graded": "b384f59a25577d0b090e084bbc3588952e6606d8"
+},
+"VSP_SRC/af": {
+"graded": "16ea3f49a4175c0ea713a314feabea4f8f64d2a3"
+},
+"VSP_SRC/an": {
+"graded": "89f874fcedc6c96d4da0aaa1ee5df50abd6666ec"
+},
+"VSP_SRC/as": {
+"graded": "c96d5e3e87a0debb3bb5473eba9736f5439a4fe1"
+},
+"VSP_SRC/eu": {
+"graded": "407e5430ebb6bf53651e1b15c0db2acb3f463d9b"
+},
+"VSP_SRC/na": {
+"graded": "f87a6b6e4b8634dcf1a577daa5e8f011a822247b"
+},
+"VSP_SRC/oc": {
+"graded": "31060c795f00d732a08526f8c6727c90a86b017b"
+},
+"VSP_SRC/sa": {
+"graded": "2dfce9a3bc7f84fdc54d4b3de524eed8ab81ff57"
+},
+"STAGE_PLATE_SRC/aurora": {
+"graded": "2d788960cae4d421a7620d8f2c89ea0b8d51adb2"
+},
+"STAGE_PLATE_SRC/azmari": {
+"graded": "2507d4dea82faa5c46b2715498ef791dea0e8d2c"
+},
+"STAGE_PLATE_SRC/bali": {
+"graded": "93c2983b504dc9dd2dd51a7b7a245d4ef2234e26"
+},
+"STAGE_PLATE_SRC/cave": {
+"graded": "0ed410554ce60758f2dcbc5ebd3fef5fb2b7e655"
+},
+"STAGE_PLATE_SRC/chicha": {
+"graded": "5ca75346f51daa46b020e4ccf465ef8b9b4cddbe"
+},
+"STAGE_PLATE_SRC/dunes": {
+"graded": "b6c0c01c30c27c09f2d45a6ed1b34e31c4841aa8"
+},
+"STAGE_PLATE_SRC/frost": {
+"graded": "c3fd401c0830ad2eeb6cfbb7ccd06327537d9d0f"
+},
+"STAGE_PLATE_SRC/ghat": {
+"graded": "d072d86f558d2782bb6fb4a6733f695673c37aa3"
+},
+"STAGE_PLATE_SRC/grotto": {
+"graded": "a605c5638976e9aff486a662bc5b6609697449fb"
+},
+"STAGE_PLATE_SRC/juke": {
+"graded": "7a6bbe3d8dba3bb6cbc4d3e5d29bb9dc74abe4fc"
+},
+"STAGE_PLATE_SRC/lanai": {
+"graded": "2aa953c55e266dcb437d320d70d785911c04efcf"
+},
+"STAGE_PLATE_SRC/mess": {
+"graded": "f32f6da1a3fd9dabcc13d77cdf9b62c82f7613d6"
+},
+"STAGE_PLATE_SRC/milonga": {
+"graded": "f8e2e8f625710f44a1618493c50ce62359fb75f1"
+},
+"STAGE_PLATE_SRC/outback": {
+"graded": "c7de9370c77f15f66b258e62706b91e31e93875d"
+},
+"STAGE_PLATE_SRC/paris": {
+"graded": "d6645ae0bdae9d8b0e8077c368e6e24aaf26fa2c"
+},
+"STAGE_PLATE_SRC/pole": {
+"graded": "ab2e12126e3602d023d3af08290993f89ec1f70b"
+},
+"STAGE_PLATE_SRC/rio": {
+"graded": "b897f8f3bac15938f10147d62e1aa11f280be9d8"
+},
+"STAGE_PLATE_SRC/sebene": {
+"graded": "ef4dd05e08fbcb0a87cd75d1bd2b0acd497b009c"
+},
+"STAGE_PLATE_SRC/spur": {
+"graded": "61eefeb1cc13824e751f301360ae6afc5aafccee"
+},
+"STAGE_PLATE_SRC/tide": {
+"graded": "5bafb51f62c37672f30ec71865b477a1b7bb1b49"
+},
+"STAGE_PLATE_SRC/tokyo": {
+"graded": "bdcc4f7cb388539b4298d3889d87eb838cd780d2"
+},
+"TITLE_PLATES/na": {
+"graded": "565780c407ec83a22659378236d9c62f3f370ba1"
+},
+"TITLE_PLATES/af": {
+"graded": "86f5460f05093bc19ef300a86909411b20dcb03b"
+},
+"TITLE_PLATES/sa": {
+"graded": "29661695ae5493974f9acf46de6a856482ed44fc"
+},
+"TITLE_PLATES/eu": {
+"graded": "8d1b01ff03aac0091948195706af8cd316883e19"
+},
+"TITLE_PLATES/as": {
+"graded": "a89ed37a63fc6954a252e6f17affe7eef9bd669c"
+},
+"TITLE_PLATES/oc": {
+"graded": "a886373ea1e807b1063843c3dab83a02ff91fb10"
+},
+"TITLE_PLATES/an": {
+"graded": "ef3ecf730e80675ddfc28fae67b4234219e1e109"
+},
+"CASTLE_SRC/0": {
+"graded": "4e677c01dcb75122738fc64be710e2d39381c93d"
+},
+"WORLDMAP_SRC/0": {
+"graded": "417b6da7365cb15aadf547fb262b1e69fe557347"
+},
+"VANART_SRC/v0_rear": {
+"graded": "939f5ebfa6150a825aaa9d881bdbc95aa6da08ec"
+},
+"VANART_SRC/v1_rear": {
+"graded": "e5cf103bab8ae7fec54d59279b72c72b52e4ecd6"
+},
+"VANART_SRC/v2_rear": {
+"graded": "d00e95499bfbf805f97d34c2995bea8576e88a51"
+},
+"VANART_SRC/v0_side": {
+"graded": "fd1cd45a64afe94d9893a0de0eafd4c1d7a57bf9"
+},
+"VANART_SRC/v1_side": {
+"graded": "f235215e48b5fb92acb6456e13a0ab0adf8f1578"
+},
+"VANART_SRC/v2_side": {
+"graded": "f4d6a114b7869fa8fc491c022020db94b9f94119"
+},
+"RIVAL_PORT/azmari": {
+"graded": "7f9182fd0cd3524d65c1d838d2fc657df5cc9086"
+},
+"RIVAL_PORT/bali": {
+"graded": "3511750a48be72b3a31cf5df81afd8aa24523e05"
+},
+"RIVAL_PORT/cave": {
+"graded": "4ba1eccf7c717ea280d1d4352638e31e29fb4196"
+},
+"RIVAL_PORT/chicha": {
+"graded": "c40f5aebf1c4394256a676423cba40ca36b02ac6"
+},
+"RIVAL_PORT/dunes": {
+"graded": "a4605fd9ae8829491184587cd26c20288b89fe51"
+},
+"RIVAL_PORT/frost": {
+"graded": "19b89ff283d0c2223ad552f3b1bb5dbebcafa37f"
+},
+"RIVAL_PORT/ghat": {
+"graded": "087d5f1eed256765dae943a039c1dba4d049a88e"
+},
+"RIVAL_PORT/grotto": {
+"graded": "2d21d45ba8cc48ade585f413300e7644500a0d2e"
+},
+"RIVAL_PORT/juke": {
+"graded": "bc4bbb1ff900c532820719a45076ce6f0d70dcf9"
+},
+"RIVAL_PORT/lanai": {
+"graded": "c6696c1b878fe2c0dd33dad8e4edabbd53eb9517"
+},
+"RIVAL_PORT/mess": {
+"graded": "91615332a9fc4ff8083d48f9fb824bdae6f9c718"
+},
+"RIVAL_PORT/milonga": {
+"graded": "6a6dce82740c95f737644187b67658f93ed7a38f"
+},
+"RIVAL_PORT/outback": {
+"graded": "9fd721c6dea1f9ab32023ce92358c925d06415c4"
+},
+"RIVAL_PORT/paris": {
+"graded": "683ae763b7d229ca5b376d217dbfe9d65b7f7536"
+},
+"RIVAL_PORT/pole": {
+"graded": "9b2e81df49e633653c04995e53af624ef85c00db"
+},
+"RIVAL_PORT/rio": {
+"graded": "df60d3d9169adf812a4a925b3d893af0ed6fc69e"
+},
+"RIVAL_PORT/sebene": {
+"graded": "3b556bdcbeed7e06d97381984fcbcf790ebb8d45"
+},
+"RIVAL_PORT/tide": {
+"graded": "df3d2770c4d56b5cae078ab04dc2fd8da792d371"
+},
+"RIVAL_PORT/tokyo": {
+"graded": "bebde1d36dbf8ed3fcce03072ca63f6371f14dc5"
+},
+"RIVAL_PORT/aurora": {
+"graded": "f589c2e2030df87c7a98dff3da87b663ce24a5c8"
+},
+"RIVAL_PORT/spur": {
+"graded": "3a9bddd9ed065d114e5597964bbd38b993918b39"
+},
+"MEMBER_PORT/fay": {
+"graded": "60e379017c305b3629cbc604a243b7c4ed8a74ee"
+},
+"MEMBER_PORT/lou": {
+"graded": "e1c953f6a100e06d7a5af9054538e6c5d97b3746"
+},
+"MEMBER_PORT/brass": {
+"graded": "a1285196ab1d0ac9f2c58cbc364297db7e6790e1"
+},
+"MEMBER_PORT/tech": {
+"graded": "f107683b7155bbb3878076c76117991f9023117c"
+},
+"MEMBER_PORT/rosa": {
+"graded": "221448071442ec9bdf6f6e075baeea9107af21e2"
+},
+"MEMBER_PORT/tam": {
+"graded": "a987a178ecf2cc54d2395a9c53367d228a284012"
+},
+"MEMBER_PORT/hale": {
+"graded": "2c46fca80db4e18b3e62a4b9adda778e0211c55d"
+},
+"MEMBER_PORT/jo": {
+"graded": "1d7b45ffbe3dbdad56a5b398623079acc13ea512"
+},
+"MEMBER_PORT/dee": {
+"graded": "9ccbe81a87a51326efce45399c88b5d915a0e11d"
+},
+"PROP_SRC/sea_rock": {
+"graded": "3f5e5da91ac624461d948ed21002a9caf8144fb8"
+},
+"PORTRAIT_ART/hermit_card": {
+"graded": "4ecf550970286a1d9bcdbab72e48220a9fa3ee28"
+},
+"PORTRAIT_ART/hermit_tile": {
+"graded": "afca976216f8638cb89a9218c4767b6394893baf"
+},
+"PORTRAIT_ART/busker_card": {
+"graded": "b247028d8bed48709152990cdc23a830190714a1"
+},
+"PORTRAIT_ART/busker_tile": {
+"graded": "88bc47d99d9828d34502bd9609d07ffbdca05390"
+},
+"PORTRAIT_ART/luthier_card": {
+"graded": "a5a74a0c27fa24d141996899fa8689c0a89ecf19"
+},
+"PORTRAIT_ART/luthier_tile": {
+"graded": "bfa91adae3fd3ab3b77c3996c8f06080b938ce06"
+},
+"PORTRAIT_ART/carto_card": {
+"graded": "3afdefe855f93c2ad5f41ed8f1268666e4e18981"
+},
+"PORTRAIT_ART/carto_tile": {
+"graded": "a32431f23dbff7c9d2966549e22c93275ea374a7"
+},
+"PORTRAIT_ART/bard_card": {
+"graded": "92a61d7c608fc414f2e3a53bb7ee66126d77dbe2"
+},
+"PORTRAIT_ART/bard_tile": {
+"graded": "bf0e4189796dacaf19fd8ad150cd6fdf2c1a6d99"
+},
+"PORTRAIT_ART/monk_card": {
+"graded": "94a67e2f41cb0c5bd54473184f3deee925911d4e"
+},
+"PORTRAIT_ART/monk_tile": {
+"graded": "932fc28b40138dbd7eea25c27290b5a20224c677"
+}
+}

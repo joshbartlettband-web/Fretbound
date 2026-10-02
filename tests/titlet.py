@@ -4,7 +4,7 @@ from PIL import Image
 ts=[float(x) for x in sys.argv[2].split(',')]
 with sync_playwright() as p:
     b=p.chromium.launch(); pg=b.new_page(viewport={"width":844,"height":390}); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e)))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.5); pg.evaluate("window.__fb.sky(1)"); ims=[]
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.5); pg.evaluate("window.__fb.sky(1)"); ims=[]
     for t in ts:
         u=pg.evaluate("t=>{ window.__fb.titleAt(t); const c=document.querySelector('#scr-title canvas, #titleCv, canvas'); return c.toDataURL(); }",t)
         ims.append(Image.open(io.BytesIO(base64.b64decode(u.split(',')[1]))).convert('RGB').crop((0,150,640,300)))

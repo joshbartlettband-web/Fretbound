@@ -5,7 +5,7 @@ with sync_playwright() as p:
     for (w,h,nm) in [(390,760,'p'),(844,390,'l')]:
         pg=b.new_page(viewport={"width":w,"height":h},device_scale_factor=2)
         errs=[]; pg.on("pageerror",lambda e: errs.append(str(e)))
-        pg.goto("file:///home/claude/test.html"); time.sleep(1.2)
+        pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','test.html'))); time.sleep(1.2)
         pg.screenshot(path=f"f_{nm}_title.png")
         pg.click("#btnStart"); time.sleep(0.4)
         pg.screenshot(path=f"f_{nm}_chars.png")

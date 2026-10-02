@@ -1,0 +1,58 @@
+# Every character that gets a painted 16-pose set: reference picture, instrument, look, and the game height of its sprite.  kinds: guitar | drums | keys | sing | horn
+import json,os,re
+R='/home/user/Fretbound/art/'
+G=json.load(open('/tmp/fbout/callergt.json')) if os.path.exists('/tmp/fbout/callergt.json') else {}
+CH={}
+def guitar(cid,ref,gid,gdesc,who,h):
+    CH[cid]=dict(kind='guitar',ref=ref,guitar=R+f'guitars/{gid}.png',gdesc=gdesc,who=who,height=h)
+HEX={'#E8A83A':'golden yellow','#5ACAB4':'turquoise'}
+GN={'single':'electric guitar (Stratocaster style)','humbucker':'electric guitar (Les Paul style, humbucker pickups)','nylon':'acoustic classical guitar','resonator':'resonator guitar with a round metal cone in the body','twelve':'twelve-string acoustic guitar','baritone':'long-necked baritone electric guitar'}
+# players
+for cid,gid,gd,who in [
+ ('monk','humbucker','a dark red-brown Les Paul style electric guitar','the Metronome Monk: a calm man in a yellow knitted beanie, saffron-orange and crimson monk robes wrapped over one shoulder, wooden prayer beads, bare feet or simple sandals'),
+ ('hermit','nylon','a brown acoustic classical guitar','the Hermit: an old man in a brown hooded robe with a long white beard, worn and patched, rope belt, simple shoes'),
+ ('busker','resonator','a silver resonator guitar with a round metal cone','the Busker: a young woman in a grey newsboy cap, curly dark hair, a denim jacket covered in pins, a red scarf, dark trousers and boots'),
+ ('luthier','twelve','a honey-brown twelve-string acoustic guitar','the Luthier: a young woman with red hair in a long braid and goggles on her head, a brown leather apron over a cream shirt with a black bow tie, dark trousers, brown boots'),
+ ('carto','baritone','a dark brown baritone electric guitar with a long neck','the Cartographer: a young man in a brown tricorn hat and round glasses, a teal-green long coat, burgundy waistcoat, white cravat, brown breeches and boots')]:
+    guitar(cid,R+f'gemini_test/chars/{cid}_body.jpg',gid,gd,who,104)
+LOOK={
+'spur':'the Twang Knight: an armoured knight in silver plate armour with a white cowboy hat on its helmet and a red tabard with a white heart',
+'tide':'the Reverb Siren: a mermaid with long teal hair and a small crown, a seashell top and a green fish tail instead of legs (NO legs and NO feet: the tail curls on the floor and is the same in every pose)',
+'juke':'Mister Midnight: a tall slender man with deep blue-purple skin, a black top hat with a magenta band, a purple jacket, white shirt, dark trousers, black shoes, white eyes and a wide smile',
+'dunes':'the Dune Looper: a faceless sand spirit in a blue-purple hooded cloak with a sand-brown body, hood up, tan boots',
+'sebene':'the Sebene Peacock: an anthropomorphic peacock with a blue head and a huge fan of green eyed tail feathers behind it, a pink jacket, navy trousers',
+'azmari':'the Qenet Scholar: a big brown owl with a round owl head, a long white robe with gold trim, feathered feet',
+'rio':'the Velvet Jaguar: an upright jaguar with spotted fur, in a cream suit',
+'milonga':'the Nocturne: a tango vampire with pale lavender skin, slicked black hair, a black suit under a black cape with red lining and a high collar',
+'chicha':'the Neon Condor: a man with a red featherless condor head, a white feather ruff collar, a black suit and tie',
+'paris':'the Gargoyle of Montmartre: a grey stone gargoyle with a dragon-like head and bat wings, a white shirt with rolled sleeves, brown trousers, clawed feet',
+'cave':'the Duende: a living flame spirit, a human-shaped body made of orange and yellow fire with a flaming head, wearing a dark jacket',
+'frost':'the Frost Lich: an undead ice king with pale blue skin, a crown of ice spikes, a black leather jacket with spikes, black trousers and boots',
+'tokyo':'the Kitsune: an upright fox in a black leather jacket with white stars and blue jeans, with nine fluffy orange tails',
+'bali':'the Bronze Warden: a golden bronze statue-man with a golden crown, bare chest, gold ornaments and gold greaves',
+'lanai':'the Slack-Key Honu: an old sea turtle in a straw hat and a red aloha shirt with white flowers, a green shell on its back, green legs',
+'outback':'the Drop Bear: a koala with big round ears in a blue work shirt, grey legs',
+'grotto':'the Glowworm Queen: a woman with pale blue skin, long teal hair, a small gold crown and a long teal gown with sparkles',
+'mess':'the Emperor: an emperor penguin standing upright, black back, white belly, yellow-orange neck patch, flippers instead of arms (the flippers hold the guitar)',
+'aurora':'the Aurora: a woman with blue skin and flowing green and purple hair, a midnight-blue dress with stars that fades into green legs',
+'pole':'the Silence: a figure in a big white hooded parka, face hidden in shadow, white boots'}
+for cid,who in LOOK.items():
+    if cid=='ghat': continue
+    g=G.get(cid,{'gt':'single','body':'#E8A83A'}); h=json.load(open(R+f'callers/{cid}_body.json'))['h']
+    guitar(cid,R+f'gemini_test/callers/{cid}_body.jpg',g['gt'],f"a {GN.get(g['gt'],'guitar')} with a {g['body']} coloured body",who,h)
+# band: instrument kinds
+def band(cid,kind,who,inst,h,ref=None):
+    CH[cid]=dict(kind=kind,ref=ref or R+f'portraits/{cid}.png',who=who,inst=inst,height=h,band=True)
+band('lou','drums','a drummer (a grey-haired man) seated behind a small drum kit: snare, red kick drum, hi-hat and one cymbal, the kit shown in full','drum kit',90)
+band('rosa','drums','a drummer (a woman) seated behind a small drum kit: snare, red kick drum, hi-hat and one cymbal, the kit shown in full','drum kit',90)
+band('dee','guitar','a bass player standing, playing a four-string electric bass guitar','bass guitar',90)
+band('jo','keys','a keyboard player standing behind a keyboard on an X-shaped stand','keyboard',86)
+band('hale','sing','a singer standing at a microphone on a tall stand','microphone',92)
+band('tam','guitar','a guitarist playing a red double-neck electric guitar: the guitar clearly has TWO necks and TWO headstocks, one stacked above the other','double-neck guitar',90)
+band('brass','horn','a horn player standing, playing a brass trumpet','trumpet',88)
+band('brassb','horn','a horn player standing, playing a brass trumpet','trumpet',90,R+'gemini_test/band/brassb_sheet.jpg')
+band('brassc','horn','a horn player standing, playing a brass trumpet','trumpet',88,R+'gemini_test/band/brassc_sheet.jpg')
+for c in ('dee','tam'):
+    CH[c]['guitar']=R+'guitars/humbucker.png'; CH[c]['gdesc']=CH[c]['inst']
+for c,v in list(CH.items()):
+    if v.get('band') and v['kind']!='guitar': v.setdefault('guitar',None)

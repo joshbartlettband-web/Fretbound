@@ -51,3 +51,37 @@ def guide(path,which,cell=300):
     im.save(path); return im
 if __name__=='__main__':
     guide('/tmp/fbout/guide_A.png','A'); guide('/tmp/fbout/guide_B.png','B'); print('ok')
+
+# ---- other instruments (band members): the same sixteen slots, in the same order, worded for the instrument.  Playing poses keep head, torso and legs IDENTICAL to idle.
+CALM="Head, torso, legs and feet exactly as in idle."
+OTHER={
+'drums':([('idle','Seated at the kit, both drumsticks resting lightly on the snare, relaxed.'),('breath','Idle, one breath later: shoulders at most 2 pixels higher, everything else the same.'),
+  ('hit_a','The right stick strikes the snare while the left stick is raised a little. '+CALM),('hit_b','The left stick strikes the hi-hat while the right stick is raised a little. '+CALM),
+  ('play_c','Both sticks over the toms, ready, a little lower. '+CALM),('play_d','Right stick raised high, left stick on the snare. '+CALM),('play_e','Left stick raised high, right stick on the snare. '+CALM),('nod','The same as idle with the chin lowered a few pixels as if nodding to the beat; arms and sticks as idle.')],
+ [('lean_in','Listening closely: head and shoulders tilted slightly forward, sticks resting. A small change from idle.'),('big_hit','A crash: the right stick striking the cymbal, the left stick up, a confident look. Moderate.'),
+  ('cheer','Pleased with a win: a broad smile, both sticks raised to shoulder height. Gentle.'),('slump','Disappointed: shoulders lowered, head bowed a little, sticks low. Subdued.'),
+  ('flinch','A small wince: eyes squeezed shut, head pulled back a little, sticks lifted off the drums.'),('showoff','A cheeky grin, one stick twirled up beside the head. Cheeky, not theatrical.'),
+  ('blink','Same as idle but with the eyes CLOSED (mid-blink). Nothing else changes.'),('talk','Same as idle but with the mouth open as if talking. Nothing else changes.')]),
+'keys':([('idle','Standing behind the keyboard, both hands resting on the middle of the keys, relaxed.'),('breath','Idle, one breath later: shoulders at most 2 pixels higher, everything else the same.'),
+  ('hit_a','Both hands pressing a chord in the left half of the keys. '+CALM),('hit_b','Both hands pressing a chord in the right half of the keys. '+CALM),
+  ('play_c','Left hand low on the keys, right hand in the middle. '+CALM),('play_d','Right hand high on the keys, left hand in the middle. '+CALM),('play_e','Both hands in the middle, fingers spread. '+CALM),('nod','The same as idle with the chin lowered a few pixels as if nodding to the beat; hands as idle.')],
+ [('lean_in','Listening closely: head and shoulders tilted slightly forward, hands resting. A small change.'),('big_hit','A strong chord: both hands pressing hard, a confident look. Moderate.'),
+  ('cheer','Pleased with a win: a broad smile, one hand raised to shoulder height. Gentle.'),('slump','Disappointed: shoulders lowered, head bowed a little. Subdued.'),
+  ('flinch','A small wince: eyes squeezed shut, head pulled back, hands lifted off the keys.'),('showoff','A cheeky grin, one hand flourishing above the keys. Cheeky, not theatrical.'),
+  ('blink','Same as idle but with the eyes CLOSED (mid-blink). Nothing else changes.'),('talk','Same as idle but with the mouth open as if talking. Nothing else changes.')]),
+'sing':([('idle','Standing at the microphone stand, one hand resting on the stand, mouth closed, relaxed.'),('breath','Idle, one breath later: shoulders at most 2 pixels higher, everything else the same.'),
+  ('hit_a','Singing a note: mouth open, the free hand lifted a little. '+CALM),('hit_b','Singing a higher note: mouth open wider, the free hand lifted a little higher. '+CALM),
+  ('play_c','Mouth half open, the free hand low. '+CALM),('play_d','Mouth open, the free hand at chest height. '+CALM),('play_e','Mouth closed, humming, the free hand at the side. '+CALM),('nod','The same as idle with the chin lowered a few pixels as if nodding to the beat; hands as idle.')],
+ [('lean_in','Listening closely: head and shoulders tilted slightly forward, hand on the stand. A small change.'),('big_hit','Belting a big note: head tilted back a little, mouth wide open, free arm lifted to shoulder height. Moderate.'),
+  ('cheer','Pleased with a win: a broad smile, one hand raised to shoulder height. Gentle.'),('slump','Disappointed: shoulders lowered, head bowed a little. Subdued.'),
+  ('flinch','A small wince: eyes squeezed shut, head pulled back, hand off the stand.'),('showoff','A cheeky grin, a raised eyebrow, the free hand flourishing. Cheeky, not theatrical.'),
+  ('blink','Same as idle but with the eyes CLOSED (mid-blink). Nothing else changes.'),('talk','Same as idle but with the mouth open as if talking. Nothing else changes.')]),
+'horn':([('idle','Standing, the trumpet held at chest height, pointing right, relaxed.'),('breath','Idle, one breath later: shoulders at most 2 pixels higher, everything else the same.'),
+  ('hit_a','The trumpet raised to the lips, playing a note, cheeks slightly puffed. '+CALM),('hit_b','The trumpet raised a little higher to the lips, playing. '+CALM),
+  ('play_c','The trumpet held level just below the lips, ready to play. '+CALM),('play_d','The trumpet lowered a little, one hand on the valves. '+CALM),('play_e','The trumpet at chest height, fingers pressing the valves. '+CALM),('nod','The same as idle with the chin lowered a few pixels as if nodding to the beat; trumpet as idle.')],
+ [('lean_in','Listening closely: head and shoulders tilted slightly forward, the trumpet lowered. A small change.'),('big_hit','A loud note: the trumpet pointed up and to the right, chest out. Moderate.'),
+  ('cheer','Pleased with a win: a broad smile, the trumpet raised a little. Gentle.'),('slump','Disappointed: shoulders lowered, head bowed, the trumpet hanging low. Subdued.'),
+  ('flinch','A small wince: eyes squeezed shut, head pulled back, the trumpet lowered.'),('showoff','A cheeky grin, the trumpet swung up beside the head. Cheeky, not theatrical.'),
+  ('blink','Same as idle but with the eyes CLOSED (mid-blink). Nothing else changes.'),('talk','Same as idle but with the mouth open as if talking. Nothing else changes.')]),
+}
+def lists(kind): return OTHER[kind] if kind in OTHER else (A,B)

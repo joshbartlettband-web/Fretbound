@@ -23,4 +23,5 @@ Run `bash setup.sh` once per machine.
 ## Tools you will need
 - `bash setup.sh` once, then `bash tests/dev/pwfix.sh` (Chromium link for Playwright). Tests use repo-relative paths now.
 - Art pipeline and how to test it: read the START HERE section of `HANDOFF.md` first. Gemini ignores removal instructions; erase parts yourself.
+- After re-processing and re-embedding any Gemini art, run `python3 tests/grade.py` (the colour grade; it never compounds).
 - Visual helper scripts live in `tests/dev/` (set `OUT` for their output folder). After any change run `tests/audit.py`, `tests/gplay.py` and `tests/dev/stress.py`.

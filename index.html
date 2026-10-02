@@ -3651,6 +3651,13 @@ function selOutline(g,W,H){
     const nb=[[x,y+1],[x-1,y],[x+1,y],[x,y-1]]; for(const q of nb){ if(q[0]<0||q[1]<0||q[0]>=W||q[1]>=H) continue; const j=(q[1]*W+q[0])*4; if(src[j+3]){ d[i]=src[j]*0.28; d[i+1]=src[j+1]*0.22; d[i+2]=src[j+2]*0.22; d[i+3]=255; break; } } }
   g.putImageData(img,0,0);
 }
+// the canvas box a layer can touch: from the numbers in its path (or its ellipse), padded by line width; whole canvas for images
+function layerBox(L,s,ox,oy,W,H){ let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9, pad=2;
+  if(L.d||L.s){ const n=(L.d||L.s).match(/-?[\d.]+(?:e-?\d+)?/g); if(!n) return null; for(let i=0;i+1<n.length;i+=2){ const x=+n[i], y=+n[i+1]; if(x<x0) x0=x; if(x>x1) x1=x; if(y<y0) y0=y; if(y>y1) y1=y; } if(L.s) pad+=(L.w||1); }
+  else if(L.e){ const r=Math.max(L.e[2],L.e[3]); x0=L.e[0]-r; x1=L.e[0]+r; y0=L.e[1]-r; y1=L.e[1]+r; }
+  else return [0,0,W,H];
+  const a=Math.max(0,Math.floor(ox+x0*s-pad*s-1)), b=Math.max(0,Math.floor(oy+y0*s-pad*s-1)), c=Math.min(W,Math.ceil(ox+x1*s+pad*s+2)), e=Math.min(H,Math.ceil(oy+y1*s+pad*s+2));
+  return c>a&&e>b?[a,b,c-a,e-b]:null; }
 function rasterLayers(layers,s,W,H,ox,oy){
   const out=document.createElement('canvas'); out.width=W; out.height=H; const og=out.getContext('2d');
   const tmp=document.createElement('canvas'); tmp.width=W; tmp.height=H; const tg=tmp.getContext('2d',{willReadFrequently:true});
@@ -3664,8 +3671,10 @@ function rasterLayers(layers,s,W,H,ox,oy){
     else if(L.e){ tg.fillStyle=L.c; tg.beginPath(); tg.ellipse(L.e[0],L.e[1],L.e[2],L.e[3],L.e[4]||0,0,Math.PI*2); tg.fill(); }
     else if(L.s){ tg.strokeStyle=L.c; tg.lineWidth=L.w; tg.lineCap='round'; tg.lineJoin='round'; tg.stroke(new Path2D(L.s)); }
     tg.setTransform(1,0,0,1,0,0);
-    const img=tg.getImageData(0,0,W,H), d=img.data, th=L.th||110; for(let i=3;i<d.length;i+=4) d[i]=d[i]>th?255:0; tg.putImageData(img,0,0);
-    og.drawImage(tmp,0,0);
+    // hard alpha only inside the layer's own box (a hand or a strap is a few pixels; reading the whole canvas each time was the cost)
+    const bb=layerBox(L,s,ox,oy,W,H); if(!bb) continue;
+    const img=tg.getImageData(bb[0],bb[1],bb[2],bb[3]), d=img.data, th=L.th||110; for(let i=3;i<d.length;i+=4) d[i]=d[i]>th?255:0; tg.putImageData(img,bb[0],bb[1]);
+    og.drawImage(tmp,bb[0],bb[1],bb[2],bb[3],bb[0],bb[1],bb[2],bb[3]); tg.clearRect(bb[0],bb[1],bb[2],bb[3]); continue;
   }
   selOutline(og,W,H);
   return out;
@@ -3961,12 +3970,21 @@ function h2frame0(cid,q){
   L.push(...h2face(K,P,q)); if(X.face) L.push(...X.face(K,P,q));
   return L;
 }
-function heroFrame2(cid,q){
+/* frame budget: at most one new character frame is built per animation frame. A pose that is not ready yet shows the
+   character's previous frame for a moment instead (the background warm-up fills the cache in small time slices). */
+const FBUD={n:0,last:{}};
+function fbudOK(warm){ return warm||FBUD.n<1; }
+function fbudLast(k,c){ FBUD.last[k]=c; return c; }
+// background warm-up in slices of about 3 ms, so it never takes a whole frame
+function warmSlices(n,fn){ let i=0; const step=()=>{ const t0=performance.now(); while(i<n&&performance.now()-t0<3){ try{ fn(i); }catch(e){} i++; } if(i<n) setTimeout(step,24); }; setTimeout(step,60); }
+function heroFrame2(cid,q,warm){
   const key=cid+'|'+['lean','bob','nod','fret','strum','raise','crouch','recoil','slump','breath'].map(k=>Math.round((q[k]||0)*8)).join(',')+'|'+(q.blink?1:0)+(q.mouth?1:0);
-  let c=h2cache.get(key); if(c){ h2cache.delete(key); h2cache.set(key,c); return c; }
+  let c=h2cache.get(key); if(c){ h2cache.delete(key); h2cache.set(key,c); return warm?c:fbudLast('h'+cid,c); }
+  if(!fbudOK(warm)&&FBUD.last['h'+cid]) return FBUD.last['h'+cid];
+  if(!warm) FBUD.n++;
   c=rasterLayers(h2frame(cid,q),H2.s,H2.W,H2.H,H2.ox,H2.oy); h2cache.set(key,c);
-  if(h2cache.size>600) h2cache.delete(h2cache.keys().next().value);
-  return c;
+  if(h2cache.size>900) h2cache.delete(h2cache.keys().next().value);
+  return warm?c:fbudLast('h'+cid,c);
 }
 
 /* the six players, drawn from their Gemini portraits */
@@ -4030,7 +4048,7 @@ const HA={u:0.3,ut:0.3,sdir:1,noteAt:-9,flinchAt:-9,last:0};
 function heroNote(f){ HA.ut=Math.max(0,Math.min(1,Math.pow(Math.max(0,f)/15,0.85))); HA.sdir=-HA.sdir; HA.noteAt=perfNow(); }
 // build the common playing frames ahead of time, a few per tick, while the venue card is up
 function heroWarm(cid){ const list=[]; for(let f=0;f<=10;f++) for(const s of [0,-1,1,-0.5,0.5]) for(const n of [0,0.5,1]) for(const b of [0,1]) list.push({fret:f/10,strum:s,nod:n,breath:b});
-  let i=0; const step=()=>{ for(let k=0;k<3&&i<list.length;k++,i++){ const q={}; Object.keys(list[i]).forEach(key=>{ if(list[i][key]) q[key]=list[i][key]; }); heroFrame2(cid,q); } if(i<list.length) setTimeout(step,0); }; setTimeout(step,0); }
+  warmSlices(list.length,i=>{ const q={}; Object.keys(list[i]).forEach(key=>{ if(list[i][key]) q[key]=list[i][key]; }); heroFrame2(cid,q,true); }); }
 function heroFlinch(){ HA.flinchAt=perfNow(); }
 function heroPose(t,st){
   const dt=Math.min(0.1,Math.max(0,t-(HA.last||t))); HA.last=t; HA.u+=(HA.ut-HA.u)*Math.min(1,dt*16);
@@ -4829,11 +4847,12 @@ function neonText(g,text,x0,y0,col,off,t,seed){
   text.split('').forEach((ch,ci)=>{ const gl=FONT[ch]; for(let r=0;r<5;r++) for(let c=0;c<3;c++) if(gl[r][c]==='1'){ const px=x0+ci*8+c*2, py=y0+r*2; if(on){ g.globalAlpha=0.3; g.fillStyle=col; g.fillRect(px-1,py-1,4,4); g.globalAlpha=1; } g.fillStyle=on?col:off; g.fillRect(px,py,2,2); } });
 }
 function drawSpurDyn(g,t){
-  if(STAGE_PLATE.spur) [78,236].forEach(cx=>{ const ph=Math.floor(t*5); for(let k=0;k<10;k++){ const an=k/10*Math.PI*2, x=Math.round(cx+Math.cos(an)*11), y=Math.round(22+Math.sin(an)*11), on=((k+ph)%3===0)&&!(Math.sin(t*9+k*3+cx)>0.96);
-    if(on){ g.globalAlpha=0.45; g.fillStyle='#FFB84A'; g.fillRect(x-2,y-2,5,5); g.globalAlpha=1; g.fillStyle='#FFF0B0'; g.fillRect(x-1,y-1,3,3); } else { g.fillStyle='#6A4A22'; g.fillRect(x,y,1,1); } } });
+  if(STAGE_PLATE.spur) [78,236].forEach(cx=>{ const ph=Math.floor(t*1.1); for(let k=0;k<10;k++){ const an=k/10*Math.PI*2, x=Math.round(cx+Math.cos(an)*11), y=Math.round(22+Math.sin(an)*11), on=((k+ph)%5===0);
+    if(on){ g.globalAlpha=0.25; g.fillStyle='#FFB84A'; g.fillRect(x-2,y-2,5,5); g.globalAlpha=1; g.fillStyle='#FFF0B0'; g.fillRect(x-1,y-1,3,3); } else { g.fillStyle='#6A4A22'; g.fillRect(x,y,1,1); } } });
   else [78,236].forEach(cx=>{ for(let k=0;k<6;k++){ const an=k/6*Math.PI*2+0.5, x=Math.round(cx+Math.cos(an)*9), y=Math.round(11+Math.sin(an)*2.5)+1, on=!(Math.sin(t*9+k*3+cx)>0.95);
     if(on){ g.globalAlpha=0.35; g.fillStyle='#FFD27A'; g.fillRect(x-1,y-1,3,3); g.globalAlpha=1; } g.fillStyle=on?'#FFF0B0':'#6A5A3A'; g.fillRect(x,y,1,2); } });
   if(STAGE_PLATE.spur){ spurBulbs(g,t); spurJuke(g,t); }
+  if(STAGE_PLATE.spur) return;   // the painted saloon has its own signs; the code neon is only for the drawn fallback
   neonText(g,'DANCE',184,22,'#6DF0FF','#123A48',t,1.3);
   const bon=!(Math.sin(t*7+4)>0.96);
   for(let r=0;r<6;r++) for(let c=0;c<7;c++) if(BOOT[r][c]==='x'){ const px=248+c*2, py=20+r*2; if(bon){ g.globalAlpha=0.3; g.fillStyle='#FF6DC8'; g.fillRect(px-1,py-1,4,4); g.globalAlpha=1; } g.fillStyle=bon?'#FF8AD8':'#4A1A3A'; g.fillRect(px,py,2,2); }
@@ -5672,21 +5691,23 @@ function drawMotes2(g,t){
     if(Math.sin(t*2.3+ph*5)>-0.2){ g.fillStyle='rgba(255,227,166,'+(0.3+0.5*(1-k)).toFixed(2)+')'; g.fillRect(Math.round(x),Math.round(y),1,1); }
   }
 }
+let S2T=-1, S2DT=0;
 function drawStage(t,dt){
-  const V=VEN(), A=ART[V.id], g=s1;
+  const V=VEN(), A=ART[V.id], g=s1, bob=tr.on?anim.bob:0; S2DT+=dt;
+  // the effects layer (flames, twinkles, notes) is re-drawn and doubled 30 times a second; the characters still move at full rate
+  const fresh=t-S2T>=0.03||t<S2T; if(fresh){ S2T=t; dt=S2DT; S2DT=0;
   g.clearRect(0,0,SW,SH);
   A.dyn(g,t);
-  const bob=tr.on?anim.bob:0;
   A.rival(g,236,100+(tr.on?1-anim.bob:0),{t,strum:t<anim.rStrumUntil?Math.floor(t*30):-1,aura:state.blind,blink:(t%4)<0.12});
   for(const p of anim.parts){ p.x+=p.vx*dt; p.y+=p.vy*dt; p.life-=dt; if(p.life>0.3||Math.floor(p.life*20)%2) drawNoteGlyph(g,p.x,p.y,p.col); }
   anim.parts=anim.parts.filter(p=>p.life>0);
-  scale2xData(new Uint32Array(g.getImageData(0,0,SW,SH).data.buffer),SW,SH,s2d); s2.putImageData(s2img,0,0);
+  scale2xData(new Uint32Array(g.getImageData(0,0,SW,SH).data.buffer),SW,SH,s2d); s2.putImageData(s2img,0,0); }
   sg.drawImage(bgCanvas,0,0); sg.drawImage(S2,0,0); drawBandStage(sg,t,'back');
   drawHero(sg,state.char||'bard',HERO_X,FIGHTER_Y+(BODY_IMG[state.char||'bard']?0:bob*2),{t,strum:t<anim.pStrumUntil?Math.floor(t*30):-1,blink:(t%3.7)<0.12});
   if(A.vec){ drawRivalVec(sg,V.id,RIVAL_X,FIGHTER_Y+(tr.on&&!CALLER_IMG[V.id]?(1-anim.bob)*2:0),{t,strum:t<anim.rStrumUntil?Math.floor(t*30):-1,blink:(t%4)<0.12}); drawRivalProp(sg,V.id,t); }
   drawBandStage(sg,t,'front'); drawCrowdFront(sg,t,V.hats);
   if(A.motes) drawMotes2(sg,t);
-  if(state.blind&&!VEN().whiteout){ sg.fillStyle='rgba(26,6,20,0.42)'; sg.fillRect(0,0,SW*2,SH*2); sg.fillStyle='#FFDA24'; sg.fillRect(RIVAL_X-6,FIGHTER_Y-80,4,2); sg.fillRect(RIVAL_X+2,FIGHTER_Y-80,4,2); }
+  stageBlind(sg,V,t);
 }
 function drawPortrait(c,V){
   const A=ART[V.id], t1=document.createElement('canvas'); t1.width=48; t1.height=48; const g=t1.getContext('2d');
@@ -5726,7 +5747,7 @@ function applyShake(){
 }
 let lastT=0;
 function loop(ms){
-  const t=ms/1000, dt=Math.min(0.05,t-(lastT||t)); lastT=t;
+  const t=ms/1000, dt=Math.min(0.05,t-(lastT||t)); lastT=t; FBUD.n=0;
   processVis();
   try{
     if(state.screen==='title') titleFrame(t);
@@ -5954,11 +5975,13 @@ function rivalRigLayers0(id,q){
   return [...L,{s:h2path([P2(-9.5,-72),joint]),w:2.4,c:'#2A1A10'},...back,...GL,...front];
 }
 const rcache2=new Map(), RQ={lean:0.4,nod:0.5,fret:0.1,strum:0.5,slump:0.5,gloat:0.5,breath:1,bounce:1,shake:1};
-function rivalFrame2(id,q){ const R=RIVAL_VEC[id], qq={blink:q.blink}; Object.keys(RQ).forEach(k=>{ if(q[k]) qq[k]=Math.round(q[k]/RQ[k])*RQ[k]; });
+function rivalFrame2(id,q,warm){ const R=RIVAL_VEC[id], qq={blink:q.blink}; Object.keys(RQ).forEach(k=>{ if(q[k]) qq[k]=Math.round(q[k]/RQ[k])*RQ[k]; });
   const key=id+'|'+Object.keys(RQ).map(k=>Math.round((qq[k]||0)*8)).join(',')+'|'+(qq.blink?1:0);
-  let c=rcache2.get(key); if(c){ rcache2.delete(key); rcache2.set(key,c); return c; }
+  let c=rcache2.get(key); if(c){ rcache2.delete(key); rcache2.set(key,c); return warm?c:fbudLast('r'+id,c); }
+  if(!fbudOK(warm)&&FBUD.last['r'+id]) return FBUD.last['r'+id];
+  if(!warm) FBUD.n++;
   const raw=rasterLayers(rivalRigLayers(id,qq),R.s,R.W,R.H,R.ox,R.oy); c=document.createElement('canvas'); c.width=R.W; c.height=R.H;
-  const g=c.getContext('2d'); g.translate(R.W,0); g.scale(-1,1); g.drawImage(raw,0,0); rcache2.set(key,c); if(rcache2.size>500) rcache2.delete(rcache2.keys().next().value); return c; }
+  const g=c.getContext('2d'); g.translate(R.W,0); g.scale(-1,1); g.drawImage(raw,0,0); rcache2.set(key,c); if(rcache2.size>700) rcache2.delete(rcache2.keys().next().value); return warm?c:fbudLast('r'+id,c); }
 // the driver: the caller's own notes, the beat, and how your answers land
 const RA={u:0.3,ut:0.3,sdir:1,noteAt:-9,last:0,moodAt:-9,mood:0};
 function rivalNote(f){ RA.ut=Math.max(0,Math.min(1,Math.pow(Math.max(0,f||0)/15,0.85))); RA.sdir=-RA.sdir; RA.noteAt=perfNow(); }
@@ -5976,7 +5999,7 @@ function rivalPose(t,st){ const dt=Math.min(0.1,Math.max(0,t-(RA.last||t))); RA.
   if(ph==='review'&&state.over==='lose'){ q.gloat=1; q.nod=0; q.bounce=bt>=0&&bf<0.25?1:0; } if(ph==='review'&&state.over==='win'){ q.slump=1; q.nod=0; q.breath=0; }
   return q; }
 function rivalWarm(id){ if(!RIVAL_VEC[id]) return; const list=[]; for(let f=0;f<=10;f++) for(const s of [0,-1,1,-0.5,0.5]) for(const n of [0,0.5]) for(const b of [0,1]) list.push({fret:f/10,strum:s,nod:n,breath:b});
-  let i=0; const step=()=>{ for(let k=0;k<3&&i<list.length;k++,i++){ const q={}; Object.keys(list[i]).forEach(key=>{ if(list[i][key]) q[key]=list[i][key]; }); rivalFrame2(id,q); } if(i<list.length) setTimeout(step,0); }; setTimeout(step,0); }
+  warmSlices(list.length,i=>{ const q={}; Object.keys(list[i]).forEach(key=>{ if(list[i][key]) q[key]=list[i][key]; }); rivalFrame2(id,q,true); }); }
 
 /* ---------- North America's callers, redrawn vector-first for the rig ---------- */
 Object.assign(RIVAL_VEC,{
@@ -6268,7 +6291,7 @@ function drawBandSide(g,t,ids,mirror,vid,layer){
       else if(sub===id) g.drawImage(bandFrame0(id,q,mirror),Math.round(xx-(mirror?BS.W-BS.ox:BS.ox)),Math.round(yy-BS.oy)); } }); }
 function bandWarm(){ const jobs=[], vid=VEN().id; [[state.lineup||[],false],[state.rivalBand||[],true]].forEach(([ids,m])=>bandPlacesCached(ids,m,vid).forEach(([id])=>{
     for(const [sub] of (BAND_GROUP[id]||[[id]])) for(const pose of [0,1]) for(const nod of [0,1]) for(const breath of [0,1]) jobs.push([sub,{hit:pose,nod,breath},m]); }));
-  let k=0; const step=()=>{ for(let n=0;n<4&&k<jobs.length;n++,k++){ const [id,q,m]=jobs[k]; bandPaintedFrame(id,q,m); } if(k<jobs.length) setTimeout(step,0); }; setTimeout(step,0); }
+  warmSlices(jobs.length,k=>{ const [id,q,m]=jobs[k]; bandPaintedFrame(id,q,m); }); }
 function drawBandStage(g,t,layer,vid){ try{ vid=vid||VEN().id; layer=layer||'back'; drawBandSide(g,t,state.lineup||[],false,vid,layer); drawBandSide(g,t,state.rivalBand||[],true,vid,layer); }catch(e){ console.error('band stage',e); } }
 
 /* ---------- the van, between tours: a roadside motel at dawn ----------
@@ -6393,6 +6416,17 @@ function spurWheel(g,cx){
   for(let a=0;a<160;a++){ const an=a/160*Math.PI*2, c=Math.cos(an), n=Math.sin(an); g.fillStyle='#2A1406'; g.fillRect(Math.round(cx+c*(R+1))-1,Math.round(cy+n*(R+1))-1,2,2); g.fillStyle=(a%2)?'#7A4A24':'#5A3214'; g.fillRect(Math.round(cx+c*R)-1,Math.round(cy+n*R)-1,1,1); }
   g.fillStyle='#2A1406'; g.fillRect(cx-3,cy-3,6,6); g.fillStyle='#8A5A2E'; g.fillRect(cx-2,cy-2,2,2);
 }
+// when the lights go out: what keeps burning. Hollow Pine: the lamps go dark, the stove stays bright and lights whoever stands near it.
+function stageBlind(sg,V,t){ if(!state.blind||V.whiteout) return; sg.fillStyle='rgba(26,6,20,0.42)'; sg.fillRect(0,0,SW*2,SH*2); if(BLIND_FX[V.id]) try{ BLIND_FX[V.id](sg,t); }catch(e){}
+  sg.fillStyle='#FFDA24'; sg.fillRect(RIVAL_X-6,FIGHTER_Y-80,4,2); sg.fillRect(RIVAL_X+2,FIGHTER_Y-80,4,2); }
+const BLIND_FX={juke:(g,t)=>{
+  [[200,16],[356,18],[570,20]].forEach(([x,y])=>{ const gr=g.createRadialGradient(x,y,0,x,y,14); gr.addColorStop(0,'rgba(14,6,10,0.72)'); gr.addColorStop(0.6,'rgba(14,6,10,0.45)'); gr.addColorStop(1,'rgba(14,6,10,0)'); g.fillStyle=gr; g.fillRect(x-14,y-14,28,28); });
+  g.fillStyle='rgba(10,3,8,0.28)'; g.fillRect(0,0,640,240);
+  const fk=1+0.18*Math.sin(t*7)*Math.sin(t*3.7)+0.1*(h2(Math.floor(t*12),5)-0.5);
+  g.save(); g.globalCompositeOperation='lighter';
+  [[96,160,150,0.42],[96,222,190,0.26]].forEach(([x,y,r,a])=>{ const A=a*fk, gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(255,140,50,'+A.toFixed(3)+')'); gr.addColorStop(0.4,'rgba(255,110,40,'+(A*0.45).toFixed(3)+')'); gr.addColorStop(1,'rgba(255,90,30,0)'); g.fillStyle=gr; g.fillRect(x-r,y-r,r*2,r*2); });
+  g.restore();
+  g.save(); g.scale(2,2); stageFx(g,t,(STAGE_FX.juke||[]).filter(f=>f.k==='fl'||f.k==='beams')); g.restore(); }};
 function stageFx(g,t,fx){
   const beat=tr.on&&anim.bob?1:0;
   for(const f of fx){
@@ -6404,7 +6438,7 @@ function stageFx(g,t,fx){
     else if(k==='fl') P.forEach((q,i)=>{ const cx=q[0]>>1, cy=q[1]>>1, r=f.r||3, v=0.6+0.3*Math.sin(t*13+i*5)*Math.sin(t*7.3+i*2)+0.25*(h2(Math.floor(t*14),i)-0.5);
       g.fillStyle=c0; g.globalAlpha=Math.max(0.06,v*0.32); g.beginPath(); g.ellipse(cx,cy-1,r,r*1.3,0,0,6.283); g.fill();
       g.globalAlpha=Math.max(0.25,v*0.9); g.fillStyle=f.core||'#FFE08A'; g.fillRect(cx-1,cy-1-(v>0.75?1:0),2,2+(v>0.75?1:0)); g.globalAlpha=1; });
-    else if(k==='fgl') P.forEach((q,i)=>{ const r=(q[2]||f.r||14)/2, v=0.7+0.3*Math.sin(t*(f.sp||5)+i*3)*Math.sin(t*2.3+i)+0.15*(h2(Math.floor(t*(f.sp||5)*2),i+7)-0.5);
+    else if(k==='fgl'&&!state.blind) P.forEach((q,i)=>{ const r=(q[2]||f.r||14)/2, v=0.7+0.3*Math.sin(t*(f.sp||5)+i*3)*Math.sin(t*2.3+i)+0.15*(h2(Math.floor(t*(f.sp||5)*2),i+7)-0.5);
       g.fillStyle=c0; for(let s=0;s<4;s++){ g.globalAlpha=(f.a||0.08)*v; const e=r*(0.4+s*0.2); g.beginPath(); g.ellipse(q[0]>>1,q[1]>>1,e,e,0,0,6.283); g.fill(); } g.globalAlpha=1; });
     else if(k==='glow'||k==='neon'||k==='pulse') (f.e||[]).forEach((e,i)=>{ const a=f.a||0.1, v=a+(f.amp||0.05)*Math.sin(t*(f.sp||1.7)+i*1.9)+(f.beat?f.beat*beat:0)-(k==='neon'&&Math.sin(t*(f.sp||1.7)*5+i*3)>0.93?a*0.6:0);
       g.fillStyle=c0; for(let s=0;s<6;s++){ g.globalAlpha=Math.max(0,v)*0.28; const q=1+s*0.16; g.beginPath(); g.ellipse(e[0]>>1,e[1]>>1,Math.max(1,e[2]/2*q),Math.max(1,e[3]/2*q),0,0,6.283); g.fill(); } g.globalAlpha=1; });
@@ -6449,7 +6483,7 @@ function spurBulbs(g,t){
 function spurJuke(g,t){
   const beat=tr.on&&anim.bob?1:0, br=0.1+0.04*Math.sin(t*2)+beat*0.1;
   g.fillStyle='#FFB04A'; for(let k=0;k<9;k++){ g.globalAlpha=br*0.22; g.beginPath(); g.ellipse(295,80,14+k*3,24+k*3.5,0,0,Math.PI*2); g.fill(); } g.globalAlpha=1;
-  const cols=['#FF5A4A','#FFC040','#6AE07A','#4AB0FF'], ph=Math.floor(t*7), N=16, seg=[]; let tot=0;
+  const cols=['#FF5A4A','#FFC040','#6AE07A','#4AB0FF'], ph=Math.floor(t*2.5), N=16, seg=[]; let tot=0;
   for(let i=1;i<SPUR_JPATH.length;i++){ const d=Math.hypot(SPUR_JPATH[i][0]-SPUR_JPATH[i-1][0],SPUR_JPATH[i][1]-SPUR_JPATH[i-1][1]); seg.push(d); tot+=d; }
   for(let n=0;n<N;n++){ let d=(n+0.5)/N*tot, i=0; while(i<seg.length-1&&d>seg[i]){ d-=seg[i]; i++; }
     const a=SPUR_JPATH[i], b=SPUR_JPATH[i+1], u=d/seg[i], x=Math.round((a[0]+(b[0]-a[0])*u)/2), y=Math.round((a[1]+(b[1]-a[1])*u)/2), c=cols[(n+ph)%4];
@@ -7701,13 +7735,13 @@ requestAnimationFrame(loop);
 window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={muteLead:v=>{ SONG.muteL=v; },snapCount:()=>snapEm.n||0,snapEm:f=>snapEm(f),castleZ:z=>{ CASTLE_Z=z; },plateInfo:()=>Object.keys(TITLE_MASKS).map(id=>id+':'+(PLATE_FG[id]?'fg':'-')+(PLATE_NIGHT[id]?'+night':'')).join(' '),roadAudit:(id,useFix)=>{ const o=store.settings.titleTheme, pv=store.settings.previewScenes; store.settings.previewScenes=true; store.settings.titleTheme=id; const TKX=curTitleKinds(), R=TZF-TZN, inst=[];
   for(const s of TOBJ) for(let k=0;k<400;k++) inst.push({W:(k-s.ph)*R,kind:useFix?titleKindAt(s.i,k,TKX,R):rawTitleKind(s.i,k,TKX)}); inst.sort((a,b)=>a.W-b.W); let bad=0; const ex={};
   for(let a=0;a<inst.length;a++){ const x=inst[a]; if(!(TKX.near[x.kind]||TKX.big[x.kind])) continue; const win=TKX.big[x.kind]?11:8; for(let b=a+1;b<inst.length&&inst[b].W-x.W<win;b++) if(inst[b].kind===x.kind){ bad++; ex[x.kind]=(ex[x.kind]||0)+1; } }
-  store.settings.titleTheme=o; store.settings.previewScenes=pv; return {bad,ex}; },songTestStyle:async(st,from,n)=>{ const o=SONG.style; SONG.style=st; SONG.builtStyle=null; try{ return await songTest(from,n); } finally{ SONG.style=o; SONG.builtStyle=null; } },setTitleTheme:id=>setTitleTheme(id),titleThemeId:()=>titleThemeId(),songStyle:()=>SONG.style,nextSky:()=>{ nextSky(); titleStatic=null; },bpm:()=>({BPM,BEAT,on:tr.on,phase:state.phase}),applyPracticeTempo:b=>applyPracticeTempo(b),PR_:()=>PR,openGreenRoom:(p,c)=>openGreenRoom(p,c),startPractice:c=>startPractice(c),finishPracticeSession:()=>finishPracticeSession(),snapGreen:()=>{ buildBg(PRAC_VEN); return stageSnapshot(PRAC_VEN).toDataURL(); },goEar:()=>goEar(),earSummary:()=>earSummary(),earWeakSpots:()=>earWeakSpots(),setTab:x=>setTab(x),goBackstage:()=>goBackstage(),goRoster:()=>goRoster(),dexC,TOURS_:()=>TOURS,pmPNG:(id,on)=>pedalMini(PEDALS.find(q=>q.id===id),!!on).toDataURL(),bandPNG:(id,q,m)=>bandFrame(id,q||{},!!m).toDataURL(),RIVAL_PORT,MEMBER_PORT,rPNG:(id,q)=>rivalFrame2(id,q||{}).toDataURL(),RIVAL_VEC,pickRivalBand:()=>pickRivalBand(),rivalBandHTML:()=>rivalBandHTML(),bandBpm:()=>bandBpm(),MEMBERS,maybeRecruit:f=>maybeRecruit(f),bandPing:()=>({bpm:BPM,w:bandWindow(),reroll:rerollCost()}),META,goVan:()=>goVan(),metaRunEnd:w=>metaRunEnd(w),gsPNG:id=>guitarStand(id).toDataURL(),songTest:(a,b)=>songTest(a,b),SONG,h2PNG:(cid,q)=>heroFrame2(cid,q||{}).toDataURL(),heroPose:(t)=>heroPose(t,{}),HA,heroPNG:(cid,f,kind)=>heroFrame(cid,kind||'stage',Object.assign({sway:0,strum:0,blink:false},f||{})).toDataURL(),warm:WARM,rigRender:(g,ids)=>rigRender(g,ids),grooveTest:(ids,o)=>grooveTest(ids,o),GROOVES,groovePos:t=>groovePos(t),pos:m=>positionsFor(m),open:()=>OPEN.slice(),sim:(ids,pedalIds,legNo,runs)=>{ const out={}, save={pedals:state.pedals,tour:state.tour,venueIdx:state.venueIdx,legNo:state.legNo,replays:state.replays};
+  store.settings.titleTheme=o; store.settings.previewScenes=pv; return {bad,ex}; },songTestStyle:async(st,from,n)=>{ const o=SONG.style; SONG.style=st; SONG.builtStyle=null; try{ return await songTest(from,n); } finally{ SONG.style=o; SONG.builtStyle=null; } },setTitleTheme:id=>setTitleTheme(id),titleThemeId:()=>titleThemeId(),songStyle:()=>SONG.style,nextSky:()=>{ nextSky(); titleStatic=null; },bpm:()=>({BPM,BEAT,on:tr.on,phase:state.phase}),applyPracticeTempo:b=>applyPracticeTempo(b),PR_:()=>PR,openGreenRoom:(p,c)=>openGreenRoom(p,c),startPractice:c=>startPractice(c),finishPracticeSession:()=>finishPracticeSession(),snapGreen:()=>{ buildBg(PRAC_VEN); return stageSnapshot(PRAC_VEN).toDataURL(); },goEar:()=>goEar(),earSummary:()=>earSummary(),earWeakSpots:()=>earWeakSpots(),setTab:x=>setTab(x),goBackstage:()=>goBackstage(),goRoster:()=>goRoster(),dexC,TOURS_:()=>TOURS,pmPNG:(id,on)=>pedalMini(PEDALS.find(q=>q.id===id),!!on).toDataURL(),bandPNG:(id,q,m)=>bandFrame(id,q||{},!!m).toDataURL(),RIVAL_PORT,MEMBER_PORT,rPNG:(id,q)=>rivalFrame2(id,q||{}).toDataURL(),RIVAL_VEC,pickRivalBand:()=>pickRivalBand(),rivalBandHTML:()=>rivalBandHTML(),bandBpm:()=>bandBpm(),MEMBERS,maybeRecruit:f=>maybeRecruit(f),bandPing:()=>({bpm:BPM,w:bandWindow(),reroll:rerollCost()}),META,goVan:()=>goVan(),metaRunEnd:w=>metaRunEnd(w),gsPNG:id=>guitarStand(id).toDataURL(),songTest:(a,b)=>songTest(a,b),SONG,h2PNG:(cid,q)=>heroFrame2(cid,q||{},true).toDataURL(),heroPose:(t)=>heroPose(t,{}),HA,heroPNG:(cid,f,kind)=>heroFrame(cid,kind||'stage',Object.assign({sway:0,strum:0,blink:false},f||{})).toDataURL(),warm:WARM,rigRender:(g,ids)=>rigRender(g,ids),grooveTest:(ids,o)=>grooveTest(ids,o),GROOVES,groovePos:t=>groovePos(t),pos:m=>positionsFor(m),open:()=>OPEN.slice(),sim:(ids,pedalIds,legNo,runs)=>{ const out={}, save={pedals:state.pedals,tour:state.tour,venueIdx:state.venueIdx,legNo:state.legNo,replays:state.replays};
     const all=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN]; state.pedals=pedalIds.map(id=>PEDALS.find(q=>q.id===id)); state.legNo=legNo;
     ids.forEach(id=>{ const V=all.find(v=>v.id===id), T=TOURS.find(T=>T.venues.indexOf(V)>=0); setTour(TOURS.indexOf(T)); state.venueIdx=T.venues.indexOf(V); let tot=0;
       for(let r=0;r<runs;r++){ state.used={}; state.streak=0; for(let c=0;c<V.setLen;c++){ state.replays=2; state.replaysAtCall=2; const call=makeCall(V.tiers[c]); state.call=call;
         state.answer=call.notes.map(n=>({midi:n.midi,s:n.s,f:n.f,g:Math.random()<0.55?(Math.random()<0.4?'pocket':'groove'):null})); tot+=evaluate().score; } }
       out[id]={avg:Math.round(tot/runs),target:venueTarget(V)}; });
-    Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1}); if(ART[id].vec){ drawRivalVec(cg,id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,id,t); } drawBandStage(cg,t,'front',id); drawCrowdFront(cg,t,V.hats); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
+    Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1}); if(ART[id].vec){ drawRivalVec(cg,id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,id,t); } drawBandStage(cg,t,'front',id); drawCrowdFront(cg,t,V.hats); stageBlind(cg,V,t); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q,true),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
 })();
 </script>
 </body>

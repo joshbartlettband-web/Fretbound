@@ -70,5 +70,29 @@
   "B": 1,
   "calm": 6.4,
   "issues": []
+ },
+ "milonga": {
+  "A": 1,
+  "B": 1,
+  "calm": 0.5,
+  "issues": []
+ },
+ "rio": {
+  "A": 3,
+  "B": 3,
+  "calm": 6.7,
+  "issues": []
+ },
+ "chicha": {
+  "A": 2,
+  "B": 1,
+  "calm": 7.8,
+  "issues": []
+ },
+ "paris": {
+  "A": 2,
+  "B": 1,
+  "calm": 7.1,
+  "issues": []
  }
 }

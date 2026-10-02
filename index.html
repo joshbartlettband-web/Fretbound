@@ -3923,9 +3923,14 @@ function h2frame0(cid,q){
   const P=H2P[cid], K=h2skel(q), g=h2guitar(P.guitar,K.C,K.na), X=H2X[cid]||{};
   const L=[];
   if(BODY_IMG[cid]){ // a painted armless body; the arms are still drawn by the rig so the hands find the real frets
-    const M=BODY_META[cid], px=M.fx, py=M.fy-40*H2.s, u=1/H2.s, at=p=>h2rot(K.hip,K.a,(p[0]-px)*u,(p[1]-py)*u);
+    // cut-out warp in whole pixels: the feet stay planted, lean shears the torso, nod moves the head, crouch bends the knees, breath lifts the shoulders
+    const M=BODY_META[cid], px=M.fx, py=M.fy-40*H2.s, u=1/H2.s, sy=Math.min(M.s1[1],M.s2[1]), hip0={x:0,y:-40};
+    const bz=Math.round((q.crouch||0)*6*H2.s), br=(q.breath||0)-Math.round((q.slump||0)*2), hd=(q.nod||0)*2+(q.slump||0)*2-(q.recoil||0)*1.5;
+    const R={neck:sy-3,chest:sy+5,hip:py,knee:M.fy-20*H2.s};
+    const w=warpSprite(BODY_IMG[cid],0,0,M.w,M.h,R,{lean:Math.round(Math.sin(K.a)*(R.hip-R.neck)),nodX:Math.round(hd*0.6),nodY:Math.round(hd),breath:br,bounce:bz});
+    const at=p=>{ const r=h2rot(hip0,K.a,(p[0]-px)*u,(p[1]-py)*u); return {x:r.x,y:r.y+(bz-br)*u}; };
     K.S1=at(M.s1); K.S2=at(M.s2);
-    L.push({body:{img:BODY_IMG[cid],m:M,o:K.hip,a:K.a,px,py}});
+    L.push({body:{img:w,m:{w:w.width,h:w.height},o:hip0,a:0,px:px+WARP_M,py:py+WARP_M}});
     if(P.strap) L.push({s:h2path([h2rot(K.hip,K.a,-7,-22),g.joint]),w:1.6,c:P.strap});
     const AR=h2arms(K,g,q,P); L.push(...AR.behind); L.push(...g.L); L.push(...AR.L); return L; }
   if(X.back) L.push(...X.back(K,P,q));
@@ -3944,7 +3949,7 @@ function h2frame0(cid,q){
   return L;
 }
 function heroFrame2(cid,q){
-  const key=cid+'|'+['lean','bob','nod','fret','strum','raise','crouch','recoil','slump'].map(k=>Math.round((q[k]||0)*8)).join(',')+'|'+(q.blink?1:0)+(q.mouth?1:0);
+  const key=cid+'|'+['lean','bob','nod','fret','strum','raise','crouch','recoil','slump','breath'].map(k=>Math.round((q[k]||0)*8)).join(',')+'|'+(q.blink?1:0)+(q.mouth?1:0);
   let c=h2cache.get(key); if(c){ h2cache.delete(key); h2cache.set(key,c); return c; }
   c=rasterLayers(h2frame(cid,q),H2.s,H2.W,H2.H,H2.ox,H2.oy); h2cache.set(key,c);
   if(h2cache.size>600) h2cache.delete(h2cache.keys().next().value);
@@ -4011,21 +4016,22 @@ const H2X={
 const HA={u:0.3,ut:0.3,sdir:1,noteAt:-9,flinchAt:-9,last:0};
 function heroNote(f){ HA.ut=Math.max(0,Math.min(1,Math.pow(Math.max(0,f)/15,0.85))); HA.sdir=-HA.sdir; HA.noteAt=perfNow(); }
 // build the common playing frames ahead of time, a few per tick, while the venue card is up
-function heroWarm(cid){ const list=[]; for(let f=0;f<=10;f++) for(const s of [0,-1,1,-0.5,0.5]) for(const n of [0,0.5,1]) list.push({fret:f/10,strum:s,nod:n});
+function heroWarm(cid){ const list=[]; for(let f=0;f<=10;f++) for(const s of [0,-1,1,-0.5,0.5]) for(const n of [0,0.5,1]) for(const b of [0,1]) list.push({fret:f/10,strum:s,nod:n,breath:b});
   let i=0; const step=()=>{ for(let k=0;k<3&&i<list.length;k++,i++){ const q={}; Object.keys(list[i]).forEach(key=>{ if(list[i][key]) q[key]=list[i][key]; }); heroFrame2(cid,q); } if(i<list.length) setTimeout(step,0); }; setTimeout(step,0); }
 function heroFlinch(){ HA.flinchAt=perfNow(); }
 function heroPose(t,st){
   const dt=Math.min(0.1,Math.max(0,t-(HA.last||t))); HA.last=t; HA.u+=(HA.ut-HA.u)*Math.min(1,dt*16);
   const q={fret:HA.u,blink:!!st.blink}, sn=t-HA.noteAt, fl=t-HA.flinchAt, ph=state.phase;
   if(sn>=0&&sn<0.22) q.strum=sn<0.09?HA.sdir*(-1+2*sn/0.09):HA.sdir*(1-(sn-0.09)/0.13);
-  if(tr.on&&ctx&&state.screen==='duel'){ const b=(ctx.currentTime-tr.t0)/BEAT, fr=b-Math.floor(b); if(b>=0) q.nod=Math.exp(-fr*5)*((state.streak||0)>=3?1:0.5); }
+  q.breath=breathAt(t,0.4);
+  if(tr.on&&ctx&&state.screen==='duel'){ const b=(ctx.currentTime-tr.t0)/BEAT, fr=b-Math.floor(b); if(b>=0){ q.nod=Math.exp(-fr*5)*((state.streak||0)>=3?1:0.5); if(fr<0.18) q.crouch=0.25; } }
   if(ph==='listen') q.lean=0.8;
   if(t<anim.cheerUntil||(ph==='review'&&state.over==='win')){ q.raise=1; q.crouch=Math.max(q.crouch||0,0.5); q.mouth=1; }
   if(ph==='review'&&state.over==='lose'){ q.slump=1; q.nod=0; }
   if(fl>=0&&fl<0.7){ q.recoil=1-fl/0.7; q.blink=true; q.mouth=1; }
   return q;
 }
-const H2Q={lean:0.4,nod:0.5,fret:0.1,strum:0.5,raise:0.5,crouch:0.25,recoil:0.34,slump:0.5};
+const H2Q={lean:0.4,nod:0.5,fret:0.1,strum:0.5,raise:0.5,crouch:0.25,recoil:0.34,slump:0.5,breath:1};
 /*SPRITES:BEGIN*/
 const SPR_SRC={}, SPR_META={};
 /*SPRITES:END*/
@@ -4038,7 +4044,7 @@ function drawHero(g,cid,x,y,st){
     g.imageSmoothingEnabled=false; g.drawImage(SPR_IMG[cid],i*M.cw,0,M.cw,M.ch,x-M.fx,y-M.fy+bob,M.cw,M.ch); return; }
   const t=st.t||0, q=heroPose(t,st), qq={blink:q.blink,mouth:q.mouth};
   Object.keys(H2Q).forEach(k=>{ if(q[k]) qq[k]=Math.round(q[k]/H2Q[k])*H2Q[k]; });
-  const bob=Math.round(Math.sin(t*1.7)*0.7), fr=heroFrame2(cid,qq), s=H2.s;
+  const bob=BODY_IMG[cid]?0:Math.round(Math.sin(t*1.7)*0.7), fr=heroFrame2(cid,qq), s=H2.s;
   g.drawImage(fr,x-H2.ox,y-H2.oy+bob);
   const K=h2skel(qq), at=(mx,my)=>({x:Math.round(x+mx*s),y:Math.round(y+my*s)+bob});
   if(cid==='hermit'){ const l0=h2rot(K.hip,K.a,-11,-1), l=at(l0.x,l0.y), f=0.5+0.5*Math.sin(t*9)*Math.sin(t*3.3);
@@ -5659,9 +5665,10 @@ function drawStage(t,dt){
   anim.parts=anim.parts.filter(p=>p.life>0);
   drawCrowd(g,t,V.hats);
   scale2xData(new Uint32Array(g.getImageData(0,0,SW,SH).data.buffer),SW,SH,s2d); s2.putImageData(s2img,0,0);
-  sg.drawImage(bgCanvas,0,0); sg.drawImage(S2,0,0); drawBandStage(sg,t);
-  drawHero(sg,state.char||'bard',156,200+bob*2,{t,strum:t<anim.pStrumUntil?Math.floor(t*30):-1,blink:(t%3.7)<0.12});
-  if(A.vec) drawRivalVec(sg,V.id,472,200+(tr.on?(1-anim.bob)*2:0),{t,strum:t<anim.rStrumUntil?Math.floor(t*30):-1,blink:(t%4)<0.12});
+  sg.drawImage(bgCanvas,0,0); sg.drawImage(S2,0,0); drawBandStage(sg,t,'back');
+  drawHero(sg,state.char||'bard',156,200+(BODY_IMG[state.char||'bard']?0:bob*2),{t,strum:t<anim.pStrumUntil?Math.floor(t*30):-1,blink:(t%3.7)<0.12});
+  if(A.vec) drawRivalVec(sg,V.id,472,200+(tr.on&&!CALLER_IMG[V.id]?(1-anim.bob)*2:0),{t,strum:t<anim.rStrumUntil?Math.floor(t*30):-1,blink:(t%4)<0.12});
+  drawBandStage(sg,t,'front');
   if(A.motes) drawMotes2(sg,t);
   if(state.blind&&!VEN().whiteout){ sg.fillStyle='rgba(26,6,20,0.42)'; sg.fillRect(0,0,SW*2,SH*2); sg.fillStyle='#FFDA24'; sg.fillRect(466,120,4,2); sg.fillRect(474,120,4,2); }
 }
@@ -6142,9 +6149,7 @@ function bandFrame0(id,q,mirror){ const key=id+'|'+(mirror?1:0)+'|'+['nod','hit'
   const raw=rasterLayers(bandLayers(id,q),BS.s,BS.W,BS.H,BS.ox,BS.oy);
   if(mirror){ c=document.createElement('canvas'); c.width=BS.W; c.height=BS.H; const g=c.getContext('2d'); g.translate(BS.W,0); g.scale(-1,1); g.drawImage(raw,0,0); } else c=raw;
   bcache.set(key,c); if(bcache.size>300) bcache.delete(bcache.keys().next().value); return c; }
-// where the band stands (feet, 640x240 stage): the drummer at the back behind the player, the first other member between the player
-// and the middle, the second at the front edge, a third near the middle. The caller's band is the mirror image. Members never stand on the edge or in the centre gap.
-const BAND_SLOTS=[[250,190],[34,196],[294,183]], BAND_DRUM=[[70,182],[100,180]];
+
 // how a band member moves at time t: the pose (hit, strum, raise) and the cut-out moves (nod, lean, breath, bounce), all in whole pixels
 function bandPose(id,t,i,sub){ const P=BANDP[id]||{}, key=sub||id, ph=(key.length*1.7+i*2.3)%6.28, q={nod:0,breath:breathAt(t,ph)};
   const cheer=t<anim.cheerUntil, inst=P.inst||(P.guitar?'guitar':'guitar');
@@ -6159,22 +6164,72 @@ function bandPose(id,t,i,sub){ const P=BANDP[id]||{}, key=sub||id, ph=(key.lengt
       if(cheer&&inst!=='drums'&&inst!=='keys') q.bounce=fr<0.3?2:0; } }
   else q.lean=inst==='drums'?0:Math.round(Math.sin(t*0.9+ph));   // between songs: a slow sway
   return q; }
-// slots: drummers take the back, the horn section the wide spot nearest the middle
-function bandPlaces(ids){ ids=ids.filter(id=>BANDP[id]); const drum=ids.filter(id=>BANDP[id].inst==='drums'), rest=ids.filter(id=>BANDP[id].inst!=='drums');
-  rest.sort((a,b)=>(b==='brass')-(a==='brass')); const out=[];
-  rest.slice(0,3).forEach((id,i)=>out.push([id,BAND_SLOTS[i]]));
-  drum.slice(0,1).forEach(id=>out.push([id,BAND_DRUM[rest.length>=2?1:0]]));
+/* ---------- the stage as a space ----------
+   Screen x is stage x (the painted plates are near-frontal), feet row is depth: the floor runs from the back wall (feet row yb) to the front edge
+   where the crowd starts (feet row 204). Props standing on the floor are [x0,x1,yFront]: nobody's body stands over a prop unless their feet are in
+   front of it (otherwise the painted prop would have to hide them). Rows and props were read off the plates (tests/stagegrid.py, scratch sheets). */
+const STAGE3D={
+  spur:{yb:192,props:[]}, juke:{yb:192,props:[[52,128,204],[518,572,206],[578,640,206]]}, tide:{yb:191,props:[[185,445,196],[18,42,240],[575,602,240]]},
+  dunes:{yb:177,props:[[25,75,224],[545,640,224]]}, sebene:{yb:181,props:[[0,92,226],[540,640,226],[160,236,182],[410,472,182]]},
+  azmari:{yb:181,props:[[20,120,208],[505,640,218]]}, outback:{yb:192,props:[[0,40,200],[515,640,196]]},
+  rio:{yb:184,props:[[0,32,232],[605,640,232]]}, milonga:{yb:192,props:[[0,40,215],[600,640,215]]}, chicha:{yb:184,props:[[0,104,208],[560,640,212]]},
+  paris:{yb:196,props:[[0,72,238],[572,640,240],[78,118,206],[520,558,206]]}, cave:{yb:190,props:[[28,82,218],[595,640,232]]},
+  grotto:{yb:198,props:[[0,30,240],[610,640,240]]}, tokyo:{yb:184,props:[[0,20,240],[600,640,240]]}, ghat:{yb:199,props:[[0,60,236],[585,640,236]]},
+  bali:{yb:196,props:[[20,98,212],[542,618,212]]}, lanai:{yb:191,props:[[0,102,204],[535,640,214]]}, frost:{yb:186,props:[[0,82,212],[555,640,212]]},
+  aurora:{yb:196,props:[[0,82,212],[518,562,202],[572,640,218]]}, pole:{yb:190,props:[[10,112,194],[535,640,192]]},
+  mess:{yb:184,props:[[0,112,230],[518,640,230],[150,250,182],[290,385,182],[410,520,184]]}
+};
+const STAGE_FRONT=204, FIGHTER_Y=200;
+// the two fighters as fixed bodies: [x0,x1] of body plus guitar, and feet row (the player faces right, the caller left)
+function stageFighters(){ return [{a:156-18,b:156+42,y:FIGHTER_Y},{a:472-42,b:472+18,y:FIGHTER_Y}]; }
+// a band member's footprint facing right: body [l,r] relative to the feet, and the whole sprite [L,R] (instrument included) which must stay on screen
+const bandExtCache={};
+function bandExtent(id,one){ const ck=id+(one?'1':''); if(bandExtCache[ck]) return bandExtCache[ck];
+  const g=!one&&BAND_GROUP[id]; if(g&&BANDART_IMG[id]){ let l=0,r=0,L=0,R=0; g.forEach(([sub,dx])=>{ const e=bandExtent(sub,true); l=Math.min(l,dx+e.l); r=Math.max(r,dx+e.r); L=Math.min(L,dx+e.L); R=Math.max(R,dx+e.R); }); return bandExtCache[ck]={l,r,L,R}; }
+  const M=BANDART_META[id], im=BANDART_IMG[id], P=BANDP[id]||{}; let L=-30,R=30;
+  if(M&&im){ try{ const c=document.createElement('canvas'); c.width=M.cw*2; c.height=M.ch; const cg=c.getContext('2d',{willReadFrequently:true}); cg.drawImage(im,0,0,M.cw*2,M.ch,0,0,M.cw*2,M.ch);
+      const d=cg.getImageData(0,0,M.cw*2,M.ch).data; let mn=9999,mx=-1; for(let y=0;y<M.ch;y++) for(let x=0;x<M.cw*2;x++) if(d[(y*M.cw*2+x)*4+3]>100){ const xx=x%M.cw; if(xx<mn) mn=xx; if(xx>mx) mx=xx; }
+      if(mx>=0){ L=mn-M.fx; R=mx-M.fx; } }catch(e){} }
+  // drum kits and keyboards are part of the body (nothing may stand in them); a standing player is about 22 px wide at the feet
+  const solid=P.inst==='drums'||P.inst==='keys', e=solid?{l:L+4,r:R-4,L,R}:{l:-11,r:11,L,R};
+  if(M&&im) bandExtCache[ck]=e; return e; }
+// place one side's band: try every floor spot, keep the legal ones (on the floor, on screen, off the props, not inside anyone), take the best by role
+function bandPlaces(ids,mirror,vid){ ids=ids.filter(id=>BANDP[id]); const S=STAGE3D[vid]||{yb:190,props:[]}, yb=Math.min(S.yb,FIGHTER_Y-1);
+  const drum=ids.filter(id=>BANDP[id].inst==='drums'), rest=ids.filter(id=>BANDP[id].inst!=='drums'); rest.sort((a,b)=>(b==='brass')-(a==='brass'));
+  const order=[...drum.slice(0,1),...rest.slice(0,3)], taken=stageFighters(), out=[];
+  // preferred feet x (left side; the caller's band mirrors it) and row: the drummer at the back by the player's shoulder, the rest flanking
+  const PREF={drum:[112,yb+2],r0:[250,196],r1:[44,198],r2:[290,192]};
+  order.forEach((id,k)=>{ const e0=bandExtent(id), e=mirror?{l:-e0.r,r:-e0.l,L:-e0.R,R:-e0.L}:e0;
+    const role=BANDP[id].inst==='drums'?'drum':'r'+(k-(drum.length?1:0)), pr=PREF[role]||PREF.r2, px=mirror?640-pr[0]:pr[0], py=Math.max(yb+2,Math.min(STAGE_FRONT,pr[1]));
+    let best=null;
+    for(let y=yb+2;y<=STAGE_FRONT;y++) for(let x=mirror?324:4;x<=(mirror?636:316);x+=2){
+      if(x+e.L<2||x+e.R>638) continue; const a=x+e.l, b=x+e.r;
+      if(S.props.some(([p0,p1,pf])=>b>p0&&a<p1&&y<=pf+1)) continue;
+      let bad=false, pen=0;
+      // overlap: side by side at the same depth only a few pixels; with a clear depth gap the one behind may be up to half hidden
+      for(const o of taken){ const ov=Math.min(b,o.b)-Math.max(a,o.a); if(ov<=0) continue; const dz=Math.abs(y-o.y), nar=Math.min(b-a,o.b-o.a);
+        if(dz<8?ov>4:ov>nar*0.5){ bad=true; break; } pen+=ov*(dz<8?6:1.5); }
+      if(bad) continue;
+      if(b>296&&a<344) pen+=160;                                    // keep the middle of the stage open
+      if(y>FIGHTER_Y) pen+=(y-FIGHTER_Y)*6;                          // in front of the fighters only when the floor is shallow
+      const sc=Math.abs(x-px)+Math.abs(y-py)*3+pen; if(!best||sc<best.sc) best={x,y,sc}; }
+    if(!best) return;                                                // no room: leave them off this stage rather than in a wall
+    taken.push({a:best.x+e.l,b:best.x+e.r,y:best.y}); out.push([id,[best.x,best.y]]); });
   return out.sort((a,b)=>a[1][1]-b[1][1]); }   // back to front
-function drawBandSide(g,t,ids,mirror){
-  bandPlaces(ids).forEach(([id,s],i)=>{ const x=mirror?640-s[0]:s[0], y=s[1];
+const bandPlaceCache=new Map();
+function bandPlacesCached(ids,mirror,vid){ const key=vid+'|'+(mirror?1:0)+'|'+ids.join(',')+'|'+Object.keys(bandExtCache).length; let r=bandPlaceCache.get(key);
+  if(!r){ r=bandPlaces(ids,mirror,vid); bandPlaceCache.set(key,r); if(bandPlaceCache.size>60) bandPlaceCache.delete(bandPlaceCache.keys().next().value); } return r; }
+// layer 'back' draws members whose feet are behind the fighters, 'front' the ones in front of them (only on shallow floors)
+function drawBandSide(g,t,ids,mirror,vid,layer){
+  bandPlacesCached(ids,mirror,vid).forEach(([id,s],i)=>{ const x=s[0], y=s[1]; if((layer==='front')!==(y>FIGHTER_Y)) return;
     for(const [sub,dx,dy,lag] of (BAND_GROUP[id]&&BANDART_IMG[id]?BAND_GROUP[id]:[[id,0,0,0]])){
       const q=bandPose(id,t-(lag||0)*0.06,i,sub), f=bandPaintedFrame(sub,q,mirror), xx=x+(mirror?-dx:dx), yy=y+dy;
       if(f) g.drawImage(f.c,Math.round(xx-f.ax),Math.round(yy-f.ay));
       else if(sub===id) g.drawImage(bandFrame0(id,q,mirror),Math.round(xx-(mirror?BS.W-BS.ox:BS.ox)),Math.round(yy-BS.oy)); } }); }
-function bandWarm(){ const jobs=[]; [[state.lineup||[],false],[state.rivalBand||[],true]].forEach(([ids,m])=>bandPlaces(ids).forEach(([id])=>{
+function bandWarm(){ const jobs=[], vid=VEN().id; [[state.lineup||[],false],[state.rivalBand||[],true]].forEach(([ids,m])=>bandPlacesCached(ids,m,vid).forEach(([id])=>{
     for(const [sub] of (BAND_GROUP[id]||[[id]])) for(const pose of [0,1]) for(const nod of [0,1]) for(const breath of [0,1]) jobs.push([sub,{hit:pose,nod,breath},m]); }));
   let k=0; const step=()=>{ for(let n=0;n<4&&k<jobs.length;n++,k++){ const [id,q,m]=jobs[k]; bandPaintedFrame(id,q,m); } if(k<jobs.length) setTimeout(step,0); }; setTimeout(step,0); }
-function drawBandStage(g,t){ try{ drawBandSide(g,t,state.lineup||[],false); drawBandSide(g,t,state.rivalBand||[],true); }catch(e){ console.error('band stage',e); } }
+function drawBandStage(g,t,layer,vid){ try{ vid=vid||VEN().id; layer=layer||'back'; drawBandSide(g,t,state.lineup||[],false,vid,layer); drawBandSide(g,t,state.rivalBand||[],true,vid,layer); }catch(e){ console.error('band stage',e); } }
 
 /* ---------- the van, between tours: a roadside motel at dawn ----------
    Drawn behind the Van menu at two screen pixels per art pixel. The ground and the van sit at the bottom,
@@ -7596,7 +7651,7 @@ window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={m
       for(let r=0;r<runs;r++){ state.used={}; state.streak=0; for(let c=0;c<V.setLen;c++){ state.replays=2; state.replaysAtCall=2; const call=makeCall(V.tiers[c]); state.call=call;
         state.answer=call.notes.map(n=>({midi:n.midi,s:n.s,f:n.f,g:Math.random()<0.55?(Math.random()<0.4?'pocket':'groove'):null})); tot+=evaluate().score; } }
       out[id]={avg:Math.round(tot/runs),target:venueTarget(V)}; });
-    Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); drawCrowd(g,t,V.hats); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); drawBandStage(cg,t); drawHero(cg,state.char||'bard',156,200,{t:0.4,strum:-1}); if(ART[id].vec) drawRivalVec(cg,id,472,200,{t:0.4,strum:-1}); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
+    Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); drawCrowd(g,t,V.hats); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',156,200,{t:0.4,strum:-1}); if(ART[id].vec) drawRivalVec(cg,id,472,200,{t:0.4,strum:-1}); drawBandStage(cg,t,'front',id); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
 })();
 </script>
 </body>

@@ -99,3 +99,51 @@ SyntaxError: broken PNG file (chunk b'\x00\x00\x00\x00')
 20:53:07 OUT OF CREDITS / QUOTA
 20:53:08 hermit B 6 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
 20:53:08 OUT OF CREDITS / QUOTA
+20:57:03 resume after cap raised
+20:57:03 start ['monk', 'hermit', 'busker', 'luthier', 'carto', 'spur', 'tide', 'juke', 'dunes', 'sebene', 'azmari', 'rio', 'milonga', 'chicha', 'paris', 'cave', 'frost', 'tokyo', 'bali', 'lanai', 'outback', 'grotto', 'mess', 'aurora', 'pole', 'lou', 'rosa', 'dee', 'jo', 'hale', 'tam', 'brass', 'brassb', 'brassc']
+20:58:39 hermit round 0 As [1, 2, 3] Bs [1, 2, 3] best (2, 1, 23.4, ['blink: head moves -7,-8 px from idle', 'talk: head moves -7,-8 px from idle'])
+21:00:07 luthier round 0 As [1, 2, 3] Bs [1, 2, 3] best (2, 1, 8.6, [])
+21:00:07 luthier DONE A 2 B 1 calm 8.6 issues []
+21:00:24 carto round 0 As [1, 2, 3] Bs [1, 3] best (2, 1, 22.0, ['blink: head moves -14,+1 px from idle', 'talk: head moves -14,+1 px from idle'])
+21:01:26 restart: A/B pairs judged together
+21:01:26 start ['monk', 'hermit', 'busker', 'luthier', 'carto', 'spur', 'tide', 'juke', 'dunes', 'sebene', 'azmari', 'rio', 'milonga', 'chicha', 'paris', 'cave', 'frost', 'tokyo', 'bali', 'lanai', 'outback', 'grotto', 'mess', 'aurora', 'pole', 'lou', 'rosa', 'dee', 'jo', 'hale', 'tam', 'brass', 'brassb', 'brassc']
+21:01:30 spur B 2 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:31 spur A 3 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:31 spur B 1 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:31 spur B 3 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:32 spur B 2 gen failed: local/lib/python3.11/dist-packages/PIL/PngImagePlugin.py", line 184, in read
+    raise SyntaxError(msg)
+SyntaxError: broken PNG file (chunk b'\x00\x00\x00\x00')
+21:01:35 spur A 3 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:35 spur B 1 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:35 spur B 3 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:41 spur round 0 As [1, 2] Bs [] best None
+21:01:45 spur B 5 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:45 spur B 4 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:45 spur A 5 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:46 spur A 4 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:49 spur B 5 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:49 spur B 4 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:49 spur A 5 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:50 spur A 4 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:55 spur round 1 As [1, 2] Bs [] best None
+21:01:59 spur A 6 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:59 spur A 7 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:01:59 spur B 6 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:02:00 spur B 7 gen failed: ount's billing history and tier. Please reduce the rate of your requests or wait before retrying. For more information, head to: https://ai.google.dev/gemini-ap
+21:02:00 spur A 6 gen failed: local/lib/python3.11/dist-packages/PIL/PngImagePlugin.py", line 184, in read
+    raise SyntaxError(msg)
+SyntaxError: broken PNG file (chunk b'\x00\x00\x00\x00')
+21:02:33 restart: rate-limit backoff, 3 concurrent
+21:02:33 start ['monk', 'hermit', 'busker', 'luthier', 'carto', 'spur', 'tide', 'juke', 'dunes', 'sebene', 'azmari', 'rio', 'milonga', 'chicha', 'paris', 'cave', 'frost', 'tokyo', 'bali', 'lanai', 'outback', 'grotto', 'mess', 'aurora', 'pole', 'lou', 'rosa', 'dee', 'jo', 'hale', 'tam', 'brass', 'brassb', 'brassc']
+21:03:59 carto round 0 As [1, 2, 3] Bs [1, 3] best (2, 3, 2.0, [])
+21:04:00 carto DONE A 2 B 3 calm 2.0 issues []
+21:04:33 spur B 1 rate limited, waiting 20 s
+21:04:34 spur B 3 rate limited, waiting 20 s
+21:04:36 hermit round 0 As [1, 2, 3] Bs [1, 2, 3] best (2, 2, 3.4, [])
+21:04:36 hermit DONE A 2 B 2 calm 3.4 issues []
+21:04:38 juke A 1 rate limited, waiting 20 s
+21:04:57 spur B 1 rate limited, waiting 40 s
+21:04:58 spur B 3 rate limited, waiting 40 s
+21:04:59 juke A 1 rate limited, waiting 40 s
+21:05:03 spur B 2 rate limited, waiting 20 s

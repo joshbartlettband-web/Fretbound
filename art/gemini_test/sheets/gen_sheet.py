@@ -38,5 +38,5 @@ def main():
         except Exception: continue
         for p in d.get('candidates',[{}])[0].get('content',{}).get('parts',[]):
             if 'inlineData' in p: open(out,'wb').write(base64.b64decode(p['inlineData']['data'])); print('saved',out,Image.open(out).size); return
-    print('FAILED',out,str(d)[:300])
+    print('FAILED',out,str(d)[:700])
 if __name__=='__main__': main()

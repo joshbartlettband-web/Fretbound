@@ -6,18 +6,23 @@ from concurrent.futures import ThreadPoolExecutor
 HERE=os.path.dirname(os.path.abspath(__file__)); REPO=os.path.abspath(os.path.join(HERE,'..','..','..')); os.chdir(REPO)
 sys.path.insert(0,'tests'); sys.path.insert(0,HERE)
 import chars,procposes as PP
-STOP=threading.Event(); SEM=threading.Semaphore(6); LOG=open(HERE+'/run.log','a'); LK=threading.Lock(); CHOICE_F='art/poses/choice.json'
+STOP=threading.Event(); SEM=threading.Semaphore(3); LOG=open(HERE+'/run.log','a'); LK=threading.Lock(); CHOICE_F='art/poses/choice.json'
 def log(*a):
     with LK: print(time.strftime('%H:%M:%S'),*a,file=LOG,flush=True)
 def gen(cid,w,n):
     if STOP.is_set(): return False
     f=f'{HERE}/out/{cid}_{w}_{n}.png'
     if os.path.exists(f): return True
-    for t in range(2):
+    wait=20
+    for t in range(8):
         with SEM: r=subprocess.run(['python3',HERE+'/gen_sheet.py',cid,w,str(n)],cwd=HERE,capture_output=True,text=True)
         if os.path.exists(f): return True
-        log(cid,w,n,'gen failed:',(r.stdout+r.stderr).strip()[-160:])
-        if '402' in r.stdout+r.stderr or 'RESOURCE_EXHAUSTED' in r.stdout+r.stderr: log('OUT OF CREDITS / QUOTA: stopping the whole run (raise the monthly spend cap at https://ai.studio/spend, then run this again; it resumes)'); STOP.set(); return False
+        msg=(r.stdout+r.stderr).strip(); low=msg.lower()
+        if 'spending cap' in low or 'spend cap' in low:
+            log('SPENDING CAP: stopping the whole run (raise the monthly spend cap at https://ai.studio/spend, then run this again; it resumes)'); STOP.set(); return False
+        if '429' in msg or 'rate' in low or 'exhausted' in low or 'overloaded' in low or '503' in msg:
+            log(cid,w,n,'rate limited, waiting',wait,'s'); time.sleep(wait); wait=min(wait*2,240); continue
+        log(cid,w,n,'gen failed:',msg[-220:]); time.sleep(5)
     return False
 def valid(cid,w,n):
     try:
@@ -31,17 +36,17 @@ def one(cid):
     ns=[2,3]
     for rnd in range(3):
         if STOP.is_set(): return
-        with ThreadPoolExecutor(5) as ex: list(ex.map(lambda a:gen(cid,*a),[('A',n) for n in ns]+[('B',n) for n in ([1,2,3] if rnd==0 else ns)]))
+        with ThreadPoolExecutor(3) as ex: list(ex.map(lambda a:gen(cid,*a),[('A',n) for n in ns]+[('B',n) for n in ([1,2,3] if rnd==0 else ns)]))
         As=[n for n in [1]+list(range(2,max(ns)+1)) if os.path.exists(f'{HERE}/out/{cid}_A_{n}.png') and valid(cid,'A',n)]
         Bs=[n for n in range(1,max(ns)+1) if os.path.exists(f'{HERE}/out/{cid}_B_{n}.png') and valid(cid,'B',n)]
         best=None
         if As and Bs:
-            b=Bs[0]
             for a in As:
-                res,rep=PP.build(cid,H,a,b)
-                if res is None: continue
-                sc=rep['calm_score']+10*len(rep['issues'])
-                if best is None or sc<best[0]: best=(sc,a,b,res,rep)
+                for b in Bs:    # blink and talk come from sheet B, so the pair is judged together
+                    res,rep=PP.build(cid,H,a,b)
+                    if res is None: continue
+                    sc=rep['calm_score']+10*len(rep['issues'])
+                    if best is None or sc<best[0]: best=(sc,a,b,res,rep)
         log(cid,'round',rnd,'As',As,'Bs',Bs,'best',None if not best else (best[1],best[2],best[0],best[4]['issues'][:2]))
         if best and not best[4]['issues']: break
         ns=[max(ns)+1,max(ns)+2]
@@ -54,5 +59,5 @@ def one(cid):
 if __name__=='__main__':
     ids=sys.argv[1:] or [c for c in chars.CH if c not in ('bard','ghat')]
     log('start',ids)
-    with ThreadPoolExecutor(3) as ex: list(ex.map(one,ids))
+    with ThreadPoolExecutor(2) as ex: list(ex.map(one,ids))
     log('finished')

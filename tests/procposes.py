@@ -10,6 +10,7 @@ from scipy import ndimage as ndi
 sys.path.insert(0,'art/gemini_test/sheets')
 import poses as P
 NAMES=[n for n,_ in P.A]+[n for n,_ in P.B]
+CALM_X,CALM_Y=4,4   # playing poses: the head may drift this many pixels from idle
 def key(im):
     a=np.asarray(im.convert('RGB')).astype(int); bg=np.median(np.concatenate([a[:6].reshape(-1,3),a[-6:].reshape(-1,3),a[:,:6].reshape(-1,3),a[:,-6:].reshape(-1,3)]),axis=0)
     d=np.abs(a-bg).sum(axis=2); fg=d>150                                              # every pixel near the background colour goes, enclosed gaps included
@@ -56,6 +57,15 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
     for i,(r,fx) in enumerate(sc):
         wd=r.width; 
         if wd>cw-4: report['issues'].append(f'{NAMES[i]}: wider than its cell')
+    # head drift: the head's position relative to the feet, per pose, against idle. The playing poses must keep the head within a few pixels or the figure jerks when they swap.
+    a2=np.asarray(out)[:,:,3]>0; drift={}
+    for i,n in enumerate(NAMES):
+        c=a2[(i//8)*ch:(i//8+1)*ch,(i%8)*cw:(i%8+1)*cw]; ys,xs=np.where(c); top=ys.min(); drift[n]=(float(xs[ys<top+8].mean()-FX),float(ch-2-top))
+    report['drift']={n:(round(v[0]-drift['idle'][0],1),round(v[1]-drift['idle'][1],1)) for n,v in drift.items()}
+    for n in ('breath','strum_down','strum_up','fret_far','fret_mid','fret_near','blink','talk'):
+        dx,dy=report['drift'][n]
+        if abs(dx)>CALM_X or abs(dy)>CALM_Y: report['issues'].append(f'{n}: head moves {dx:+.0f},{dy:+.0f} px from idle')
+    report['calm_score']=round(sum(abs(report['drift'][n][0])+abs(report['drift'][n][1]) for n in ('strum_down','strum_up','fret_far','fret_mid','fret_near')),1)
     report['heights']=dict(zip(NAMES,hts)); report['cell']=[cw,ch]; report['scale']=round(s,3)
     return (out,dict(cw=cw,ch=ch,fx=FX,fy=FY,n=16,names=NAMES,h=HEIGHT)),report
 def sheet_png(cid,out):

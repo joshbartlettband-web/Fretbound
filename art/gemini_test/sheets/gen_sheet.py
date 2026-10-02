@@ -24,7 +24,10 @@ def prompt(cid,which):
 def main():
     cid,which=sys.argv[1],sys.argv[2]; n=int(sys.argv[3]) if len(sys.argv)>3 else 1; M=sys.argv[4] if len(sys.argv)>4 else 'gemini-3-pro-image'
     os.makedirs('out',exist_ok=True); gp=f'out/guide_{which}.png'; poses.guide(gp,which)
-    c=CH[cid]; parts=[{"text":prompt(cid,which)}]+[img_part(p) for p in (c['ref'],STYLE,c['guitar'],gp)]
+    c=CH[cid]; refs=[c['ref'],STYLE,c['guitar'],gp]; idle=f'out/{cid}_idle_ref.png'
+    if os.path.exists(f'out/{cid}_A_1.png'):   # the idle pose of the first sheet: head, body and feet of every playing pose must match it
+        im=Image.open(f'out/{cid}_A_1.png'); W,H=im.size; im.crop((0,0,W//4,H//2)).save(idle); refs.append(idle)
+    parts=[{"text":prompt(cid,which)+(' REFERENCE 5 is the exact idle pose to copy: in every pose that is supposed to match idle, the head, torso, legs and feet must sit in exactly the same place, pixel for pixel; only the parts named in the pose list may change.' if len(refs)>4 else '')}]+[img_part(p) for p in refs]
     body=json.dumps({"contents":[{"parts":parts}],"generationConfig":{"responseModalities":["IMAGE"],"imageConfig":{"aspectRatio":"16:9","imageSize":"2K"}}})
     rq=f'/tmp/req_{cid}_{which}_{n}.json'; open(rq,'w').write(body); out=f'out/{cid}_{which}_{n}.png'
     for t in range(3):

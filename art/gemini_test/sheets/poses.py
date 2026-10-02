@@ -2,22 +2,23 @@
 # Sheet A is the playing set, sheet B the reactions. Everyone faces RIGHT; the guitar neck points to the right, up a little.
 from PIL import Image,ImageDraw
 import math
+# CALM set (v1.50): in the playing poses the head, torso, legs and feet are IDENTICAL to idle; only the arms, hands and the guitar's tilt change, and by a little.
 A=[('idle','Relaxed idle: standing straight, head up, guitar held across the body, fretting hand on the neck, picking hand over the strings.'),
-   ('breath','Idle, one breath later: shoulders and chest a little higher, head a little higher, otherwise the same as idle.'),
-   ('strum_down','Strumming DOWN: picking hand sweeping down past the strings, body leaning forward a little, head slightly forward.'),
-   ('strum_up','Strumming UP: picking hand swinging back up, body upright, head slightly back.'),
-   ('fret_far','Fretting hand stretched far out along the neck near the headstock (arm extended), picking hand on the strings.'),
-   ('fret_mid','Fretting hand in the middle of the neck (elbow bent a little), picking hand on the strings.'),
-   ('fret_near','Fretting hand close to the guitar body at the low end of the neck (elbow tucked in), picking hand on the strings.'),
-   ('nod','Head nodding down on the beat: chin lowered, knees slightly bent, playing.')]
-B=[('lean_in','Leaning in to listen: upper body and head tilted forward toward the right, focused, both hands resting on the guitar.'),
-   ('big_hit','A big power chord: wide stance, knees bent, guitar tilted up, head thrown back, picking arm swung high.'),
-   ('cheer','Cheering a win: one arm and the guitar raised high overhead, big open smile, standing tall.'),
-   ('slump','Slumped after a loss: shoulders hunched, head hanging down, guitar hanging low, defeated.'),
-   ('flinch','Flinching from a snapped string: body recoiling backwards, one hand pulled away from the guitar, eyes squeezed shut, wincing.'),
-   ('showoff','Showing off: grinning, guitar swung out to the side and pointed, one foot forward, cocky pose.'),
-   ('blink','Same as the relaxed idle pose but with the eyes CLOSED (mid-blink). Nothing else changes.'),
-   ('talk','Same as the relaxed idle pose but with the mouth open as if talking or singing. Nothing else changes.')]
+   ('breath','Idle, one breath later: the same pose, shoulders and chest at most 2 pixels higher. Head, body and feet in the same place.'),
+   ('strum_down','Strumming DOWN: ONLY the picking hand and forearm move, swept a little lower across the strings. Head, torso, legs and feet exactly as in idle.'),
+   ('strum_up','Strumming UP: ONLY the picking hand and forearm move, swept a little higher across the strings. Head, torso, legs and feet exactly as in idle.'),
+   ('fret_far','Fretting hand slid out along the neck towards the headstock (arm a little straighter). Head, torso, legs and feet exactly as in idle.'),
+   ('fret_mid','Fretting hand in the middle of the neck. Head, torso, legs and feet exactly as in idle.'),
+   ('fret_near','Fretting hand close to the guitar body (elbow tucked in a little). Head, torso, legs and feet exactly as in idle.'),
+   ('nod','The same as idle with the chin lowered by a few pixels, as if nodding to the beat. Body, arms, guitar and feet exactly as in idle.')]
+B=[('lean_in','Listening closely: the head and shoulders tilted slightly forward to the right, feet planted. A small change from idle, not a lunge.'),
+   ('big_hit','A strong chord: feet planted, knees slightly bent, guitar tilted up a little, picking arm lifted to shoulder height, confident expression. Moderate, not a rock-star leap.'),
+   ('cheer','Pleased with a win: a broad smile, and the fretting hand lifts the guitar neck a little. Feet planted. Gentle, not a big celebration.'),
+   ('slump','Disappointed after a loss: shoulders lowered, head bowed a little, guitar hanging lower. Feet planted. Subdued, not collapsed.'),
+   ('flinch','A small wince from a snapped string: eyes squeezed shut, head pulled back a little, the picking hand lifted off the strings. Feet planted.'),
+   ('showoff','A cheeky grin and a raised eyebrow, the guitar neck swung up a little. Feet planted. Cheeky, not theatrical.'),
+   ('blink','Same as idle but with the eyes CLOSED (mid-blink). Nothing else changes.'),
+   ('talk','Same as idle but with the mouth open as if talking or singing. Nothing else changes.')]
 def guide(path,which,cell=300):
     """a 4x2 stick-figure guide: one cell per pose, left to right then top to bottom, each cell numbered and named"""
     P=A if which=='A' else B; im=Image.new('RGB',(cell*4,cell*2),(255,0,255)); d=ImageDraw.Draw(im)
@@ -26,16 +27,16 @@ def guide(path,which,cell=300):
         d.text((cx+8,cy+6),f'{k+1} {name}',fill=(255,255,255))
         base=cy+cell-34; hx=cx+cell*0.48; lean=0; head_dy=0; arm=0.0; fret=0.5; gt_ang=-15; crouch=0
         if name=='breath': head_dy=-5
-        if name=='strum_down': lean=14; arm=1
+        if name=='strum_down': arm=1
         if name=='strum_up': lean=-3; arm=-1
         if name=='fret_far': fret=0.9
         if name=='fret_near': fret=0.15
-        if name=='nod': head_dy=14; crouch=12
-        if name=='lean_in': lean=22; head_dy=8
-        if name=='big_hit': lean=-14; crouch=26; gt_ang=-45; arm=-2
-        if name=='cheer': gt_ang=-80
-        if name=='slump': lean=14; head_dy=38; gt_ang=35; crouch=6
-        if name=='flinch': lean=-24; head_dy=4
+        if name=='nod': head_dy=5; crouch=0
+        if name=='lean_in': lean=8; head_dy=3
+        if name=='big_hit': crouch=8; gt_ang=-30; arm=-2
+        if name=='cheer': gt_ang=-30
+        if name=='slump': lean=5; head_dy=12; gt_ang=10
+        if name=='flinch': lean=-8; head_dy=2
         if name=='showoff': gt_ang=-30; crouch=8
         hip=(hx,base-95+crouch); sh=(hip[0]+lean*0.9,hip[1]-65+crouch*0.2); hd=(sh[0]+lean*0.2,sh[1]-24+head_dy)
         col=(255,255,255)

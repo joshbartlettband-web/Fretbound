@@ -6,6 +6,8 @@ from PIL import Image
 sys.path.insert(0,'tests')
 from procpedal import key
 # target widths in game pixels: title (rear three-quarter, 640x360 canvas) and Van screen (side, 2x-scaled canvas)
+# Gemini drew the 15-passenger van from the other side; mirror it so all three show the back on the right, like the road
+FLIP={'v1_rear'}
 W={'v0_rear':66,'v1_rear':96,'v2_rear':128,'v0_side':76,'v1_side':98,'v2_side':122}
 def build():
     os.makedirs('art/vans',exist_ok=True); meta={}
@@ -13,7 +15,7 @@ def build():
         f=f'art/gemini_test/vans/{k}.png'
         if not os.path.exists(f): f=f[:-4]+'.jpg'
         im=Image.open(f).convert('RGB'); fg=key(im); a=np.dstack([np.asarray(im),(fg*255).astype(np.uint8)]); ys,xs=np.where(fg)
-        c=Image.fromarray(a).crop((xs.min(),ys.min(),xs.max()+1,ys.max()+1)); s=tw/c.width; nw,nh=tw,max(8,round(c.height*s)); c=c.resize((nw,nh),Image.LANCZOS)
+        c=Image.fromarray(a).crop((xs.min(),ys.min(),xs.max()+1,ys.max()+1)); c=c.transpose(Image.FLIP_LEFT_RIGHT) if k in FLIP else c; s=tw/c.width; nw,nh=tw,max(8,round(c.height*s)); c=c.resize((nw,nh),Image.LANCZOS)
         b=np.asarray(c).copy(); al=b[:,:,3]>140
         q=Image.fromarray(np.clip(b[:,:,:3].astype(float)*1.06,0,255).astype(np.uint8)).quantize(colors=48,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
         Image.fromarray(np.dstack([np.asarray(q),al*255]).astype(np.uint8)).save(f'art/vans/{k}.png',optimize=True); meta[k]=dict(w=nw,h=nh); print(k,nw,nh,os.path.getsize(f'art/vans/{k}.png')//1024,'KB')

@@ -2,6 +2,8 @@
 
 - v1.43 (2026-10-02): the art pass. Painted stages, pedals, guitars (menus too), players, callers, band (the Brass Tacks as three), vans and Van scenes; cut-out animation and a stage layout with depth; colour grade; title fixes; smoother frames.
 
+**Open items, unanswered questions and the APK steps are in `NEXT.md`. Read it first.**
+
 ## START HERE (art pass, written at the end of the long Gemini session; game text says v1.43)
 Branch `claude/relaxed-planck-s555pj` (no PR opened; Josh has not asked for one). Josh tests through a private artifact page ("Fretbound Stage Test", https://claude.ai/artifact/LUhktMKpiBdTMSsVvWmLwe) that is republished from `index.html` with the title changed; the page watch never registers, so Josh reports findings in chat.
 

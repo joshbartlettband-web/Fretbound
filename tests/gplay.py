@@ -36,7 +36,7 @@ with sync_playwright() as p:
                     if not s2['broken'][s] and s2['pos']<=f<s2['pos']+s2['win'] and 0<=f<=15: found=(s,f); break
                 if found: break
                 anyf=[midi-OPEN[s] for s in range(6) if not s2['broken'][s] and 0<=midi-OPEN[s]<=15][0]
-                pg.click("#navR" if anyf>=s2['pos']+s2['win'] else "#navL")
+                pg.click("#navR" if anyf>=s2['pos']+s2['win'] else "#navL"); time.sleep(0.35)   # let the neck finish sliding, or the tap lands on the old position
             s,f=found; g=s2['g']
             r=ev(pg,"(()=>{const r=document.getElementById('neck').getBoundingClientRect();return {x:r.left,y:r.top,w:r.width,h:r.height}})()")
             cc=f-s2['pos']; x=r['x']+((g['bounds'][cc]+g['bounds'][cc+1])/2)/g['cw']*r['w']; y=r['y']+g['sy'][s]/g['ch']*r['h']

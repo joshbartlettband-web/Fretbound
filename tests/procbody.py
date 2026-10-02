@@ -7,7 +7,7 @@ from PIL import Image
 from scipy import ndimage as ndi
 OX,OY=200,330   # crop origin used by armless.py
 # shoulder points in ORIGINAL image coordinates: fretting arm (front, right) and picking arm (back, left)
-SH={'bard':dict(front=(530,418),back=(352,452)),'monk':dict(front=(470,400),back=(310,390)),'busker':dict(front=(490,420),back=(330,420)),'hermit':dict(front=(470,430),back=(265,440)),'luthier':dict(front=(510,450),back=(320,420)),'carto':dict(front=(490,450),back=(290,450))}
+SH={'bard':dict(front=(530,418),back=(352,452)),'monk':dict(front=(470,400),back=(372,400)),'busker':dict(front=(490,420),back=(375,420)),'hermit':dict(front=(470,430),back=(372,440)),'luthier':dict(front=(510,450),back=(368,430)),'carto':dict(front=(490,450),back=(368,450))}   # back shoulders moved inside the torso when the hanging arms were cut away (armless2.py)
 def build(name,HEIGHT=104,BRIGHT=1.10):
     im=Image.open(f'art/gemini_test/chars/{name}_armless_body.png').convert('RGBA'); ox,oy=(0,0) if im.size==(864,1184) else (OX,OY)
     full=Image.open(f'art/gemini_test/chars/{name}_body.jpg' if os.path.exists(f'art/gemini_test/chars/{name}_body.jpg') else f'art/gemini_test/chars/{name}_body.png').convert('RGBA')

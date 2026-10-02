@@ -6,7 +6,9 @@ import numpy as np
 from PIL import Image
 from scipy import ndimage as ndi
 import cv2
-OLD=json.load(open(os.environ.get('RIVAL_OLD','/tmp/claude-0/-home-user-Fretbound/06db394c-e65b-5e2f-91cd-5e32ab269560/scratchpad/rival_old.json')))
+# the old vector callers' heights: from a hook run if RIVAL_OLD points at one, else the heights of the sprites already in art/callers (so a caller keeps its size when re-processed)
+if os.environ.get('RIVAL_OLD'): OLD=json.load(open(os.environ['RIVAL_OLD']))
+else: OLD={os.path.basename(f)[:-10]:dict(top=0,bot=json.load(open(f))['h']-1) for f in glob.glob('art/callers/*_body.json')}
 # per-caller tweaks: sh = shoulder row as a fraction of figure height, cx = torso centre offset (fraction of height), aw = arm half width, ye = hand end row fraction, none = leave the arms (no distinct arms)
 OV={'sebene':{'cx':0.15,'sh':0.34},'outback':{'sh':0.52,'ye':0.80,'aw':0.09},'lanai':{'sh':0.36,'ye':0.70},'mess':{'sh':0.36,'ye':0.62}}
 def key(im):
@@ -17,6 +19,9 @@ def key(im):
     return np.isin(lab,keep),a.astype(np.uint8)
 def build(i,bright=1.10,dump=False):
     o=OV.get(i,{}); fg,a=key(Image.open(f'art/gemini_test/callers/{i}_body.jpg')); H,W=fg.shape
+    AL=f'art/gemini_test/callers/{i}_armless.png'
+    if os.path.exists(AL):   # armless_callers.py already took the arms out: use its picture and outline, and do not inpaint the middle again
+        ar=np.asarray(Image.open(AL).convert('RGBA')); fg=ar[:,:,3]>0; a=ar[:,:,:3].copy(); o=dict(o,none=1)
     ys,xs=np.where(fg); x0,y0,x1,y1=xs.min(),ys.min(),xs.max()+1,ys.max()+1; h=y1-y0
     sy=int(y0+o.get('sh',0.30)*h); ye=int(y0+o.get('ye',0.60)*h)
     row=np.where(fg[int(y0+0.45*h)])[0]; q1,q3=np.percentile(row,[25,75]); cx=int((q1+q3)/2+o.get('cx',0)*h)

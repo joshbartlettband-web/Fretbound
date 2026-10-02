@@ -1,10 +1,10 @@
 # Fretbound: open items for the next session
 
-Updated 2026-10-02 after v1.47. v1.43 is merged to main; v1.44 to v1.47 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
+Updated 2026-10-02 after v1.48 (developer menu: five taps on the version text). v1.43 is merged to main; v1.44 to v1.48 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
 Read this first, then the START HERE section of `HANDOFF.md`.
 
 ## 1. The APK
-- v1.43 to v1.47 APKs were built in cloud sessions with a throwaway key (`FRETBOUND_KEYSTORE_B64` in the environment settings was a 24-character placeholder, not a keystore). Josh's phone has the throwaway-key build; later builds from the same container install over it, a fresh container makes a new key and needs one uninstall.
+- v1.43 to v1.48 APKs were built in cloud sessions with a throwaway key (`FRETBOUND_KEYSTORE_B64` in the environment settings was a 24-character placeholder, not a keystore). Josh's phone has the throwaway-key build; later builds from the same container install over it, a fresh container makes a new key and needs one uninstall.
 - To make builds update over each other for good: set `FRETBOUND_KEYSTORE_B64=<output of base64 -w0 fretbound.keystore>` (and `FRETBOUND_KEYSTORE_PASS` only if it is not "fretbound") in the environment settings, then `bash setup.sh` and `bash android/build.sh`. The phone gets one uninstall when it moves to the real key.
 - Security note: the old keystore is still in the git history (file `fretbound-keystore-base64.txt`, removed in commit e1dce1f). If the repo is ever shared, clean the history or make a new key. Do not try to read the key out of git history yourself; the session safety check blocks it.
 - The phone may save a downloaded APK as `.zip`; rename it to `.apk` instead of extracting.
@@ -29,6 +29,6 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 - The seated band and player on the Van screen, the merch room, the backstage doors, the Green Room, and the panel frames.
 
 ## 5. Housekeeping
-- PR [#3](https://github.com/joshbartlettband-web/Fretbound/pull/3) (v1.44 to v1.47) is open against `main`.
+- PR [#3](https://github.com/joshbartlettband-web/Fretbound/pull/3) (v1.44 to v1.48) is open against `main`.
 - `tests/gplay.py` was fixed (the neck could run off short screens). The older tests write PNGs into the repo root; they are in `.gitignore`.
 - After re-processing any Gemini art, run `python3 tests/grade.py`, and check that a second run leaves `index.html` byte-identical.

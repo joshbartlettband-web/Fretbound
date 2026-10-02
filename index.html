@@ -776,9 +776,17 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
 
 /* settings in landscape: two columns (sliders left, toggles right), buttons on one line, so the dialog never scrolls */
 @media (orientation:landscape) and (max-height:560px){
+  .modal-card:has(.dev-tabs){max-width:780px;padding:6px 14px;display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:auto auto 1fr auto;column-gap:16px;align-items:start}
+  .modal-card:has(.dev-tabs) h3{grid-column:1/3;margin:0 0 2px}
+  .modal-card:has(.dev-tabs) .dev-tabs{grid-column:1;margin:0 0 4px}
+  .modal-card:has(.dev-tabs) .dev-list{grid-column:1;grid-row:3;margin:0}
+  .modal-card:has(.dev-tabs) .setrow{grid-column:2;margin:2px 0}
+  .modal-card:has(.dev-tabs) .setrow .dim{display:none}
+  .modal-card:has(.dev-tabs) .row-btns{grid-column:1/3;margin:4px 0 0}
   .modal-card:has(.setgrid){max-width:780px;padding:8px 16px}
   .modal-card:has(.setgrid) h3{margin:0 0 2px}
-  .setgrid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);grid-template-columns:1fr 1fr;column-gap:30px}
+  .dev-tabs{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:2px 0 6px}.dev-tabs .btn{padding:4px 7px;font-size:11px}.dev-list{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:4px 0 8px}.dev-list .btn{padding:6px 4px;font-size:12px;text-align:left}
+.setgrid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);grid-template-columns:1fr 1fr;column-gap:30px}
   .setgrid .setrow{margin:4px 0}
   .setgrid .setrow .dim{display:block;line-height:1.25;font-size:8px}
   .setgrid .stepper .btn,.setgrid .knob{transform:scale(.92)}
@@ -985,7 +993,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.47</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.48</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -3590,9 +3598,10 @@ function showPause(){
     '<div class="setrow"><span>CRT scanlines</span>'+knobBtn('sCrt',s.crt)+'</div>'+
     '<div class="setrow"><span>Note names<br><span class="dim">Training wheels. Halves your Tone.</span></span>'+knobBtn('sNames',s.names)+'</div>'+
     '<div class="setrow"><span>Tap offset<br><span class="dim">Adjust if Groove feels off.</span></span><span class="stepper"><button class="btn small blue" id="sLm">-</button><span id="sLv">'+s.latency+'ms</span><button class="btn small blue" id="sLp">+</button></span></div></div>'+
-    '<div class="setbtns"><div class="row-btns"><button class="btn gold" id="pRes">RESUME</button><button class="btn blue" id="pHow">HOW TO PLAY</button>'+(state.screen==='duel'?'<button class="btn" id="pQuit">QUIT</button>':'')+'</div>'+
+    '<div class="setbtns"><div class="row-btns"><button class="btn gold" id="pRes">RESUME</button><button class="btn blue" id="pHow">HOW TO PLAY</button>'+(state.screen==='duel'?'<button class="btn" id="pQuit">QUIT</button>':'')+'</div>'+(s.dev?'<div class="row-btns"><button class="btn small blue" id="pDev">DEV MENU</button>'+(state.screen==='duel'&&!state.practice?'<button class="btn small gold" id="pWin">WIN THIS NIGHT</button>':'')+'</div>':'')+
     '<div class="row-btns"><button class="btn small blue" id="pReset">RESET EAR STATS</button></div></div>');
   setKnob('sCrt',s.crt); setKnob('sNames',s.names);
+  if($('pDev')) $('pDev').onclick=()=>{ blip(660,0.05); showDev(); }; if($('pWin')) $('pWin').onclick=()=>{ blip(990,0.08); devWinNight(); };
   const vol=(id,key)=>{ $(id).oninput=e=>{ s[key]=e.target.value/100; $(id+'V').textContent=e.target.value; applyVolume(); }; $(id).onchange=()=>{ save(); if(key==='vol') blip(660,0.06); if(key==='band') bandPreview(); }; };
   vol('sVol','vol'); vol('sMus','music'); vol('sBand','band');
   $('sCrt').onclick=()=>{ s.crt=!s.crt; save(); applySettings(); setKnob('sCrt',s.crt); blip(s.crt?660:440,0.04); };
@@ -7760,8 +7769,46 @@ $('btnVan').onclick=()=>{ initAudio(); blip(880,0.06); goVan(); };
 $('btnBackstage').onclick=()=>{ initAudio(); blip(880,0.06); goBackstage(); };
 $('tsPrev').onclick=()=>{ initAudio(); stepTitleScene(-1); };
 $('tsNext').onclick=()=>{ initAudio(); stepTitleScene(1); };
+/* ---------- developer menu: look at any night without playing up to it ----------
+   Opens with five quick taps on the version text on the title screen (the old scene-preview gesture lives inside it now).
+   Jump to any of the 21 nights with a pedal set, a full band and some cash; WIN THIS NIGHT in the pause menu skips the one you are on.
+   Nothing here is saved into the run in a way a normal run could trip over: a jump starts a fresh run (like START does) and replaces the saved one. */
+const DEV={tour:0,band:true,cash:60};
+function devStart(ti,vi){
+  try{ initAudio(); }catch(e){}
+  if(state.practice) leavePractice();
+  closeModal(); clearRun(); state.seven=false; state.runSeed=1+Math.floor(Math.random()*999983); state.char=store.settings.char||state.char||'bard';
+  state.guitar=curChar().guitar; applyTuning(); setTour(ti);
+  const ids=(state.pedals&&state.pedals.length===3)?state.pedals.map(p=>p.id):PEDALS.map(p=>p.id).sort(()=>Math.random()-0.5).slice(0,3);
+  state.pedals=ids.map(id=>PEDALS.find(p=>p.id===id)); state.pick=ids.slice(); if(playerRig){ playerRig.setGuitar(curGuitar()); playerRig.setPedals(ids); }
+  const all=TOURS.map((_,i)=>i), enc=TOURS[ti].id==='an';
+  Object.assign(state,{tourSel:ti,visited:enc?all:[ti],nextTour:null,board:'classic',streak:0,loopCharge:0,legNo:enc?(typeof RUN_LEGS==='number'?RUN_LEGS+1:5):1,legPending:false,money:DEV.cash,venueIdx:vi,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:TOURS[ti].venues.slice(0,vi).map(v=>v.id),tourScore:0,tough:0,fameGain:0,gauge:'standard',spares:0});
+  state.lineup=DEV.band?Object.keys(MEMBERS).filter(k=>MEMBERS[k].kind==='band').slice(0,4):[];
+  for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; snap[k]=null; }
+  window.__fbNoRecruit=true; startVenue(); }
+function devWinNight(){
+  if(state.screen!=='duel'||state.practice||!state.inVenue){ return; }
+  ++state.runId; trStop(); hideDialog(); closeModal();
+  state.total=Math.max(state.total||0,TARGET); state.over='win'; state.phase='review'; try{ dexNight('win'); }catch(e){}
+  if(state.cleared.indexOf(VEN().id)<0){ state.cleared.push(VEN().id); state.tourScore+=state.total; }
+  if(state.venueIdx<VENUES.length-1) goShop(); else showResults(); }
+function showDev(){
+  const T=TOURS[DEV.tour], s=store.settings;
+  openModal('<h3>Developer</h3><div class="dev-tabs">'+TOURS.map((t,i)=>'<button class="btn small '+(i===DEV.tour?'gold':'blue')+'" data-dt="'+i+'">'+t.short+'</button>').join('')+'</div>'+
+    '<div class="dev-list">'+T.venues.map((v,i)=>'<button class="btn small" data-dv="'+i+'">'+v.night+'. '+v.short+'</button>').join('')+'</div>'+
+    '<div class="setrow"><span>Full band<br><span class="dim">Four musicians on your side.</span></span>'+knobBtn('dBand',DEV.band)+'</div>'+
+    '<div class="setrow"><span>Scene preview<br><span class="dim">Every title scene.</span></span>'+knobBtn('dScene',!!s.previewScenes)+'</div>'+
+    '<div class="setrow"><span>Dev button in Settings<br><span class="dim">Skip a night mid-run.</span></span>'+knobBtn('dPause',!!s.dev)+'</div>'+
+    '<div class="row-btns"><button class="btn gold" id="dClose">CLOSE</button></div>');
+  setKnob('dBand',DEV.band); setKnob('dScene',!!s.previewScenes); setKnob('dPause',!!s.dev);
+  document.querySelectorAll('[data-dt]').forEach(b=>b.onclick=()=>{ blip(660,0.04); DEV.tour=+b.dataset.dt; showDev(); });
+  document.querySelectorAll('[data-dv]').forEach(b=>b.onclick=()=>{ blip(990,0.08); devStart(DEV.tour,+b.dataset.dv); });
+  $('dBand').onclick=()=>{ DEV.band=!DEV.band; setKnob('dBand',DEV.band); blip(DEV.band?660:440,0.04); };
+  $('dScene').onclick=()=>{ s.previewScenes=!s.previewScenes; save(); if(!themeUnlocked(s.titleTheme||'na')) setTitleTheme('na'); renderTitleScene(); setKnob('dScene',!!s.previewScenes); blip(660,0.04); };
+  $('dPause').onclick=()=>{ s.dev=!s.dev; save(); setKnob('dPause',!!s.dev); blip(660,0.04); };
+  $('dClose').onclick=()=>{ blip(660,0.05); closeModal(); }; }
 (function(){ let n=0,t0=0; const f=document.querySelector('.title-foot'); if(f) f.addEventListener('click',()=>{ const now=Date.now(); if(now-t0>2500) n=0; t0=now; n++;
-  if(n>=5){ n=0; store.settings.previewScenes=!store.settings.previewScenes; save(); if(!themeUnlocked(store.settings.titleTheme||'na')) setTitleTheme('na'); renderTitleScene(); tsToast(store.settings.previewScenes?'Scene preview on: every finished scene can be picked.':'Scene preview off.'); } }); })();
+  if(n>=5){ n=0; initAudio(); blip(880,0.06); showDev(); } }); })();
 try{ renderTitleScene(); checkNewScenes(); }catch(e){}
 $('btnBsBack').onclick=()=>{ blip(660,0.05); goScreen('title'); };
 $('bsMap').onclick=()=>{ blip(880,0.06); goRoster(); };

@@ -1,11 +1,40 @@
 # Fretbound handoff (v1.42)
 
+## START HERE (art pass, written at the end of the long Gemini session; game text still says v1.42, nothing is released yet)
+Branch `claude/relaxed-planck-s555pj` (no PR opened; Josh has not asked for one). Josh tests through a private artifact page ("Fretbound Stage Test", https://claude.ai/artifact/LUhktMKpiBdTMSsVvWmLwe) that is republished from `index.html` with the title changed; the page watch never registers, so Josh reports findings in chat.
+
+### What is painted now (everything below is embedded in `index.html`, about 5 MB)
+Stages for all 21 venues (plate + animated effects), 24 pedals, 6 guitars, 6 players (painted armless body, rig-drawn arms so hands still find the frets), 21 callers (same method), 7 band members (two-pose sprites), 3 vehicle levels (camper van, 15-passenger van, tour bus) in rear view (title) and side view (Van screen), 7 painted Van-screen lodging scenes (one per continent), the 7 title plates (horizons shifted onto the road's convergence row; Africa was repainted without trees), plus code-drawn items: per-continent play-screen wallpaper, brighter beat pips, Juke stove glow, moon and window pines, a caption strip for the dialog, hardened frame loop and fallbacks.
+
+### Pipelines (every one has a fallback to the old code-drawn art if an image fails)
+| Asset | Generate (Gemini) | Process | Embed |
+|---|---|---|---|
+| Stages | `art/gemini_test/gen_stages.py` | `tests/procstage.py --all` | `tests/stagefx.py` (also holds the per-venue effect data `FX`) |
+| Pedals | `gen_pedals.py` | `tests/procpedal.py` | `tests/procpedal.py --embed` |
+| Guitars | `gen_guitars.py` | `tests/procguitar.py` | `tests/procguitar.py --embed` |
+| Players | `gen_img.py` standing body from `art/*_card.png` | `art/gemini_test/armless_all.py` then `tests/procbody.py <id>` | `tests/procbody.py --embed bard monk ...` |
+| Callers | `gen_callers.py` | `tests/proccaller.py` | `tests/proccaller.py --embed` |
+| Band | `gen_band.py` | `tests/procsprite.py SHEET OUT NAME HEIGHT` | `tests/procsprite.py --embed-band ...` |
+| Vans | `gen_vans.py` | `tests/procvan.py` | `tests/procvan.py --embed` |
+| Van scenes | `gen_vanscenes.py` | `tests/procvanscene.py` | `tests/procvanscene.py --embed` |
+| Title plates | (originals in `art/plates/orig/`) | `tests/shiftplates.py` (horizon rows `H`), `tests/procmask.py <id>` for a rebuilt mask | `shiftplates.py` re-embeds plates and masks |
+Gemini notes: `art/gemini_test/gen_img.py OUT "prompt" [aspect] [ref images]` is the generic call (model `gemini-2.5-flash-image`; the Python review tool `tests/artreview.py` uses `gemini-3.8-flash`). Gemini adds well and removes badly: it ignores "without arms" and "armless" and cannot rescale props, so arms are erased by hand with OpenCV (`pip install opencv-python-headless`) and props are shrunk with `shrink_auto.py`. Its output carries a small sparkle watermark in the top-left corner; the processors ignore it. Keep sources as q90 JPEGs. The account's prepayment credits ran out once (HTTP 402); Josh topped them up.
+
+### How to test
+`bash setup.sh` once (apt packages and pip), then `bash tests/dev/pwfix.sh` (links the pre-installed Chromium under the build name this Playwright wants, because the network blocks the browser download). Then: `cp index.html test.html && python3 tests/audit.py` (expect 0 issues at the five sizes), `python3 tests/gplay.py` (expect `errors: []`), `OUT=/tmp/fbout python3 tests/dev/stress.py` (renders every pedal, every player on every stage, every pose; expect 0 problems). Visual helpers in `tests/dev/` write PNGs to `$OUT`: `stage_sheet.py`, `title_sheet.py`, `caller_sheet.py`, `play_shots.py`, `play_sizes.py`, `van_levels.py`, `stage_detail.py`, `char_run.py`. Test hooks on `window.__fb`: `stageAt(id,t)`, `stagePlates()`, `rivalPNG`, `playBackdrop()`, `tour(i)`, `store`, `sky(i)`. Note: setting `store` values from a script does not persist across a reload.
+
+### Open items and known rough spots
+- Josh reported a critical error on the Monk (strings, pedals and player vanished). It could not be reproduced (full runs, stress test, Green Room all clean). Safeguards were added (frame loop catches errors, painted bodies, guitars, pedals and callers fall back to the code art, errors go to `console.error`). Ask for device, browser, night and whether it was a resumed save (an older save could disagree with the new art).
+- Not painted yet: crowd silhouettes, the seated band and player on the Van screen (rig sprites at 0.34 scale), the title roadside objects (halved but still code), merch room, backstage doors, Green Room, panel frames, the Van scene window glints (only stars, snow and fireflies are animated).
+- Rough: Sebene pink sleeves over the peacock tail, Azmari pale arms on the white robe, penguin and Pole arms read as dark bars, Luthier cream sleeve block, no blinking on painted players and callers, band has only two frames, Tam's strum pose has a faint blur, the Juke floor light is short because the crowd covers the floor, the remaining roadside acacias on the Africa title are code. Bar rows and seam fixes were measured by eye, so a scene can still be a pixel or two off.
+- Release steps are not done: bump the `Prototype v1.42` text and `android/AndroidManifest.xml`, add the dated HANDOFF line, build the APK (needs `FRETBOUND_KEYSTORE_B64`). Real-phone testing has still never happened.
+
 Fretbound is a roguelike ear-training game for guitar. A rival plays a phrase (the call); you answer on a touch fretboard. Score is Tone x Hype, pedals act like Balatro jokers. Everything is one self-contained HTML file.
 
 ## What is in this package
 - `fretbound.html`: the whole game (about 950 KB). Fonts and portraits are embedded, so it runs offline. For the claude.ai artifact, a Google Fonts link is added in front of `<style>` as a fallback; the APK uses the file as is.
 - `android/`: the WebView wrapper. `build.sh` rebuilds the APK. **`fretbound.keystore` is the signing key (store and key password `fretbound`, alias `fretbound`).** Keep it: every update must be signed with it, or it won't install over the previous version.
-- `tests/`: Playwright scripts. `mktest.py` makes `test.html` with local fonts; `audit.py` checks clipping at five phone sizes; `test6.py` plays a full leg; `test18.py` plays two legs with a save and resume; `test12.py` checks screen overflow; `gtest.py` and `gsolo.py` check groove loudness per venue and per layer; `gplay.py` plays three calls with a miss and a replay. The tests load `fretbound.html` directly (fonts are embedded).
+- `tests/`: Playwright scripts. `mktest.py` makes `test.html` with local fonts; `audit.py` checks clipping at five phone sizes; `test6.py` plays a full leg; `test18.py` plays two legs with a save and resume; `test12.py` checks screen overflow; `gtest.py` and `gsolo.py` check groove loudness per venue and per layer; `gplay.py` plays three calls with a miss and a replay. The tests now load `index.html` (or `test.html` for `audit.py`) from the repo root; fonts are embedded.
 - `art/`: processed portraits (card 176 px, tile 96 px) as embedded in the game.
 
 ## Building the APK (Ubuntu sandbox)

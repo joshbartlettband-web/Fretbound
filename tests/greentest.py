@@ -16,7 +16,7 @@ def wait_phase(pg,ph,n=200):
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); errs=[]
     pg=b.new_page(viewport={"width":390,"height":844}); pg.on("pageerror",lambda e: errs.append(str(e.stack)[:400]))
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.5); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.5)
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.5); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.5)
     pg.evaluate("window.__fbNoRecruit=true")
     pg.click("#btnBackstage"); time.sleep(0.3); pg.click("[data-door=green]"); time.sleep(0.3)
     # choose: intervals, only P5 and M3, frets 5-8, high strings, 88 bpm

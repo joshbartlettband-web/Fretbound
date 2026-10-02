@@ -4,7 +4,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
     pg=b.new_page(viewport={"width":390,"height":760})
     errs=[]; pg.on("pageerror",lambda e: errs.append(str(e))); pg.on("console",lambda m: errs.append(m.text) if m.type=="error" else None)
-    pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.5)
+    pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.5)
     pg.click("#btnStart"); time.sleep(0.3)
     r=pg.evaluate("window.__fb.grooveTest()")
     leg=r['legacy']['1']['db']

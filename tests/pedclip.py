@@ -7,7 +7,7 @@ JS="""(tag)=>{ const res=[]; document.querySelectorAll('.ptile canvas, .pedal ca
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
     for vw,vh in [(360,740),(390,760),(412,860),(740,360),(844,390)]:
-        pg=b.new_page(viewport={"width":vw,"height":vh}); pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); pg.evaluate("window.__fbNoRecruit=true")
+        pg=b.new_page(viewport={"width":vw,"height":vh}); pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); pg.evaluate("window.__fbNoRecruit=true")
         out=[]; pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3); out+=pg.evaluate(JS,'check')
         for i in range(3): pg.query_selector_all("#offer .ptile")[i].click(); time.sleep(0.05)
         out+=pg.evaluate(JS,'check3')

@@ -19,3 +19,8 @@ Run `bash setup.sh` once per machine.
 2. Add a dated line for the version to `HANDOFF.md`.
 3. Build the APK with `bash android/build.sh` (needs `FRETBOUND_KEYSTORE_B64` set, or the app will not update over older installs).
 4. Commit with a short message naming the version.
+
+## Tools you will need
+- `bash setup.sh` once, then `bash tests/dev/pwfix.sh` (Chromium link for Playwright). Tests use repo-relative paths now.
+- Art pipeline and how to test it: read the START HERE section of `HANDOFF.md` first. Gemini ignores removal instructions; erase parts yourself.
+- Visual helper scripts live in `tests/dev/` (set `OUT` for their output folder). After any change run `tests/audit.py`, `tests/gplay.py` and `tests/dev/stress.py`.

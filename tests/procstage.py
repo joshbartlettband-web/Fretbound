@@ -20,6 +20,7 @@ def proc(src,out,crop=None):
         c=crop if crop is not None else round((h-240)*0.67); im2=im2.crop((0,c,640,c+240))
     im2.quantize(colors=64,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).save(out,optimize=True)
     print(os.path.basename(out),os.path.getsize(out)//1024,'KB')
-if sys.argv[1]=='--all':
-    for f in sorted(glob.glob('art/gemini_test/stages/*.jpg')): proc(f,'art/plates/stage_%s.png'%os.path.basename(f)[:-4])
-else: proc(sys.argv[1],sys.argv[2],int(sys.argv[3]) if len(sys.argv)>3 else None)
+if __name__=='__main__':
+    if sys.argv[1]=='--all':
+        for f in sorted(glob.glob('art/gemini_test/stages/*.jpg')): proc(f,'art/plates/stage_%s.png'%os.path.basename(f)[:-4])
+    else: proc(sys.argv[1],sys.argv[2],int(sys.argv[3]) if len(sys.argv)>3 else None)

@@ -6,7 +6,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(); errs=[]
     for vw,vh,tab in [(360,740,'vanList'),(390,844,'vanCrew'),(844,390,'vanList')]:
         pg=b.new_page(viewport={"width":vw,"height":vh},device_scale_factor=2); pg.on("pageerror",lambda e: errs.append(str(e)[:200]))
-        pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); pg.evaluate("()=>{ localStorage.clear(); }"); pg.reload(); time.sleep(0.4)
+        pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); pg.evaluate("()=>{ localStorage.clear(); }"); pg.reload(); time.sleep(0.4)
         pg.evaluate("()=>{ Object.assign(window.__fb.META,{fame:60,van:{bigvan:1},hired:{lou:1,hale:1,dee:1},lineup:['lou','hale','dee']}); }")
         pg.click("#btnVan"); time.sleep(0.3); pg.click(f"[data-vt={tab}]"); time.sleep(0.6); pg.screenshot(path=f"vs_{vw}.png"); shots.append(Image.open(f"vs_{vw}.png"))
         print(vw,vh,'scroll',pg.evaluate("document.scrollingElement.scrollHeight"),'over',pg.evaluate("[...document.querySelectorAll('#scr-van .check *')].filter(e=>{const r=e.getBoundingClientRect(); return r.width&&(r.bottom>innerHeight+1||r.right>innerWidth+1);}).length")); pg.close()

@@ -5,7 +5,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
     for vw,vh in [(360,740),(844,390)]:
         pg=b.new_page(viewport={"width":vw,"height":vh}); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e.stack)[:300]))
-        pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.4)
+        pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.4)
         pg.evaluate("()=>{ Object.assign(window.__fb.META,{fame:120}); }")
         pg.click("#btnVan"); time.sleep(0.2); pg.click("[data-vt=vanCrew]"); time.sleep(0.2)
         pg.click("[data-m=lou]"); time.sleep(0.2); pg.click("#mHire"); time.sleep(0.2)

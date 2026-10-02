@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 from PIL import Image
 POSES=[{'fret':0.3},{'fret':0},{'fret':1},{'fret':0.3,'strum':1},{'fret':0.3,'gloat':1},{'fret':0.3,'slump':1}]
 with sync_playwright() as p:
-    b=p.chromium.launch(); pg=b.new_page(); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e.stack)[:300])); pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.5)
+    b=p.chromium.launch(); pg=b.new_page(); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e.stack)[:300])); pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.5)
     ids=pg.evaluate("Object.keys(window.__fb.RIVAL_VEC)")
     rows=[[Image.open(io.BytesIO(base64.b64decode(pg.evaluate("([c,q])=>window.__fb.rPNG(c,q)",[c,q]).split(',')[1]))).convert('RGBA') for q in POSES] for c in ids]
     print(ids,'errors',errs); b.close()

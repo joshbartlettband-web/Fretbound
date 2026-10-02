@@ -5,7 +5,7 @@ shots=[]
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
     for vw,vh in [(360,740),(390,844),(412,860),(740,360),(844,390)]:
-        pg=b.new_page(viewport={"width":vw,"height":vh},device_scale_factor=2); pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.4)
+        pg=b.new_page(viewport={"width":vw,"height":vh},device_scale_factor=2); pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.4)
         pg.evaluate("window.__fbNoRecruit=true"); pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.4); pg.click("#btnSound"); time.sleep(0.5)
         r=pg.evaluate("()=>{ const c=document.getElementById('modalCard'), q=c.getBoundingClientRect(); return {top:Math.round(q.top),bottom:Math.round(q.bottom),vh:innerHeight,scrollable:c.scrollHeight>c.clientHeight+1,pageScroll:document.scrollingElement.scrollHeight>innerHeight}; }")
         print(vw,vh,r,'OK' if (r['top']>=0 and r['bottom']<=r['vh'] and not r['scrollable']) else 'CHECK')

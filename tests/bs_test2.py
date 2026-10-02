@@ -6,7 +6,7 @@ with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); errs=[]
     for vw,vh,tag in [(390,844,'p'),(844,390,'l')]:
         pg=b.new_page(viewport={"width":vw,"height":vh},device_scale_factor=2); pg.on("pageerror",lambda e: errs.append(str(e.stack)[:300]))
-        pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.5); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.5)
+        pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.5); pg.evaluate("()=>localStorage.clear()"); pg.reload(); time.sleep(0.5)
         pg.evaluate("()=>{ Object.assign(window.__fb.META,{hired:{lou:1,dee:1},lineup:['lou','dee'],met:{hale:1}}); const d=window.__fb.dexC; ['spur','tide','juke'].forEach(id=>{ const c=d(id); c.faced=3; c.won=2; c.lost=1; c.best=4200; c.band=['lou','rosa']; }); }")
         if tag=='p': pg.screenshot(path='bs_title_p.png')
         pg.click("#btnBackstage"); time.sleep(0.4); pg.click("[data-door=roster]"); time.sleep(0.4)

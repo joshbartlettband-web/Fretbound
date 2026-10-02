@@ -3,7 +3,7 @@ from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
     for vw,vh in [(390,844),(360,740),(844,390)]:
-        pg=b.new_page(viewport={"width":vw,"height":vh}); pg.goto("file:///home/claude/fretbound.html"); time.sleep(0.4); pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3)
+        pg=b.new_page(viewport={"width":vw,"height":vh}); pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4); pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3)
         for i in range(3): pg.query_selector_all("#offer .ptile")[i].click(); time.sleep(0.05)
         pg.evaluate("document.getElementById('btnReady').click()"); time.sleep(0.3)
         if pg.is_visible("#mOk"): pg.click("#mOk"); time.sleep(0.2)

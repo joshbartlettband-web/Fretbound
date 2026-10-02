@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image,ImageDraw
 sys.path.insert(0,'tests')
 from procpedal import key
+from arttone import tone
 LEN=180
 def proc(f):
     im=Image.open(f).convert('RGB'); fg=key(im); a=np.dstack([np.asarray(im),(fg*255).astype(np.uint8)])
@@ -19,7 +20,7 @@ def proc(f):
     pad=Image.new('RGBA',(w+60,h+60),(0,0,0,0)); pad.paste(c,(30,30)); c=pad.rotate(ang,resample=Image.BICUBIC)
     al=np.asarray(c)[:,:,3]>40; ys,xs=np.where(al); c=c.crop((xs.min(),ys.min(),xs.max()+1,ys.max()+1))
     s=LEN/c.width; c=c.resize((LEN,max(8,round(c.height*s))),Image.LANCZOS); a=np.asarray(c).copy(); al=a[:,:,3]>140
-    rgb=Image.fromarray(np.clip(a[:,:,:3].astype(float)*1.10,0,255).astype(np.uint8)).quantize(colors=40,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
+    rgb=Image.fromarray(tone(np.clip(a[:,:,:3].astype(float)*1.10,0,255).astype(np.uint8),al)).quantize(colors=40,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
     out=Image.fromarray(np.dstack([np.asarray(rgb),al*255]).astype(np.uint8))
     h,w=al.shape; top=np.array([np.where(al[:,x])[0].min() if al[:,x].any() else 0 for x in range(w)]); bot=np.array([np.where(al[:,x])[0].max() if al[:,x].any() else 0 for x in range(w)]); hh=bot-top+1
     mx=hh.max(); xm=int(np.argmax(hh>0.8*mx)); xj=xm
@@ -39,7 +40,7 @@ if __name__=='__main__' and '--embed' not in sys.argv:
         im=Image.open(f'art/guitars/{i}.png').resize((LEN*3,m['h']*3),Image.NEAREST); d=ImageDraw.Draw(im)
         d.line([(m['xj']*3,0),(m['xj']*3,im.height)],fill=(255,0,0)); d.line([(m['xn']*3,0),(m['xn']*3,im.height)],fill=(0,255,0)); d.line([(0,m['yc']*3),(im.width,m['yc']*3)],fill=(0,255,255))
         bg=Image.new('RGB',im.size,(60,40,30)); bg.paste(im,(0,0),im); sh.paste(bg,((k%2)*(LEN*3+10),(k//2)*(max(mm['h'] for mm in meta.values())*3+10))); k+=1
-    sh.save('/tmp/claude-0/-home-user-Fretbound/06db394c-e65b-5e2f-91cd-5e32ab269560/scratchpad/guitars_game.png')
+    sh.save(os.environ.get('OUT','/tmp')+'/guitars_game.png')
 if __name__=='__main__' and '--embed' in sys.argv:
     src={os.path.basename(f)[:-4]:'data:image/png;base64,'+base64.b64encode(open(f,'rb').read()).decode() for f in sorted(glob.glob('art/guitars/*.png'))}; meta=json.load(open('art/guitars/meta.json'))
     s=open('index.html',encoding='utf-8').read(); a=s.index('/*GUITARS:BEGIN*/'); b=s.index('/*GUITARS:END*/')+len('/*GUITARS:END*/')

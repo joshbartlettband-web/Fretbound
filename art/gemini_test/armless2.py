@@ -19,6 +19,23 @@ def fgmask(a):
     fg=~np.isin(lab,list(edge)); fg=ndi.binary_fill_holes(fg)
     soft=((ai[:,:,0]-ai[:,:,1])>70)&((ai[:,:,2]-ai[:,:,1])>35)&(ai[:,:,0]>110)
     fg=ndi.binary_opening(fg&~soft,iterations=1); lab,n=ndi.label(fg); sz=ndi.sum(fg,lab,range(1,n+1)); return lab==(1+int(np.argmax(sz)))
+def backstrip(cut,fg,W0):
+    """The painted back arm hangs against the back of the torso.  Cutting all of it flattens the back, so keep a strip along the torso's edge, deepest at the shoulder and thinning to nothing by mid-arm
+    (only for cuts on the back side, the left: the paintings face right)."""
+    ys,xs=np.where(fg); cx=(xs.min()+xs.max())/2; keep=np.zeros_like(cut)
+    rows=np.where(cut.any(axis=1))[0]
+    for P in [rows]:
+        pass
+    lab,n=ndi.label(cut)
+    for i in range(1,n+1):
+        m=lab==i; yy,xx=np.where(m)
+        if xx.mean()>cx: continue                      # the front side: hands in front of the body, no strip
+        y0,y1=yy.min(),yy.max()
+        for y in range(y0,y1+1):
+            w=int(W0*max(0.0,1-(y-y0)/(0.5*(y1-y0))))
+            if w<1: continue
+            xr=xx[yy==y].max(); keep[y,xr-w+1:xr+1]=True
+    return keep
 def run(name,ov=False):
     im=Image.open(f'chars/{name}_body.jpg').convert('RGB'); a=np.asarray(im); H,W,_=a.shape
     cut=np.zeros((H,W),bool)
@@ -28,7 +45,8 @@ def run(name,ov=False):
         o=im.copy(); d=ImageDraw.Draw(o)
         for P in CUT[name]: d.polygon(P,outline=(255,255,0))
         o.crop((150,60,760,1180)).save(f'chars/{name}_ov.png'); return
-    fg=fgmask(a); keep=fg&~cut
+    fg=fgmask(a); cut=cut&~backstrip(cut,fg,30)
+    keep=fg&~cut
     lab,n=ndi.label(keep); sz=ndi.sum(keep,lab,range(1,n+1)); keep=lab==(1+int(np.argmax(sz)))     # drop any stray bits the cut left behind
     rim=keep&ndi.binary_dilation(fg&cut,iterations=4)                                                 # the cut edge: a dark painted outline, 4 px
     out=a.copy(); out[rim]=OUTLINE

@@ -39,6 +39,9 @@ def build(i,bright=1.10,dump=False):
     yl,xl=np.where(al); low=yl>yl.max()-max(3,int(nh*0.08)); fx=int(np.median(xl[low])); fy=int(yl.max()+1)
     sh_y=round((sy-y0)*s,1); sx=round((cx-x0)*s,1); d=round(0.075*th,1)
     meta=dict(w=nw,h=nh,fx=fx,fy=fy,sy=sh_y,s1=[sx+d,sh_y],s2=[sx-d,sh_y])
+    if os.path.exists('art/gemini_test/callers/armcols.json'):
+        J=json.load(open('art/gemini_test/callers/armcols.json'))
+        if i in J: meta['ac']=J[i]   # sleeve colour and its shade, from the painted arm that armless_callers.py removed
     json.dump(meta,open(f'art/callers/{i}_body.json','w')); print(i,meta['w'],meta['h'],os.path.getsize(f'art/callers/{i}_body.png')//1024,'KB'); return out
 def embed(path='index.html'):
     ids=sorted(os.path.basename(f)[:-5].replace('_body','') for f in glob.glob('art/callers/*_body.json'))

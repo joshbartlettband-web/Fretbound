@@ -36,6 +36,23 @@ def key(a):
     lab,n=ndi.label(near|mag); edge=set(lab[0])|set(lab[-1])|set(lab[:,0])|set(lab[:,-1]); edge.discard(0); fg=~np.isin(lab,list(edge)); fg=ndi.binary_fill_holes(fg)&~mag
     fg=ndi.binary_opening(fg,iterations=1); lab,n=ndi.label(fg); sz=ndi.sum(fg,lab,range(1,n+1)); keep=[i+1 for i in range(n) if sz[i]>0.02*sz.max()]
     return np.isin(lab,keep)
+def backstrip(cut,fg,W0):
+    """The painted back arm hangs against the back of the torso.  Cutting all of it flattens the back, so keep a strip along the torso's edge, deepest at the shoulder and thinning to nothing by mid-arm
+    (only for cuts on the back side, the left: the paintings face right)."""
+    ys,xs=np.where(fg); cx=(xs.min()+xs.max())/2; keep=np.zeros_like(cut)
+    rows=np.where(cut.any(axis=1))[0]
+    for P in [rows]:
+        pass
+    lab,n=ndi.label(cut)
+    for i in range(1,n+1):
+        m=lab==i; yy,xx=np.where(m)
+        if xx.mean()>cx: continue                      # the front side: hands in front of the body, no strip
+        y0,y1=yy.min(),yy.max()
+        for y in range(y0,y1+1):
+            w=int(W0*max(0.0,1-(y-y0)/(0.5*(y1-y0))))
+            if w<1: continue
+            xr=xx[yy==y].max(); keep[y,xr-w+1:xr+1]=True
+    return keep
 def run(i,ov=False):
     im=Image.open(f'art/gemini_test/callers/{i}_body.jpg').convert('RGB'); a=np.asarray(im).copy(); H,W,_=a.shape
     def mask(P):
@@ -52,9 +69,15 @@ def run(i,ov=False):
     # sample only the inside of the body (3 px in from the edge), or the magenta fringe round the figure bleeds into the filled patch
     ok=ndi.binary_erosion(fg&~fill&~cut,iterations=3); idx=ndi.distance_transform_edt(~ok,return_distances=False,return_indices=True); src=a[idx[0],idx[1]]
     res=cv2.inpaint(src,(fill&fg).astype(np.uint8)*255,10,cv2.INPAINT_TELEA); a2=np.where((fill&fg)[...,None],res,a)
+    cut=cut&~backstrip(cut,fg,26)
     keep=fg&~cut; lab,n=ndi.label(keep); sz=ndi.sum(keep,lab,range(1,n+1)); keep=lab==(1+int(np.argmax(sz)))
     rim=keep&ndi.binary_dilation(fg&cut,iterations=4); a2[rim]=OUTLINE
     Image.fromarray(np.dstack([a2,keep*255]).astype(np.uint8)).save(f'art/gemini_test/callers/{i}_armless.png'); print('saved',i)
+    # the colour of the painted arm that was taken away (median of its lit pixels): the rig's sleeves are drawn in it, so a new forearm matches the clothes
+    arm=(cut|fill)&fg&(a.sum(axis=2)>150); px=a[arm]
+    if len(px)>50:
+        c=np.median(px,axis=0); import json; f='art/gemini_test/callers/armcols.json'; J=json.load(open(f)) if os.path.exists(f) else {}
+        J[i]=['#%02x%02x%02x'%tuple(int(v) for v in c),'#%02x%02x%02x'%tuple(int(v*0.78) for v in c)]; json.dump(J,open(f,'w'))
 if __name__=='__main__':
     ov='--ov' in sys.argv; ids=[x for x in sys.argv[1:] if x!='--ov'] or list(SH)
     for i in ids: run(i,ov)

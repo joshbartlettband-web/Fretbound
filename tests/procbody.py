@@ -26,7 +26,7 @@ def build(name,HEIGHT=104,BRIGHT=1.10):
     out=Image.fromarray(np.dstack([np.asarray(q),al*255]).astype(np.uint8)); os.makedirs('art/sprites',exist_ok=True); out.save(f'art/sprites/{name}_body.png',optimize=True)
     ysl,xsl=np.where(al); low=ysl>ysl.max()-max(3,int(nh*0.1)); fx=int(np.median(xsl[low])); fy=int(ysl.max()+1)
     P=lambda p:[round((p[0]-x0)*s,1),round((p[1]-y0)*s,1)]
-    meta=dict(w=nw,h=nh,fx=fx,fy=fy,s1=P(SH[name]['front']),s2=P(SH[name]['back'])); json.dump(meta,open(f'art/sprites/{name}_body.json','w')); print(name,meta,os.path.getsize(f'art/sprites/{name}_body.png')//1024,'KB'); return out,meta
+    meta=dict(w=nw,h=nh,fx=fx,fy=fy,s1=P(SH[name]['front']),s2=P(SH[name]['back']),map=[int(x0),int(y0),float(s)]); json.dump(meta,open(f'art/sprites/{name}_body.json','w')); print(name,meta,os.path.getsize(f'art/sprites/{name}_body.png')//1024,'KB'); return out,meta
 def embed(names,path='index.html'):
     src={n:'data:image/png;base64,'+base64.b64encode(open(f'art/sprites/{n}_body.png','rb').read()).decode() for n in names}; meta={n:json.load(open(f'art/sprites/{n}_body.json')) for n in names}
     s=open(path,encoding='utf-8').read(); a=s.index('/*BODIES:BEGIN*/'); b=s.index('/*BODIES:END*/')+len('/*BODIES:END*/')

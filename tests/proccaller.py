@@ -38,7 +38,7 @@ def build(i,bright=1.10,dump=False):
     out=Image.fromarray(np.dstack([np.asarray(q),al*255]).astype(np.uint8)); os.makedirs('art/callers',exist_ok=True); out.save(f'art/callers/{i}_body.png',optimize=True)
     yl,xl=np.where(al); low=yl>yl.max()-max(3,int(nh*0.08)); fx=int(np.median(xl[low])); fy=int(yl.max()+1)
     sh_y=round((sy-y0)*s,1); sx=round((cx-x0)*s,1); d=round(0.075*th,1)
-    meta=dict(w=nw,h=nh,fx=fx,fy=fy,sy=sh_y,s1=[sx+d,sh_y],s2=[sx-d,sh_y])
+    meta=dict(w=nw,h=nh,fx=fx,fy=fy,sy=sh_y,s1=[sx+d,sh_y],s2=[sx-d,sh_y],map=[int(x0),int(y0),float(s)])   # painting pixel -> sprite pixel: ((x-x0)*s, (y-y0)*s)
     if os.path.exists('art/gemini_test/callers/armcols.json'):
         J=json.load(open('art/gemini_test/callers/armcols.json'))
         if i in J: meta['ac']=J[i]   # sleeve colour and its shade, from the painted arm that armless_callers.py removed

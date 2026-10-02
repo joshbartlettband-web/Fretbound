@@ -15,10 +15,10 @@ def key(im):
     a=np.asarray(im.convert('RGB')).astype(int); bg=np.median(np.concatenate([a[:6].reshape(-1,3),a[-6:].reshape(-1,3),a[:,:6].reshape(-1,3),a[:,-6:].reshape(-1,3)]),axis=0)
     d=np.abs(a-bg).sum(axis=2); fg=d>150                                              # every pixel near the background colour goes, enclosed gaps included
     fg&=~((a[:,:,0]-a[:,:,1]>60)&(a[:,:,2]-a[:,:,1]>40)&(a[:,:,0]>120))              # and any magenta-tinted fringe
-    fg=ndi.binary_opening(fg,iterations=1); return fg
+    fg=ndi.binary_opening(fg,iterations=max(1,round(a.shape[1]/2752))); return fg
 def split(path):
     im=Image.open(path).convert('RGB'); fg=key(im); H,W=fg.shape
-    lab,n=ndi.label(ndi.binary_dilation(fg,iterations=14)); lab=lab*fg                  # dilate to join a tail or a raised fist to its body, then keep only real pixels
+    lab,n=ndi.label(ndi.binary_dilation(fg,iterations=max(6,round(14*W/2752)))); lab=lab*fg                  # dilate to join a tail or a raised fist to its body, then keep only real pixels
     sz=ndi.sum(fg,lab,range(1,n+1)); keep=[i+1 for i in np.argsort(sz)[::-1][:8]] if n>=8 else None
     if keep is None or sz[np.array(keep)-1].min()<0.05*sz.max(): return im,fg,None
     objs=ndi.find_objects(lab); cells=[]

@@ -454,5 +454,11 @@
 },
 "PORTRAIT_ART/monk_tile": {
 "graded": "932fc28b40138dbd7eea25c27290b5a20224c677"
+},
+"POSE_SRC/bard": {
+"graded": "b47900e4c85907218cdca9a0567dc3183468d9b1"
+},
+"POSE_SRC/ghat": {
+"graded": "6a08878aaac54d71d5987241d61bceb87ac9d960"
 }
 }

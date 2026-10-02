@@ -1,0 +1,101 @@
+20:41:14 start ['monk', 'hermit', 'busker', 'luthier', 'carto', 'spur', 'tide', 'juke', 'dunes', 'sebene', 'azmari', 'rio', 'milonga', 'chicha', 'paris', 'cave', 'frost', 'tokyo', 'bali', 'lanai', 'outback', 'grotto', 'mess', 'aurora', 'pole', 'lou', 'rosa', 'dee', 'jo', 'hale', 'tam', 'brass', 'brassb', 'brassc']
+20:42:15 monk A 2 gen failed: local/lib/python3.11/dist-packages/PIL/PngImagePlugin.py", line 184, in read
+    raise SyntaxError(msg)
+SyntaxError: broken PNG file (chunk b'\x00\x00\x00\x00')
+20:42:16 monk A 3 gen failed: local/lib/python3.11/dist-packages/PIL/PngImagePlugin.py", line 184, in read
+    raise SyntaxError(msg)
+SyntaxError: broken PNG file (chunk b'\x00\x00\x00\x00')
+20:43:18 monk A 2 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:43:18 OUT OF CREDITS / QUOTA
+20:43:19 monk A 3 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:43:19 OUT OF CREDITS / QUOTA
+20:43:19 hermit A 2 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:43:19 OUT OF CREDITS / QUOTA
+20:51:39 resume
+20:51:39 start ['monk', 'hermit', 'busker', 'luthier', 'carto', 'spur', 'tide', 'juke', 'dunes', 'sebene', 'azmari', 'rio', 'milonga', 'chicha', 'paris', 'cave', 'frost', 'tokyo', 'bali', 'lanai', 'outback', 'grotto', 'mess', 'aurora', 'pole', 'lou', 'rosa', 'dee', 'jo', 'hale', 'tam', 'brass', 'brassb', 'brassc']
+20:51:42 monk A 2 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:51:42 OUT OF CREDITS / QUOTA
+20:51:42 monk A 3 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:51:42 OUT OF CREDITS / QUOTA
+20:51:43 hermit A 2 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:51:43 OUT OF CREDITS / QUOTA
+20:52:05 monk round 0 As [1] Bs [1, 2] best (1, 1, 2.3, [])
+20:52:06 monk DONE A 1 B 1 calm 2.3 issues []
+20:52:08 luthier A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:08 OUT OF CREDITS / QUOTA
+20:52:09 carto A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:09 OUT OF CREDITS / QUOTA
+20:52:11 spur A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:11 OUT OF CREDITS / QUOTA
+20:52:12 juke A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:12 OUT OF CREDITS / QUOTA
+20:52:14 dunes A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:14 OUT OF CREDITS / QUOTA
+20:52:15 sebene A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:15 OUT OF CREDITS / QUOTA
+20:52:17 azmari A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:17 OUT OF CREDITS / QUOTA
+20:52:18 hermit round 0 As [1, 3] Bs [1, 2, 3] best (3, 1, 23.6, ['blink: head moves -8,-9 px from idle', 'talk: head moves -7,-9 px from idle'])
+20:52:18 rio A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:18 OUT OF CREDITS / QUOTA
+20:52:20 milonga A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:20 OUT OF CREDITS / QUOTA
+20:52:22 hermit B 5 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:22 OUT OF CREDITS / QUOTA
+20:52:22 hermit B 4 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:22 OUT OF CREDITS / QUOTA
+20:52:23 chicha A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:23 OUT OF CREDITS / QUOTA
+20:52:23 hermit A 5 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:23 OUT OF CREDITS / QUOTA
+20:52:23 hermit A 4 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:23 OUT OF CREDITS / QUOTA
+20:52:24 paris A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:24 OUT OF CREDITS / QUOTA
+20:52:25 cave A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:25 OUT OF CREDITS / QUOTA
+20:52:27 frost A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:27 OUT OF CREDITS / QUOTA
+20:52:28 tokyo A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:28 OUT OF CREDITS / QUOTA
+20:52:30 bali A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:30 OUT OF CREDITS / QUOTA
+20:52:31 lanai A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:31 OUT OF CREDITS / QUOTA
+20:52:33 busker round 0 As [1, 2, 3] Bs [1, 2, 3] best (3, 1, 4.4, [])
+20:52:33 busker DONE A 3 B 1 calm 4.4 issues []
+20:52:33 outback A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:33 OUT OF CREDITS / QUOTA
+20:52:34 grotto A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:34 OUT OF CREDITS / QUOTA
+20:52:34 mess A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:34 OUT OF CREDITS / QUOTA
+20:52:36 aurora A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:36 OUT OF CREDITS / QUOTA
+20:52:36 pole A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:36 OUT OF CREDITS / QUOTA
+20:52:37 rosa A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:37 OUT OF CREDITS / QUOTA
+20:52:37 dee A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:37 OUT OF CREDITS / QUOTA
+20:52:38 jo A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:38 OUT OF CREDITS / QUOTA
+20:52:38 hale A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:38 OUT OF CREDITS / QUOTA
+20:52:39 tam A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:39 OUT OF CREDITS / QUOTA
+20:52:40 brass A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:40 OUT OF CREDITS / QUOTA
+20:52:41 brassb A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:41 OUT OF CREDITS / QUOTA
+20:52:41 brassc A 1 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:52:41 OUT OF CREDITS / QUOTA
+20:53:04 hermit round 1 As [1, 3] Bs [1, 2, 3] best (3, 1, 23.6, ['blink: head moves -8,-9 px from idle', 'talk: head moves -7,-9 px from idle'])
+20:53:07 hermit A 6 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:53:07 OUT OF CREDITS / QUOTA
+20:53:07 hermit B 7 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:53:07 OUT OF CREDITS / QUOTA
+20:53:07 hermit A 7 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:53:07 OUT OF CREDITS / QUOTA
+20:53:08 hermit B 6 gen failed: udio/spend to manage your project spend cap. Learn more at https://ai.google.dev/gemini-api/docs/billing#project-spend-caps. ', 'status': 'RESOURCE_EXHAUSTED'}}
+20:53:08 OUT OF CREDITS / QUOTA

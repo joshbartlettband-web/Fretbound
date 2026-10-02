@@ -6,10 +6,19 @@ from PIL import Image
 sys.path.insert(0,'tests')
 from procvan import key
 UNIT=180
-H={'saguaro_a':1.0,'saguaro_b':0.85,'joshua_a':0.95,'joshua_b':0.8,'billboard':1.1,'windmill':1.85,'shack':0.62}
+# sprite -> height in road units (the wheel and the sails: their diameter, since they are square); CROP: Gemini drew a frame round these
+H={'saguaro_a':1.0,'saguaro_b':0.85,'joshua_a':0.95,'joshua_b':0.8,'billboard':1.1,'shack':0.62,'windmill_tower':1.6,'windmill_wheel':0.7,
+   'acacia_a':0.8,'acacia_b':0.65,'baobab':1.2,'rondavel':0.65,'giraffe':1.4,
+   'cypress_a':1.5,'oak':0.95,'cottage':0.7,'church':1.5,'mill_tower':1.1,'mill_sails':1.35,
+   'agave':0.6,'llama':0.55,'chapel':0.65,
+   'bamboo':1.5,'pine':1.2,'torii':0.8,'pagoda':1.7,'toro':0.6,'vending_c':0.62,
+   'gum':1.6,'roosign_c':0.8,'kanga':0.75,'tank':1.2,
+   'berg_c':0.5,'flag_c':0.9,'penguin_c':0.45,'hut_c':0.55,'beacon_c':0.9}
+# the *_c sprites are full colour (they keep their own colours, only dusked a little); the rest become dark silhouettes in the game
+CROP={'windmill_wheel':24,'mill_sails':24}
 os.makedirs('art/roadside',exist_ok=True); src={}
 for k,h in H.items():
-    im=Image.open(f'art/gemini_test/roadside/{k}.jpg').convert('RGB'); fg=key(im); ys,xs=np.where(fg)
+    im=Image.open(f'art/gemini_test/roadside/{k}.jpg').convert('RGB'); cr=CROP.get(k,0); im=im.crop((cr,cr,im.width-cr,im.height-cr)) if cr else im; fg=key(im); ys,xs=np.where(fg)
     c=Image.fromarray(np.dstack([np.asarray(im),(fg*255).astype(np.uint8)])).crop((xs.min(),ys.min(),xs.max()+1,ys.max()+1))
     th=round(h*UNIT); c=c.resize((max(4,round(c.width*th/c.height)),th),Image.LANCZOS); a=np.asarray(c).copy(); al=a[:,:,3]>140
     q=Image.fromarray(a[:,:,:3]).quantize(colors=24,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')

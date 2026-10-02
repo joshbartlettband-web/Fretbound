@@ -13,9 +13,17 @@ H={'saguaro_a':1.0,'saguaro_b':0.85,'joshua_a':0.95,'joshua_b':0.8,'billboard':1
    'agave':0.6,'llama':0.55,'chapel':0.65,
    'bamboo':1.5,'pine':1.2,'torii':0.8,'pagoda':1.7,'toro':0.6,'vending_c':0.62,
    'gum':1.6,'roosign_c':0.8,'kanga':0.75,'tank':1.2,
-   'berg_c':0.5,'flag_c':0.9,'penguin_c':0.45,'hut_c':0.55,'beacon_c':0.9}
+   'berg_c':0.5,'flag_c':0.9,'penguin_c':0.45,'hut_c':0.55,'beacon_c':0.9,
+   # the second wave of kinds (variety: more kinds in each pool, the same number of objects on screen)
+   'barn':0.8,'watertower':1.5,'diner':0.6,'wagon':0.55,'cowskull':0.6,'pricklypear':0.5,'bigcactus_barrel':0.4,
+   'elephant':1.1,'zebra':0.75,'termite':0.8,'granary':0.6,'lionrock':0.95,'datepalm':1.7,
+   'haystack':0.55,'stonebridge':0.65,'wayside':0.8,'ruintower':1.3,'sheep':0.3,'poplar':1.7,
+   'condor':0.9,'gaucho':0.85,'adobe':0.5,'ombu':0.9,'oxcart':0.55,'cairn':0.5,
+   'sakura':1.2,'redbridge':0.5,'foxshrine':0.65,'buddha':1.3,'belltower':1.1,'noodlecart':0.55,
+   'emu':0.8,'kookaburra':0.55,'tinhut':0.6,'banksia':0.8,'ute':0.5,'dingo':0.45,
+   'seal_c':0.3,'snowmobile_c':0.45,'radome_c':0.9,'tent_c':0.55,'icearch_c':0.8,'skua_c':0.5}
 # the *_c sprites are full colour (they keep their own colours, only dusked a little); the rest become dark silhouettes in the game
-CROP={'windmill_wheel':24,'mill_sails':24}
+CROP={'windmill_wheel':24,'mill_sails':24,'tinhut':24}
 os.makedirs('art/roadside',exist_ok=True); src={}
 for k,h in H.items():
     im=Image.open(f'art/gemini_test/roadside/{k}.jpg').convert('RGB'); cr=CROP.get(k,0); im=im.crop((cr,cr,im.width-cr,im.height-cr)) if cr else im; fg=key(im); ys,xs=np.where(fg)

@@ -1,10 +1,10 @@
 # Fretbound: open items for the next session
 
-Updated 2026-10-02 after v1.45. v1.43 is merged to main; v1.44 and v1.45 (stage lights, painted roadside objects for all continents, castle and Luthier fixes) are on branch `claude/serene-curie-omhjrg` with a pull request open.
+Updated 2026-10-02 after v1.46. v1.43 is merged to main; v1.44 to v1.46 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
 Read this first, then the START HERE section of `HANDOFF.md`.
 
 ## 1. The APK
-- v1.43, v1.44 and v1.45 APKs were built in cloud sessions with a throwaway key (`FRETBOUND_KEYSTORE_B64` in the environment settings was a 24-character placeholder, not a keystore). Josh's phone has the throwaway-key build; later builds from the same container install over it, a fresh container makes a new key and needs one uninstall.
+- v1.43 to v1.46 APKs were built in cloud sessions with a throwaway key (`FRETBOUND_KEYSTORE_B64` in the environment settings was a 24-character placeholder, not a keystore). Josh's phone has the throwaway-key build; later builds from the same container install over it, a fresh container makes a new key and needs one uninstall.
 - To make builds update over each other for good: set `FRETBOUND_KEYSTORE_B64=<output of base64 -w0 fretbound.keystore>` (and `FRETBOUND_KEYSTORE_PASS` only if it is not "fretbound") in the environment settings, then `bash setup.sh` and `bash android/build.sh`. The phone gets one uninstall when it moves to the real key.
 - Security note: the old keystore is still in the git history (file `fretbound-keystore-base64.txt`, removed in commit e1dce1f). If the repo is ever shared, clean the history or make a new key. Do not try to read the key out of git history yourself; the session safety check blocks it.
 - The phone may save a downloaded APK as `.zip`; rename it to `.apk` instead of extracting.

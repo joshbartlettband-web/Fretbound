@@ -14,7 +14,7 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 2. **How it runs on his phone:** a full-band duel, the title screen, the Hollow Pine lights-out, the castle approach on the Europe title (portrait), the Luthier's and Hermit's guitars, whether the light pools read as light, and whether any painted roadside object looks too big or small (sizes are in `tests/procroadside.py`).
 3. **Crowded stages** (mess hall, Ghat) now show at most four band members a side (v1.47). Does that read better?
 4. **Depth scaling for the band.** Musicians further back could be drawn a little smaller on deep stages. Held off because scaling pixel art blurs it.
-5. **The Monk critical error** (strings, pedals and player vanished) was never reproduced. Ask for the device, browser, which night, and whether it was a resumed save.
+5. **The Monk critical error** (strings, pedals and player vanished) was never reproduced. Ask for the device, browser, which night, and whether it was a resumed save. Resolved for now (2026-10-03): Josh never reproduced it; safeguards stay in place.
 6. **A real signing key** so builds update over each other (section 1).
 
 ## 3. Known problems not yet fixed
@@ -36,5 +36,5 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 ## 6. Painted pose sets
 - All 35 characters are painted (v1.54). Check on the phone: size consistency while posing, whether any character still lacks its instrument in a pose, jerkiness of the weakest sets (cave, lou, paris, brassb, brass, rosa), crispness of the 2K sets next to the 4K Bard and Tiger. The big_hit pose is still not wired to a trigger. Menus (character card, roster, venue card) still use the portraits.
 
-## 7. Floating sprites (asked 2026-10-03)
-- Josh saw some sprites float. v1.53 added contact shadows and removed the beat bob, but no systematic anchor error was found (all poses within 1 px of idle). Ask which characters, and whether in play or on the title. Likely suspects: figures whose lowest pixel is a thin tail or stand leg (jo, azmari, rosa have 3 to 4 px below their feet row), props placed for the old art (the Siren's sea rock), and band slots (`BAND_SLOTS`, `PREF` y rows) set for the old sprites.
+## 7. Floating sprites
+- Resolved (Josh, 2026-10-03): no longer seen after v1.53 to v1.62.

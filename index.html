@@ -993,7 +993,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.59</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.60</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -6438,7 +6438,7 @@ function bandPose(id,t,i,sub){ const P=BANDP[id]||{}, key=sub||id, ph=(key.lengt
    where the crowd starts (feet row 204). Props standing on the floor are [x0,x1,yFront]: nobody's body stands over a prop unless their feet are in
    front of it (otherwise the painted prop would have to hide them). Rows and props were read off the plates (tests/stagegrid.py, scratch sheets). */
 const STAGE3D={
-  spur:{yb:192,props:[]}, juke:{yb:192,props:[[52,128,204],[518,572,206],[578,640,206]]}, tide:{yb:191,props:[[185,445,196],[18,42,240],[575,602,240]]},
+  spur:{yb:192,props:[]}, juke:{yb:192,props:[[44,140,224],[518,572,206],[578,640,206]]}, tide:{yb:191,props:[[185,445,196],[18,42,240],[575,602,240]]},
   dunes:{yb:177,props:[[25,75,224],[545,640,224]]}, sebene:{yb:181,props:[[0,92,226],[540,640,226],[160,236,182],[410,472,182]]},
   azmari:{yb:181,props:[[20,120,208],[505,640,218]]}, outback:{yb:192,props:[[0,40,200],[515,640,196]]},
   rio:{yb:184,props:[[0,32,232],[605,640,232]]}, milonga:{yb:192,props:[[0,40,215],[600,640,215]]}, chicha:{yb:184,props:[[0,104,208],[560,640,212]]},
@@ -6464,6 +6464,10 @@ function stageFighters(){ return [{a:HERO_X-18,b:HERO_X+42,y:FIGHTER_Y},{a:RIVAL
 const bandExtCache={};
 function bandExtent(id,one){ const ck=id+(one?'1':''); if(bandExtCache[ck]) return bandExtCache[ck];
   const g=!one&&BAND_GROUP[id]; if(g&&BANDART_IMG[id]){ let l=0,r=0,L=0,R=0; g.forEach(([sub,dx])=>{ const e=bandExtent(sub,true); l=Math.min(l,dx+e.l); r=Math.max(r,dx+e.r); L=Math.min(L,dx+e.L); R=Math.max(R,dx+e.R); }); return bandExtCache[ck]={l,r,L,R}; }
+  { const PM=POSE_META[id], PI=POSE_IMG[id], P0=BANDP[id]||{};   // painted pose sets: the footprint is what the idle and playing poses really cover (the old art's width is not theirs)
+    if(PM&&PI){ try{ const c=document.createElement('canvas'); c.width=PM.cw*8; c.height=PM.ch; const cg=c.getContext('2d',{willReadFrequently:true}); cg.drawImage(PI,0,0,PM.cw*8,PM.ch,0,0,PM.cw*8,PM.ch);
+        const d=cg.getImageData(0,0,PM.cw*8,PM.ch).data; let mn=9999,mx=-1; for(let y=0;y<PM.ch;y++) for(let x=0;x<PM.cw*8;x++) if(d[(y*PM.cw*8+x)*4+3]>100){ const xx=x%PM.cw; if(xx<mn) mn=xx; if(xx>mx) mx=xx; }
+        if(mx>=0){ const L2=mn-PM.fx, R2=mx-PM.fx, sol=P0.inst==='drums'||P0.inst==='keys'; return bandExtCache[ck]=sol?{l:L2+4,r:R2-4,L:L2,R:R2}:{l:-11,r:11,L:L2,R:R2}; } }catch(e){} } }
   const M=BANDART_META[id], im=BANDART_IMG[id], P=BANDP[id]||{}; let L=-30,R=30;
   if(M&&im){ try{ const c=document.createElement('canvas'); c.width=M.cw*2; c.height=M.ch; const cg=c.getContext('2d',{willReadFrequently:true}); cg.drawImage(im,0,0,M.cw*2,M.ch,0,0,M.cw*2,M.ch);
       const d=cg.getImageData(0,0,M.cw*2,M.ch).data; let mn=9999,mx=-1; for(let y=0;y<M.ch;y++) for(let x=0;x<M.cw*2;x++) if(d[(y*M.cw*2+x)*4+3]>100){ const xx=x%M.cw; if(xx<mn) mn=xx; if(xx>mx) mx=xx; }
@@ -6594,9 +6598,18 @@ function drawVanScene(){
   // your player and seated band, hanging around the lot
   const who=[['p',state.char||'bard'],...(META.lineup||[]).filter(id=>BANDP[id]).map(id=>['b',id])];
   const pvw=PS?Math.min(PS.m.w,Math.round(W*0.56)):vw, x0=vx+pvw+8, gap=Math.max(14,Math.min(22,(W-x0-6)/Math.max(1,who.length)));
-  who.forEach(([k,id],i)=>{ const spr=k==='p'?vsSprite('p'+id,()=>h2frame(id,{nod:0}),0.34):vsSprite('b'+id,()=>bandLayers(id,{bare:1}),0.34);
-    g.drawImage(spr,Math.round(x0+i*gap-28),Math.round(H-36-52)); });
+  // painted idle poses, scaled to the vehicle: a person is about 0.78 of a camper van's height, 0.66 of the 15-passenger van's and 0.56 of the bus's
+  const vanH=PS?Math.round(PS.m.h*pvw/PS.m.w):vh+6, ratio=[0.86,0.74,0.64][lv]||0.75, ss=vanH*ratio/104, foot=(PS?vy+vh+5:vy+vh+3);
+  const slots=who.map(([k,id],i)=>({k,id,i,dy:i%2?2:0})), n=Math.max(1,who.length), gp=Math.max(10,Math.min(26,(W-x0-6)/n));
+  slots.sort((a,b)=>a.dy-b.dy).forEach(({k,id,i,dy})=>{
+    const pose=vsPose(id,ss), cx=Math.round(x0+i*gp+gp*0.3);
+    if(pose){ g.fillStyle='rgba(0,0,0,.32)'; g.fillRect(cx-Math.round(pose.w*0.22),foot+dy,Math.round(pose.w*0.44),2); g.drawImage(pose.c,Math.round(cx-pose.fx),Math.round(foot+dy-pose.fy+1)); return; }
+    const spr=k==='p'?vsSprite('p'+id,()=>h2frame(id,{nod:0}),0.34):vsSprite('b'+id,()=>bandLayers(id,{bare:1}),0.34);
+    g.drawImage(spr,Math.round(x0+i*gp-28),Math.round(H-36-52)); });
 }
+function vsPose(id,s){ const M=POSE_META[id], im=POSE_IMG[id]; if(!M||!im) return null; const key='vp'+id+'@'+s.toFixed(3); if(vsCache[key]) return vsCache[key];
+  const w=Math.max(1,Math.round(M.cw*s)), h=Math.max(1,Math.round(M.ch*s)), c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d'); cg.imageSmoothingEnabled=true; cg.imageSmoothingQuality='high'; cg.drawImage(im,0,0,M.cw,M.ch,0,0,w,h);
+  return vsCache[key]={c,w,h,fx:M.fx*s,fy:M.fy*s}; }
 function startVanScene(){ drawVanScene(); clearInterval(vanSceneT); vanSceneT=setInterval(()=>{ if(state.screen==='van') drawVanScene(); else { clearInterval(vanSceneT); vanSceneT=null; } },140); }
 
 /* ---------- North America's venues, brought up to the newer stages: light, depth and furniture ---------- */
@@ -8089,7 +8102,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

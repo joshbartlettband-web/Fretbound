@@ -993,7 +993,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.57</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.58</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -6668,15 +6668,31 @@ const BLIND_FX={juke:(g,t)=>{
   g.save(); g.globalCompositeOperation='lighter';
   [[96,160,150,0.42],[96,222,190,0.26]].forEach(([x,y,r,a])=>{ const A=a*fk, gr=g.createRadialGradient(x,y,0,x,y,r); gr.addColorStop(0,'rgba(255,140,50,'+A.toFixed(3)+')'); gr.addColorStop(0.4,'rgba(255,110,40,'+(A*0.45).toFixed(3)+')'); gr.addColorStop(1,'rgba(255,90,30,0)'); g.fillStyle=gr; g.fillRect(x-r,y-r,r*2,r*2); });
   g.restore();
-  g.save(); g.scale(2,2); stageFx(g,t,(STAGE_FX.juke||[]).filter(f=>f.k==='fl'||f.k==='beams')); g.restore(); }};
-function stageFx(g,t,fx){
+  g.save(); g.scale(2,2); stageFx(g,t,(STAGE_FX.juke||[]).filter(f=>f.k==='fl'||f.k==='beams'),'juke'); g.restore(); }};
+const PLATE_PX={};
+function platePx(id){ if(PLATE_PX[id]) return PLATE_PX[id]; const P=STAGE_PLATE[id]; if(!P) return null; const c=document.createElement('canvas'); c.width=640; c.height=240; const g=c.getContext('2d'); g.drawImage(P,0,0,640,240); return PLATE_PX[id]=g.getImageData(0,0,640,240).data; }
+// the painted bulb's own shape, found in the plate: grow from its brightest pixel through everything clearly brighter than the sky around it, then keep the half-resolution cells the effect layer can paint
+function twMask(id,f,i){ f._tm=f._tm||{}; if(f._tm[i]!==undefined) return f._tm[i]; const d=platePx(id); if(!d) return null; const q=f.p[i], W=640;
+  const lum=(x,y)=>{ if(x<0||y<0||x>=W||y>=240) return 0; const o=(y*W+x)*4; return 0.3*d[o]+0.59*d[o+1]+0.11*d[o+2]; };
+  let bx=q[0],by=q[1],bl=-1; for(let dy=-4;dy<=4;dy++) for(let dx=-4;dx<=4;dx++){ const l=lum(q[0]+dx,q[1]+dy); if(l>bl){ bl=l; bx=q[0]+dx; by=q[1]+dy; } }
+  const ring=[]; for(let a=0;a<16;a++) ring.push(lum(Math.round(bx+Math.cos(a/16*6.283)*11),Math.round(by+Math.sin(a/16*6.283)*11))); ring.sort((a,b)=>a-b); const bg=ring[8];
+  let res=null;
+  if(bl-bg>=25){ const thr=bg+0.33*(bl-bg), seen=new Set(), st=[[bx,by]], pts=[];
+    while(st.length){ const [x,y]=st.pop(), k=y*W+x; if(seen.has(k)) continue; seen.add(k); if(Math.abs(x-bx)>9||Math.abs(y-by)>10||lum(x,y)<thr) continue; pts.push([x,y]); st.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]); }
+    if(pts.length>=6&&pts.length<=400){ const cm={}; pts.forEach(([x,y])=>{ const k=(x>>1)+','+(y>>1); cm[k]=(cm[k]||0)+1; });
+      const cells=Object.keys(cm).filter(k=>cm[k]>=2).map(k=>k.split(',').map(Number));
+      if(cells.length){ const xs=cells.map(c=>c[0]), ys=cells.map(c=>c[1]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+        res={cells,cx:(x0+x1+1)/2,cy:(y0+y1+1)/2,rx:(x1-x0+1)/2,ry:(y1-y0+1)/2}; } } }
+  return f._tm[i]=res; }
+function stageFx(g,t,fx,sid){
   const beat=tr.on&&anim.bob?1:0;
   for(const f of fx){
     const k=f.k, P=f.p||[], c0=f.c||'#FFD27A';
     if(k==='tw') P.forEach((q,i)=>{ const cx=q[0]>>1, cy=q[1]>>1, v=Math.sin(t*(f.sp||2.6)-i*(f.ph||0.55))+0.35*Math.sin(t*7.1+i*2.3), c=q[2]||c0;
       if(f.star){ const b=Math.max(0,v); g.globalAlpha=0.35+0.5*b; g.fillStyle=f.core||'#FFFFFF'; g.fillRect(cx,cy,1,1); if(b>0.7){ g.globalAlpha=0.4; g.fillRect(cx-1,cy,3,1); g.fillRect(cx,cy-1,1,3); } g.globalAlpha=1; }
-      else if(v>0.55){ g.globalAlpha=0.3; g.fillStyle=c; g.fillRect(cx-2,cy-2,5,5); g.globalAlpha=1; g.fillStyle=f.core||'#FFF4C0'; g.fillRect(cx-1,cy-1,2,2); }
-      else if(f.dim&&v<-0.7){ g.globalAlpha=0.45; g.fillStyle=f.dim; g.fillRect(cx-1,cy-1,3,3); g.globalAlpha=1; } });
+      else { const m=sid?twMask(sid,f,i):null;
+        if(v>0.55){ g.fillStyle=c; if(m){ g.globalAlpha=0.26; g.beginPath(); g.ellipse(m.cx,m.cy,m.rx+1.6,m.ry+1.6,0,0,6.283); g.fill(); } else { g.globalAlpha=0.3; g.fillRect(cx-2,cy-2,5,5); } g.globalAlpha=1; g.fillStyle=f.core||'#FFF4C0'; if(m) g.fillRect(Math.round(m.cx)-1,Math.round(m.cy)-1,2,2); else g.fillRect(cx-1,cy-1,2,2); }
+        else if(f.dim&&v<-0.7){ g.fillStyle=f.dim; if(m){ g.globalAlpha=0.7; m.cells.forEach(q=>g.fillRect(q[0],q[1],1,1)); } else { g.globalAlpha=0.45; g.fillRect(cx-1,cy-1,3,3); } g.globalAlpha=1; } } });
     else if(k==='fl') P.forEach((q,i)=>{ const cx=q[0]>>1, cy=q[1]>>1, r=f.r||3, v=0.6+0.3*Math.sin(t*13+i*5)*Math.sin(t*7.3+i*2)+0.25*(h2(Math.floor(t*14),i)-0.5);
       g.fillStyle=c0; g.globalAlpha=Math.max(0.06,v*0.32); g.beginPath(); g.ellipse(cx,cy-1,r,r*1.3,0,0,6.283); g.fill();
       g.globalAlpha=Math.max(0.25,v*0.9); g.fillStyle=f.core||'#FFE08A'; g.fillRect(cx-1,cy-1-(v>0.75?1:0),2,2+(v>0.75?1:0)); g.globalAlpha=1; });
@@ -6747,7 +6763,7 @@ function spurJuke(g,t){
 (function(){
   Object.keys(STAGE_PLATE_SRC).forEach(id=>{ if(id==='spur') return; const A=ART[id]; if(!A) return; const od=A.detail, odyn=A.dyn;
     A.detail=function(g){ const P=STAGE_PLATE[id]; if(!P){ od.call(this,g); return; } g.imageSmoothingEnabled=false; g.drawImage(P,0,0,640,240); };
-    A.dyn=function(g,t){ if(STAGE_PLATE[id]) stageFx(g,t,STAGE_FX[id]||[]); else odyn.call(this,g,t); };
+    A.dyn=function(g,t){ if(STAGE_PLATE[id]) stageFx(g,t,STAGE_FX[id]||[],id); else odyn.call(this,g,t); };
   });
 })();
 

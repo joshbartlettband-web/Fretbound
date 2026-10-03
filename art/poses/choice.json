@@ -14,11 +14,11 @@
   "tried": 9
  },
  "monk": {
-  "A": 3,
-  "B": 1,
-  "calm": 4.1,
+  "A": 1,
+  "B": 4,
+  "calm": 6.4,
   "issues": [],
-  "tried": 9
+  "tried": 3
  },
  "busker": {
   "A": 3,
@@ -128,9 +128,9 @@
   "tried": 4
  },
  "tokyo": {
-  "A": 2,
+  "A": 1,
   "B": 1,
-  "calm": 2.0,
+  "calm": 9.0,
   "issues": [],
   "tried": 4
  },
@@ -178,10 +178,10 @@
  },
  "pole": {
   "A": 2,
-  "B": 2,
+  "B": 3,
   "calm": 4.0,
   "issues": [],
-  "tried": 4
+  "tried": 6
  },
  "rosa": {
   "A": 2,
@@ -213,10 +213,10 @@
  },
  "tam": {
   "A": 3,
-  "B": 6,
-  "calm": 1.1,
+  "B": 8,
+  "calm": 9.8,
   "issues": [],
-  "tried": 21
+  "tried": 30
  },
  "brass": {
   "A": 1,

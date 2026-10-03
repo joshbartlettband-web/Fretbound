@@ -15,7 +15,8 @@ MASTER='art/gemini_test/poses_master'   # UNGRADED atlases (tests/grade.py never
 def key(im):
     a=np.asarray(im.convert('RGB')).astype(int); bg=np.median(np.concatenate([a[:6].reshape(-1,3),a[-6:].reshape(-1,3),a[:,:6].reshape(-1,3),a[:,-6:].reshape(-1,3)]),axis=0)
     d=np.abs(a-bg).sum(axis=2); fg=d>150                                              # every pixel near the background colour goes, enclosed gaps included
-    fg&=~((a[:,:,0]-a[:,:,1]>60)&(a[:,:,2]-a[:,:,1]>40)&(a[:,:,0]>120))              # and any magenta-tinted fringe
+    near=ndi.binary_dilation(~fg,iterations=3)                                        # a magenta-tinted fringe goes too, but only next to the background (cream fur and white cloth inside a figure picks up a pink cast)
+    fg&=~((a[:,:,0]-a[:,:,1]>60)&(a[:,:,2]-a[:,:,1]>40)&(a[:,:,0]>120)&near)
     fg=ndi.binary_opening(fg,iterations=max(1,round(a.shape[1]/2752))); return fg
 def grid_split(fg):
     """Figures touch (a peacock's tail fan, a wide stance): cut the 4x2 grid along the quietest vertical gutters and the quietest horizontal gutter, then take each cell's own figure."""

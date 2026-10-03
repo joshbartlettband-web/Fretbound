@@ -10,6 +10,12 @@ def cands(cid):
     A=sorted(int(re.search(r'_A_(\d+)\.png',f).group(1)) for f in glob.glob(f'{HERE}/out/{cid}_A_*.png') if re.search(r'_A_\d+\.png$',f))
     B=sorted(int(re.search(r'_B_(\d+)\.png',f).group(1)) for f in glob.glob(f'{HERE}/out/{cid}_B_*.png') if re.search(r'_B_\d+\.png$',f))
     return A,B
+_MG={}
+def magenta(name):   # a sheet whose background is white or pink keys cream fur and white cloth out as holes (the Kitsune's snout), so prefer magenta ones
+    if name not in _MG:
+        from PIL import Image
+        px=Image.open(f'{HERE}/out/{name}.png').convert('RGB').getpixel((6,6)); _MG[name]=px[0]>200 and px[2]>200 and px[1]<90
+    return _MG[name]
 def work(cid):
     H=chars.CH[cid]['height']; A,B=cands(cid); best=None; tried=0
     for a in A:
@@ -17,7 +23,7 @@ def work(cid):
             try: res,rep=PP.build(cid,H,a,b)
             except Exception as e: continue
             if res is None: continue
-            tried+=1; sc=rep['calm_score']+10*len(rep['issues'])
+            tried+=1; sc=rep['calm_score']+10*len(rep['issues'])+8*sum(1 for n in (f'{cid}_A_{a}',f'{cid}_B_{b}') if not magenta(n))
             if best is None or sc<best[0]: best=(sc,a,b,res,rep)
     if not best: return cid,None
     sc,a,b,res,rep=best; out,meta=res; os.makedirs(PP.MASTER,exist_ok=True); out.save(f'{PP.MASTER}/{cid}_atlas.png',optimize=True); json.dump(meta,open(f'art/poses/{cid}_meta.json','w'))

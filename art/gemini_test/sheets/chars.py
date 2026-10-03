@@ -9,7 +9,7 @@ HEX={'#E8A83A':'golden yellow','#5ACAB4':'turquoise'}
 GN={'single':'electric guitar (Stratocaster style)','humbucker':'electric guitar (Les Paul style, humbucker pickups)','nylon':'acoustic classical guitar','resonator':'resonator guitar with a round metal cone in the body','twelve':'twelve-string acoustic guitar','baritone':'long-necked baritone electric guitar'}
 # players
 for cid,gid,gd,who in [
- ('monk','humbucker','a dark red-brown Les Paul style electric guitar','the Metronome Monk: a calm man in a yellow knitted beanie, saffron-orange and crimson monk robes wrapped over one shoulder, wooden prayer beads, bare feet or simple sandals'),
+ ('monk','humbucker','a golden-yellow goldtop Les Paul style electric guitar (the same guitar as REFERENCE 3)','the Metronome Monk: a calm man in a yellow knitted beanie, saffron-orange and crimson monk robes wrapped over one shoulder, wooden prayer beads, bare feet or simple sandals'),
  ('hermit','nylon','a brown acoustic classical guitar','the Hermit: an old man in a brown hooded robe with a long white beard, worn and patched, rope belt, simple shoes'),
  ('busker','resonator','a silver resonator guitar with a round metal cone','the Busker: a young woman in a grey newsboy cap, curly dark hair, a denim jacket covered in pins, a red scarf, dark trousers and boots'),
  ('luthier','twelve','a honey-brown twelve-string acoustic guitar','the Luthier: a young woman with red hair in a long braid and goggles on her head, a brown leather apron over a cream shirt with a black bow tie, dark trousers, brown boots'),
@@ -52,7 +52,8 @@ band('tam','guitar','a guitarist playing a red double-neck electric guitar: the 
 band('brass','horn','a horn player standing, playing a brass trumpet','trumpet',88)
 band('brassb','horn','a horn player standing, playing a brass trumpet','trumpet',90,R+'gemini_test/band/brassb_sheet.jpg')
 band('brassc','horn','a horn player standing, playing a brass trumpet','trumpet',88,R+'gemini_test/band/brassc_sheet.jpg')
-for c in ('dee','tam'):
+for c in ('dee',):
     CH[c]['guitar']=R+'guitars/humbucker.png'; CH[c]['gdesc']=CH[c]['inst']
+CH['tam']['guitar']=None   # a double-neck has no matching game guitar sprite: describe it in words only (a gold single-neck reference made the playing poses gold)
 for c,v in list(CH.items()):
     if v.get('band') and v['kind']!='guitar': v.setdefault('guitar',None)

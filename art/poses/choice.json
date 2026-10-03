@@ -3,19 +3,22 @@
   "A": 3,
   "B": 2,
   "calm": 11.7,
-  "issues": []
+  "issues": [],
+  "tried": 2
  },
  "tide": {
   "A": 3,
   "B": 1,
   "calm": 4.0,
-  "issues": []
+  "issues": [],
+  "tried": 9
  },
  "monk": {
   "A": 1,
-  "B": 1,
-  "calm": 2.3,
-  "issues": []
+  "B": 2,
+  "calm": 6.6,
+  "issues": [],
+  "tried": 2
  },
  "busker": {
   "A": 3,
@@ -28,10 +31,13 @@
   "tried": 9
  },
  "luthier": {
-  "A": 2,
+  "A": 3,
   "B": 1,
-  "calm": 8.6,
-  "issues": []
+  "calm": 3.1,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 9
  },
  "carto": {
   "A": 3,
@@ -44,34 +50,50 @@
   "tried": 6
  },
  "hermit": {
-  "A": 2,
-  "B": 2,
-  "calm": 3.4,
-  "issues": []
+  "A": 3,
+  "B": 3,
+  "calm": 3.6,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 20
  },
  "spur": {
   "A": 2,
-  "B": 1,
+  "B": 2,
   "calm": 3.6,
-  "issues": []
+  "issues": [],
+  "tried": 9
  },
  "juke": {
   "A": 2,
   "B": 1,
-  "calm": 3.7,
-  "issues": []
+  "calm": 4.5,
+  "issues": [
+   "cheer: drawn 0.88x idle size (hit the edge of the size search)",
+   "showoff: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 9
  },
  "dunes": {
   "A": 2,
   "B": 1,
   "calm": 5.0,
-  "issues": []
+  "issues": [],
+  "tried": 9
  },
  "sebene": {
   "A": 2,
   "B": 4,
-  "calm": 5.2,
-  "issues": []
+  "calm": 10.4,
+  "issues": [
+   "blink: head moves -9,+13 px from idle",
+   "talk: head moves -9,+13 px from idle",
+   "cheer: drawn 0.88x idle size (hit the edge of the size search)",
+   "flinch: silhouette is 1.34 of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)",
+   "showoff: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 1
  },
  "azmari": {
   "A": 3,
@@ -82,15 +104,17 @@
  },
  "milonga": {
   "A": 1,
-  "B": 1,
+  "B": 2,
   "calm": 0.5,
-  "issues": []
+  "issues": [],
+  "tried": 4
  },
  "rio": {
   "A": 3,
-  "B": 3,
-  "calm": 6.7,
-  "issues": []
+  "B": 2,
+  "calm": 4.7,
+  "issues": [],
+  "tried": 3
  },
  "chicha": {
   "A": 2,
@@ -104,10 +128,11 @@
   "tried": 4
  },
  "paris": {
-  "A": 2,
+  "A": 1,
   "B": 1,
-  "calm": 7.1,
-  "issues": []
+  "calm": 10.0,
+  "issues": [],
+  "tried": 4
  },
  "cave": {
   "A": 2,
@@ -126,8 +151,9 @@
  "tokyo": {
   "A": 1,
   "B": 1,
-  "calm": 3.5,
-  "issues": []
+  "calm": 11.6,
+  "issues": [],
+  "tried": 4
  },
  "bali": {
   "A": 1,
@@ -139,16 +165,22 @@
   "tried": 4
  },
  "lanai": {
-  "A": 1,
+  "A": 2,
   "B": 2,
-  "calm": 7.8,
-  "issues": []
+  "calm": 5.9,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 4
  },
  "outback": {
-  "A": 1,
+  "A": 2,
   "B": 1,
-  "calm": 4.4,
-  "issues": []
+  "calm": 6.9,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 4
  },
  "grotto": {
   "A": 2,
@@ -160,8 +192,11 @@
  "mess": {
   "A": 1,
   "B": 1,
-  "calm": 3.4,
-  "issues": []
+  "calm": 6.9,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 4
  },
  "aurora": {
   "A": 1,
@@ -174,15 +209,20 @@
  },
  "pole": {
   "A": 2,
-  "B": 1,
+  "B": 2,
   "calm": 4.1,
-  "issues": []
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)",
+   "showoff: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 4
  },
  "rosa": {
   "A": 2,
   "B": 1,
-  "calm": 12.5,
-  "issues": []
+  "calm": 7.7,
+  "issues": [],
+  "tried": 4
  },
  "dee": {
   "A": 2,
@@ -209,9 +249,13 @@
  },
  "tam": {
   "A": 3,
-  "B": 1,
+  "B": 2,
   "calm": 1.2,
-  "issues": []
+  "issues": [
+   "talk: head moves -1,-8 px from idle",
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 9
  },
  "brass": {
   "A": 3,
@@ -241,5 +285,15 @@
    "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
   ],
   "tried": 25
+ },
+ "ghat": {
+  "A": 2,
+  "B": 3,
+  "calm": 2.2,
+  "issues": [
+   "lean_in: drawn 0.88x idle size (hit the edge of the size search)",
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 16
  }
 }

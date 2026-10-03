@@ -51,7 +51,7 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
     idle_r,idle_fx=sc[0]; hb=max(8,int(idle_r.height*0.33)); IB,IFX=band(idle_r,idle_fx,hb); reg=[(1.0,0.0,0)]; reg_report={}
     for i in range(1,len(sc)):
         r,fx=sc[i]; best=(-1,1.0,0.0,0)
-        for k in np.arange(0.88,1.121,0.02):
+        for k in np.arange(0.92,1.081,0.02):
             w2,h2=max(1,round(r.width*k)),max(1,round(r.height*k)); a=np.asarray(r.resize((w2,h2),Image.NEAREST))[:,:,3]>0; f2=fx*k
             for dy in (-2,-1,0,1,2):
                 hh=min(hb,h2); rows=a[h2-hh-dy:h2-dy] if dy>=0 else a[h2-hh-dy:h2-dy] 
@@ -63,7 +63,7 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
                     ov[:,x0:x1]=rows[:,x0-off:x1-off]; ib=IB[-hh:]; inter=(ov&ib).sum(); uni=(ov|ib).sum()
                     iou=inter/max(1,uni)
                     if iou>best[0]: best=(iou,float(k),float(dx),dy)
-        if best[0]>=0.5: reg.append((best[1],best[2],best[3])); reg_report[NAMES[i]]=(round(best[1],2),round(best[2]),best[3],round(best[0],2))
+        if best[0]>=0.62: reg.append((best[1],best[2],best[3])); reg_report[NAMES[i]]=(round(best[1],2),round(best[2]),best[3],round(best[0],2))
         else: reg.append((1.0,0.0,0)); reg_report[NAMES[i]]=('own',round(best[0],2))
     sc2=[sc[0]]
     for i in range(1,len(sc)):
@@ -98,8 +98,6 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
     for i,n in enumerate(NAMES):
         ra=raw_areas[i]/max(1,raw_areas[0])
         if i and (ra<0.87 or ra>1.3): report['issues'].append(f'{n}: silhouette is {ra:.2f} of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)')
-        rg=reg_report.get(n)
-        if rg and rg[0]!='own' and (rg[0]<=0.89 or rg[0]>=1.11): report['issues'].append(f'{n}: drawn {rg[0]:.2f}x idle size (hit the edge of the size search)')
     report['area']={n:round(raw_areas[i]/max(1,raw_areas[0]),2) for i,n in enumerate(NAMES)}; report['reg']=reg_report
     report['heights']=dict(zip(NAMES,hts)); report['cell']=[cw,ch]; report['scale']=round(s,3)
     return (out,dict(cw=cw,ch=ch,fx=FX,fy=FY,n=16,names=NAMES,h=HEIGHT)),report

@@ -1,10 +1,10 @@
 {
  "lou": {
-  "A": 3,
+  "A": 2,
   "B": 2,
-  "calm": 11.7,
+  "calm": 10.2,
   "issues": [],
-  "tried": 2
+  "tried": 9
  },
  "tide": {
   "A": 3,
@@ -18,7 +18,7 @@
   "B": 1,
   "calm": 6.6,
   "issues": [],
-  "tried": 2
+  "tried": 3
  },
  "busker": {
   "A": 3,
@@ -35,18 +35,18 @@
   "tried": 9
  },
  "carto": {
-  "A": 3,
-  "B": 3,
-  "calm": 3.6,
+  "A": 2,
+  "B": 2,
+  "calm": 2.0,
   "issues": [],
-  "tried": 6
+  "tried": 9
  },
  "hermit": {
   "A": 3,
   "B": 3,
   "calm": 3.6,
   "issues": [],
-  "tried": 20
+  "tried": 25
  },
  "spur": {
   "A": 2,
@@ -70,20 +70,18 @@
   "tried": 9
  },
  "sebene": {
-  "A": 2,
-  "B": 4,
-  "calm": 10.4,
-  "issues": [
-   "flinch: silhouette is 1.34 of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)"
-  ],
-  "tried": 1
+  "A": 5,
+  "B": 1,
+  "calm": 3.5,
+  "issues": [],
+  "tried": 63
  },
  "azmari": {
   "A": 3,
   "B": 1,
   "calm": 2.0,
   "issues": [],
-  "tried": 4
+  "tried": 6
  },
  "milonga": {
   "A": 1,
@@ -93,11 +91,11 @@
   "tried": 4
  },
  "rio": {
-  "A": 3,
-  "B": 2,
-  "calm": 4.7,
+  "A": 2,
+  "B": 1,
+  "calm": 3.9,
   "issues": [],
-  "tried": 3
+  "tried": 9
  },
  "chicha": {
   "A": 5,
@@ -106,7 +104,7 @@
   "issues": [
    "slump: silhouette is 0.85 of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)"
   ],
-  "tried": 10
+  "tried": 12
  },
  "paris": {
   "A": 1,
@@ -221,11 +219,11 @@
   "tried": 21
  },
  "brass": {
-  "A": 3,
-  "B": 3,
-  "calm": 13.7,
+  "A": 1,
+  "B": 1,
+  "calm": 9.3,
   "issues": [],
-  "tried": 6
+  "tried": 12
  },
  "brassb": {
   "A": 1,
@@ -243,10 +241,10 @@
  },
  "ghat": {
   "A": 2,
-  "B": 3,
+  "B": 2,
   "calm": 2.2,
   "issues": [],
-  "tried": 16
+  "tried": 25
  },
  "brassc": {
   "A": 4,

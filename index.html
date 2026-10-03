@@ -993,7 +993,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.52</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.53</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4107,12 +4107,23 @@ function posePick(q,t,playing,st){
   return q.breath?PI_.breath:PI_.idle; }
 // poses that must show at once (an event), and how long any other pose is held before the next may replace it
 const POSE_NOW={11:1,12:1,10:1,13:1,14:1};
+// a stable 0..1 number per character (and per seat), so each one keeps its own rhythm and they never move together
+function hfrac(k){ let h=2166136261; for(let i=0;i<k.length;i++){ h^=k.charCodeAt(i); h=Math.imul(h,16777619); } return ((h>>>0)%10007)/10007; }
+// a soft contact shadow, two dithered ellipses on the floor under the feet, so a painted figure never looks like it hovers
+function poseShadow(g,x,y,w){ const rx=Math.max(8,Math.min(22,Math.round(w*0.3))); g.fillStyle='rgba(18,8,4,.22)';
+  for(let r=-2;r<=2;r++){ const k=Math.sqrt(1-(r*r)/(3.2*3.2)), hw=Math.round(rx*k); if(hw>0) g.fillRect(x-hw,y+r-1,hw*2,1); }
+  g.fillStyle='rgba(18,8,4,.2)'; for(let r=-1;r<=1;r++){ const hw=Math.round(rx*0.6*Math.sqrt(1-(r*r)/(2.2*2.2))); if(hw>0) g.fillRect(x-hw,y+r-1,hw*2,1); } }
 function drawPose(g,cid,x,y,q,t,left,forced,sk){ const M=POSE_META[cid], im=left?POSE_IMG_L[cid]:POSE_IMG[cid]; if(!im) return false;
-  const key=sk||cid, st=PSTATE[key]||(PSTATE[key]={cur:0,prev:0,t0:-9}); if(t<st.t0-1){ st.cur=0; st.prev=0; st.t0=-9; }                      // time ran backwards (a new night): start again
-  const playing=state.phase==='answer'||state.phase==='listen'&&!!q.strum||(t-(left?RA.noteAt:HA.noteAt))<1.2, want=forced!=null?forced:posePick(q,t,playing,st);
-  if(want!==st.cur&&(POSE_NOW[want]||t-st.t0>=0.22)){ st.prev=st.cur; st.cur=want; st.t0=t; }
-  const cell=i=>({sx:left?(7-i%8)*M.cw:(i%8)*M.cw,sy:Math.floor(i/8)*M.ch}), fx=left?M.cw-M.fx:M.fx, X=Math.round(x-fx), bob=(q.nod||0)>0.3&&!POSE_NOW[st.cur]?1:0, Y=Math.round(y-M.fy)+bob;
-  const f=Math.min(1,(t-st.t0)/0.12); g.imageSmoothingEnabled=false;
+  const key=sk||cid, st=PSTATE[key]||(PSTATE[key]={cur:0,prev:0,t0:-9,hf:hfrac(key+(left?'L':'R'))}); if(t<st.t0-1){ st.cur=0; st.prev=0; st.t0=-9; }                      // time ran backwards (a new night): start again
+  const playing=state.phase==='answer'||state.phase==='listen'&&!!q.strum||(t-(left?RA.noteAt:HA.noteAt))<1.2; let want=forced!=null?forced:posePick(q,t,playing,st);
+  // breathing is each figure's own slow clock (a period of 3.5 to 5 seconds, its own phase), not the shared beat
+  if(want<=1){ const per=3.5+1.5*st.hf, br=Math.sin(t*6.283/per+st.hf*6.283)>0.35; want=br?1:0; }
+  // the longest a pose is held before the next replaces it also differs per figure (0.2 to 0.38 s), so beat-driven changes do not line up
+  const dwell=0.2+0.18*st.hf;
+  if(want!==st.cur&&(POSE_NOW[want]||t-st.t0>=dwell)){ st.prev=st.cur; st.cur=want; st.t0=t; }
+  const cell=i=>({sx:left?(7-i%8)*M.cw:(i%8)*M.cw,sy:Math.floor(i/8)*M.ch}), fx=left?M.cw-M.fx:M.fx, X=Math.round(x-fx), Y=Math.round(y-M.fy);
+  const slow=st.cur<=1&&st.prev<=1, f=Math.min(1,(t-st.t0)/(slow?0.55:0.12)); g.imageSmoothingEnabled=false;
+  poseShadow(g,Math.round(x),Math.round(y),M.cw*0.6);
   if(f<1&&st.prev!==st.cur){ const c0=cell(st.prev); g.drawImage(im,c0.sx,c0.sy,M.cw,M.ch,X,Y,M.cw,M.ch); g.globalAlpha=f; }
   const c1=cell(st.cur); g.drawImage(im,c1.sx,c1.sy,M.cw,M.ch,X,Y,M.cw,M.ch); g.globalAlpha=1;
   if(window.__poseLog) window.__poseLog.push([+t.toFixed(3),cid,st.cur]); return true; }
@@ -6403,21 +6414,22 @@ function bandPlacesCached(ids,mirror,vid){ const key=vid+'|'+(mirror?1:0)+'|'+id
 // layer 'back' draws members whose feet are behind the fighters, 'front' the ones in front of them (only on shallow floors)
 const BAND_MAX={mess:4,ghat:4};   // shallow floors: the first four members of a band are drawn, so nobody stands on the caller
 // painted band poses: the band driver's flags (hit, strum, raise, nod, breath) onto the sixteen slots (0 idle, 1 breath, 2 and 3 the two playing poses, 4 ready, 10 cheer)
-function bandPoseIdx(id,q,t){
+function bandPoseIdx(id,q,t,sk){
   if(t<anim.cheerUntil) return 10;
-  const inst=(BANDP[id]||{}).inst;
-  if(q.strum) return q.strum>0?2:3;
-  if(inst==='drums') return q.hit?2:4;
-  if(inst==='keys') return q.hit?3:2;
-  if(inst==='mic') return q.hit?2:(q.breath?1:0);
-  if(inst==='horn') return q.raise?2:(q.breath?1:0);
-  return q.breath?1:0; }
+  if(!(tr.on&&ctx&&state.screen==='duel')) return 0;
+  const inst=(BANDP[id]||{}).inst, hf=hfrac(sk||id), bt=(ctx.currentTime-tr.t0)/BEAT; if(bt<0) return 0;
+  const off=hf*0.8, n=Math.floor(bt+off);                                      // each member is a little ahead or behind the beat (up to 0.8 of a beat), like people are
+  if(inst==='drums') return n%2?2:3;                                           // a different stroke each beat
+  if(inst==='keys') return Math.floor((bt+off)/2)%2?3:2;                       // a new chord every two beats
+  if(inst==='mic') return (Math.floor(bt)%4===0&&bt-Math.floor(bt)<0.6)?2:0;   // sings on the first beat of a bar
+  if(inst==='horn') return q.raise?2:0;
+  return Math.floor((bt+off)/2)%2?3:2; }                                       // guitars and bass: the strum changes every two beats
 function drawBandSide(g,t,ids,mirror,vid,layer){
   if(BAND_MAX[vid]) ids=ids.slice(0,BAND_MAX[vid]);
   bandPlacesCached(ids,mirror,vid).forEach(([id,s],i)=>{ const x=s[0], y=s[1]; if((layer==='front')!==(y>FIGHTER_Y)) return;
     for(const [sub,dx,dy,lag] of (BAND_GROUP[id]&&BANDART_IMG[id]?BAND_GROUP[id]:[[id,0,0,0]])){
       const q=bandPose(id,t-(lag||0)*0.06,i,sub), xx=x+(mirror?-dx:dx), yy=y+dy;
-      if(POSE_META[sub]&&POSE_IMG[sub]&&drawPose(g,sub,xx,yy+((q.nod||0)>=1?1:0),q,t,mirror,bandPoseIdx(sub,q,t),sub+(mirror?'L':'R')+i)) continue;
+      if(POSE_META[sub]&&POSE_IMG[sub]&&drawPose(g,sub,xx,yy,q,t,mirror,bandPoseIdx(sub,q,t,sub+(mirror?'L':'R')+i),sub+(mirror?'L':'R')+i)) continue;
       const f=bandPaintedFrame(sub,q,mirror);
       if(f) g.drawImage(f.c,Math.round(xx-f.ax),Math.round(yy-f.ay));
       else if(sub===id) g.drawImage(bandFrame0(id,q,mirror),Math.round(xx-(mirror?BS.W-BS.ox:BS.ox)),Math.round(yy-BS.oy)); } }); }

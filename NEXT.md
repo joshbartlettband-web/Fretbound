@@ -1,10 +1,10 @@
 # Fretbound: open items for the next session
 
-Updated 2026-10-02 after v1.52 (painted pose sets for 34 of 35 characters: painted pose sets for the Bard and the Tiger) (developer menu: five taps on the version text). v1.43 is merged to main; v1.44 to v1.52 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
+Updated 2026-10-02 after v1.53 (painted pose sets for 34 of 35 characters: painted pose sets for the Bard and the Tiger) (developer menu: five taps on the version text). v1.43 is merged to main; v1.44 to v1.53 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
 Read this first, then the START HERE section of `HANDOFF.md`.
 
 ## 1. The APK
-- v1.43 to v1.52 APKs were built in cloud sessions with a throwaway key (`FRETBOUND_KEYSTORE_B64` in the environment settings was a 24-character placeholder, not a keystore). Josh's phone has the throwaway-key build; later builds from the same container install over it, a fresh container makes a new key and needs one uninstall.
+- v1.43 to v1.53 APKs were built in cloud sessions with a throwaway key (`FRETBOUND_KEYSTORE_B64` in the environment settings was a 24-character placeholder, not a keystore). Josh's phone has the throwaway-key build; later builds from the same container install over it, a fresh container makes a new key and needs one uninstall.
 - To make builds update over each other for good: set `FRETBOUND_KEYSTORE_B64=<output of base64 -w0 fretbound.keystore>` (and `FRETBOUND_KEYSTORE_PASS` only if it is not "fretbound") in the environment settings, then `bash setup.sh` and `bash android/build.sh`. The phone gets one uninstall when it moves to the real key.
 - Security note: the old keystore is still in the git history (file `fretbound-keystore-base64.txt`, removed in commit e1dce1f). If the repo is ever shared, clean the history or make a new key. Do not try to read the key out of git history yourself; the session safety check blocks it.
 - The phone may save a downloaded APK as `.zip`; rename it to `.apk` instead of extracting.
@@ -29,7 +29,7 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 - The seated band and player on the Van screen, the merch room, the backstage doors, the Green Room, and the panel frames.
 
 ## 5. Housekeeping
-- PR [#3](https://github.com/joshbartlettband-web/Fretbound/pull/3) (v1.44 to v1.52) is open against `main`.
+- PR [#3](https://github.com/joshbartlettband-web/Fretbound/pull/3) (v1.44 to v1.53) is open against `main`.
 - `tests/gplay.py` was fixed (the neck could run off short screens). The older tests write PNGs into the repo root; they are in `.gitignore`.
 - After re-processing any Gemini art, run `python3 tests/grade.py`, and check that a second run leaves `index.html` byte-identical.
 
@@ -37,3 +37,6 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 - Rolled out to 34 of 35 characters in v1.52. Still old art: `brassc` (third Brass Tacks horn player). Wait for the daily Gemini limit to reset (250 requests per day on `gemini-3-pro-image`), then `LEAN=1 SHEET_SIZE=2K python3 art/gemini_test/sheets/run_all.py brassc`, embed (`python3 tests/procposes.py --embed x`), `python3 tests/grade.py`, test, release.
 - Check on the phone: the 2K characters next to the 4K Bard and Tiger (crispness), jerkiness of the weakest sets (cave, rosa, lou, brassb, grotto, luthier, lanai), the show-off, cheer and flinch poses, the big_hit pose is still not wired to a trigger.
 - Menus (character card, roster, venue card) still use the portraits.
+
+## 7. Floating sprites (asked 2026-10-03)
+- Josh saw some sprites float. v1.53 added contact shadows and removed the beat bob, but no systematic anchor error was found (all poses within 1 px of idle). Ask which characters, and whether in play or on the title. Likely suspects: figures whose lowest pixel is a thin tail or stand leg (jo, azmari, rosa have 3 to 4 px below their feet row), props placed for the old art (the Siren's sea rock), and band slots (`BAND_SLOTS`, `PREF` y rows) set for the old sprites.

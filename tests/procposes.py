@@ -43,9 +43,38 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
     for im,fx in sprites:
         w,h=max(1,round(im.width*s)),max(1,round(im.height*s)); r=im.resize((w,h),Image.LANCZOS); sc.append((r,fx*s)); 
     cw=int(max(max(r.width for r,_ in sc),0))+8; left=max(fx for _,fx in sc); right=max(r.width-fx for r,fx in sc); cw=int(left+right)+6; ch=max(r.height for r,_ in sc)+4
-    FX=int(left)+3; FY=ch-2; atlas=Image.new('RGBA',(cw*8,ch*2),(0,0,0,0)); hts=[]
+    # REGISTER every pose against idle: Gemini draws each pose of a sheet at a slightly different size and a little off to the side, so the figure would grow, shrink and slide when poses swap.
+    # For each pose, search a scale (0.88 to 1.12), a sideways shift and a lift that best overlap the bottom third of idle (legs, boots, robe), and apply it. Poses whose legs really differ keep their own size.
+    def band(im,fx,hb):
+        a=np.asarray(im)[:,:,3]>0; return a[-hb:],fx
+    raw_areas=[(np.asarray(r)[:,:,3]>0).sum() for r,_ in sc]      # measured BEFORE registration: a pose drawn without its instrument is much smaller than idle
+    idle_r,idle_fx=sc[0]; hb=max(8,int(idle_r.height*0.33)); IB,IFX=band(idle_r,idle_fx,hb); reg=[(1.0,0.0,0)]; reg_report={}
+    for i in range(1,len(sc)):
+        r,fx=sc[i]; best=(-1,1.0,0.0,0)
+        for k in np.arange(0.88,1.121,0.02):
+            w2,h2=max(1,round(r.width*k)),max(1,round(r.height*k)); a=np.asarray(r.resize((w2,h2),Image.NEAREST))[:,:,3]>0; f2=fx*k
+            for dy in (-2,-1,0,1,2):
+                hh=min(hb,h2); rows=a[h2-hh-dy:h2-dy] if dy>=0 else a[h2-hh-dy:h2-dy] 
+                if rows.shape[0]!=hh: continue
+                for dx in range(-8,9):
+                    # idle band columns: [0,IB.shape[1]) with anchor IFX; pose band columns shifted so its anchor sits at IFX+dx
+                    off=int(round(IFX+dx-f2)); ov=np.zeros((hh,IB.shape[1]),bool); x0=max(0,off); x1=min(IB.shape[1],off+rows.shape[1])
+                    if x1<=x0: continue
+                    ov[:,x0:x1]=rows[:,x0-off:x1-off]; ib=IB[-hh:]; inter=(ov&ib).sum(); uni=(ov|ib).sum()
+                    iou=inter/max(1,uni)
+                    if iou>best[0]: best=(iou,float(k),float(dx),dy)
+        if best[0]>=0.5: reg.append((best[1],best[2],best[3])); reg_report[NAMES[i]]=(round(best[1],2),round(best[2]),best[3],round(best[0],2))
+        else: reg.append((1.0,0.0,0)); reg_report[NAMES[i]]=('own',round(best[0],2))
+    sc2=[sc[0]]
+    for i in range(1,len(sc)):
+        r,fx=sc[i]; k,dx,dy=reg[i]
+        if k!=1.0: r=r.resize((max(1,round(r.width*k)),max(1,round(r.height*k))),Image.LANCZOS)
+        sc2.append((r,fx*k-dx))
+    sc=sc2; dys=[0]+[reg[i][2] for i in range(1,len(sc))]
+    left=max(fx for _,fx in sc); right=max(r.width-fx for r,fx in sc); cw=int(left+right)+6; ch=max(r.height for r in [x for x,_ in sc])+8
+    FX=int(left)+3; FY=ch-4; atlas=Image.new('RGBA',(cw*8,ch*2),(0,0,0,0)); hts=[]
     for i,(r,fx) in enumerate(sc):
-        ox=(i%8)*cw+FX-int(round(fx)); oy=(i//8)*ch+FY-r.height; atlas.alpha_composite(r,(ox,oy)); hts.append(r.height)
+        ox=(i%8)*cw+FX-int(round(fx)); oy=(i//8)*ch+FY-r.height+dys[i]; atlas.alpha_composite(r,(ox,oy)); hts.append(r.height)
     # one palette for the whole atlas
     arr=np.asarray(atlas).copy(); al=arr[:,:,3]>140
     q=Image.fromarray(arr[:,:,:3]).quantize(colors=48,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
@@ -66,6 +95,12 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
         dx,dy=report['drift'][n]
         if abs(dx)>CALM_X or abs(dy)>CALM_Y: report['issues'].append(f'{n}: head moves {dx:+.0f},{dy:+.0f} px from idle')
     report['calm_score']=round(sum(abs(report['drift'][n][0])+abs(report['drift'][n][1]) for n in ('strum_down','strum_up','fret_far','fret_mid','fret_near')),1)
+    for i,n in enumerate(NAMES):
+        ra=raw_areas[i]/max(1,raw_areas[0])
+        if i and (ra<0.87 or ra>1.3): report['issues'].append(f'{n}: silhouette is {ra:.2f} of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)')
+        rg=reg_report.get(n)
+        if rg and rg[0]!='own' and (rg[0]<=0.89 or rg[0]>=1.11): report['issues'].append(f'{n}: drawn {rg[0]:.2f}x idle size (hit the edge of the size search)')
+    report['area']={n:round(raw_areas[i]/max(1,raw_areas[0]),2) for i,n in enumerate(NAMES)}; report['reg']=reg_report
     report['heights']=dict(zip(NAMES,hts)); report['cell']=[cw,ch]; report['scale']=round(s,3)
     return (out,dict(cw=cw,ch=ch,fx=FX,fy=FY,n=16,names=NAMES,h=HEIGHT)),report
 def sheet_png(cid,out):

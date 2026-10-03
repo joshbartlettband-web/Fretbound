@@ -19,9 +19,13 @@
  },
  "busker": {
   "A": 3,
-  "B": 1,
-  "calm": 4.4,
-  "issues": []
+  "B": 3,
+  "calm": 4.2,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)",
+   "showoff: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 9
  },
  "luthier": {
   "A": 2,
@@ -30,10 +34,14 @@
   "issues": []
  },
  "carto": {
-  "A": 2,
+  "A": 3,
   "B": 3,
-  "calm": 2.0,
-  "issues": []
+  "calm": 3.6,
+  "issues": [
+   "cheer: drawn 0.88x idle size (hit the edge of the size search)",
+   "flinch: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 6
  },
  "hermit": {
   "A": 2,
@@ -68,8 +76,9 @@
  "azmari": {
   "A": 3,
   "B": 1,
-  "calm": 6.4,
-  "issues": []
+  "calm": 2.0,
+  "issues": [],
+  "tried": 4
  },
  "milonga": {
   "A": 1,
@@ -87,7 +96,12 @@
   "A": 2,
   "B": 1,
   "calm": 7.8,
-  "issues": []
+  "issues": [
+   "lean_in: silhouette is 0.87 of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)",
+   "slump: silhouette is 0.85 of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)",
+   "showoff: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 4
  },
  "paris": {
   "A": 2,
@@ -98,14 +112,16 @@
  "cave": {
   "A": 2,
   "B": 1,
-  "calm": 14.7,
-  "issues": []
+  "calm": 11.1,
+  "issues": [],
+  "tried": 4
  },
  "frost": {
-  "A": 2,
-  "B": 1,
-  "calm": 5.9,
-  "issues": []
+  "A": 1,
+  "B": 2,
+  "calm": 6.3,
+  "issues": [],
+  "tried": 4
  },
  "tokyo": {
   "A": 1,
@@ -114,10 +130,13 @@
   "issues": []
  },
  "bali": {
-  "A": 2,
-  "B": 1,
-  "calm": 3.4,
-  "issues": []
+  "A": 1,
+  "B": 2,
+  "calm": 7.4,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 4
  },
  "lanai": {
   "A": 1,
@@ -132,10 +151,11 @@
   "issues": []
  },
  "grotto": {
-  "A": 1,
-  "B": 1,
-  "calm": 9.5,
-  "issues": []
+  "A": 2,
+  "B": 2,
+  "calm": 5.1,
+  "issues": [],
+  "tried": 4
  },
  "mess": {
   "A": 1,
@@ -144,10 +164,13 @@
   "issues": []
  },
  "aurora": {
-  "A": 2,
+  "A": 1,
   "B": 1,
-  "calm": 3.8,
-  "issues": []
+  "calm": 5.7,
+  "issues": [
+   "talk: silhouette is 3.08 of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)"
+  ],
+  "tried": 4
  },
  "pole": {
   "A": 2,
@@ -163,21 +186,26 @@
  },
  "dee": {
   "A": 2,
-  "B": 1,
-  "calm": 7.0,
-  "issues": []
+  "B": 2,
+  "calm": 3.3,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 4
  },
  "jo": {
-  "A": 2,
+  "A": 1,
   "B": 1,
-  "calm": 3.0,
-  "issues": []
+  "calm": 5.6,
+  "issues": [],
+  "tried": 4
  },
  "hale": {
   "A": 2,
   "B": 1,
-  "calm": 6.0,
-  "issues": []
+  "calm": 5.1,
+  "issues": [],
+  "tried": 4
  },
  "tam": {
   "A": 3,
@@ -188,16 +216,30 @@
  "brass": {
   "A": 3,
   "B": 2,
-  "calm": 5.8,
-  "issues": []
+  "calm": 13.7,
+  "issues": [
+   "slump: silhouette is 0.86 of idle before registration (instrument or limb missing, or the figure is drawn at the wrong size)"
+  ],
+  "tried": 2
  },
  "brassb": {
   "A": 1,
   "B": 2,
-  "calm": 11.2,
+  "calm": 9.7,
   "issues": [
-   "blink: head moves -2,+9 px from idle",
-   "talk: head moves -2,+9 px from idle"
-  ]
+   "lean_in: drawn 0.88x idle size (hit the edge of the size search)",
+   "flinch: drawn 0.88x idle size (hit the edge of the size search)",
+   "showoff: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 3
+ },
+ "bard": {
+  "A": 3,
+  "B": 2,
+  "calm": 5.0,
+  "issues": [
+   "big_hit: drawn 0.88x idle size (hit the edge of the size search)"
+  ],
+  "tried": 25
  }
 }

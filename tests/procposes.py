@@ -16,18 +16,34 @@ def key(im):
     d=np.abs(a-bg).sum(axis=2); fg=d>150                                              # every pixel near the background colour goes, enclosed gaps included
     fg&=~((a[:,:,0]-a[:,:,1]>60)&(a[:,:,2]-a[:,:,1]>40)&(a[:,:,0]>120))              # and any magenta-tinted fringe
     fg=ndi.binary_opening(fg,iterations=max(1,round(a.shape[1]/2752))); return fg
+def grid_split(fg):
+    """Figures touch (a peacock's tail fan, a wide stance): cut the 4x2 grid along the quietest vertical gutters and the quietest horizontal gutter, then take each cell's own figure."""
+    H,W=fg.shape; col=fg.sum(axis=0).astype(float); row=fg.sum(axis=1).astype(float)
+    def quiet(v,c,span):
+        lo,hi=max(1,int(c-span)),min(len(v)-1,int(c+span)); w=np.convolve(v,np.ones(9)/9,mode='same'); return int(lo+np.argmin(w[lo:hi]))
+    xs=[0]+[quiet(col,W*k/4,W*0.07) for k in (1,2,3)]+[W]; ym=quiet(row,H/2,H*0.08); ys=[0,ym,H]
+    masks=[]
+    for r in (0,1):
+        for c in range(4):
+            m=np.zeros_like(fg); sub=fg[ys[r]:ys[r+1],xs[c]:xs[c+1]]
+            lab,n=ndi.label(ndi.binary_dilation(sub,iterations=max(4,round(10*W/2752)))); lab=lab*sub
+            if n==0: return None
+            sz=ndi.sum(sub,lab,range(1,n+1)); big=[i+1 for i in range(n) if sz[i]>=0.12*sz.max()]
+            m[ys[r]:ys[r+1],xs[c]:xs[c+1]]=np.isin(lab,big); masks.append(m)
+    if any(m.sum()<400 for m in masks): return None
+    return masks
 def split(path):
     im=Image.open(path).convert('RGB'); fg=key(im); H,W=fg.shape
     lab,n=ndi.label(ndi.binary_dilation(fg,iterations=max(6,round(14*W/2752)))); lab=lab*fg                  # dilate to join a tail or a raised fist to its body, then keep only real pixels
     sz=ndi.sum(fg,lab,range(1,n+1)); keep=[i+1 for i in np.argsort(sz)[::-1][:8]] if n>=8 else None
-    if keep is None or sz[np.array(keep)-1].min()<0.05*sz.max(): return im,fg,None
+    if keep is None or sz[np.array(keep)-1].min()<0.05*sz.max(): return im,fg,grid_split(fg)
     objs=ndi.find_objects(lab); cells=[]
     for k in keep:
         sl=objs[k-1]; cy=(sl[0].start+sl[0].stop)/2; cx=(sl[1].start+sl[1].stop)/2; cells.append((int(cy>H/2),cx,k))
     cells.sort(); out=[]
     for r in (0,1):
         row=sorted([c for c in cells if c[0]==r],key=lambda c:c[1]); out+= [c[2] for c in row]
-    if len(out)!=8: return im,fg,None
+    if len(out)!=8: return im,fg,grid_split(fg)
     return im,fg,[(lab==k) for k in out]
 def build(cid,HEIGHT,an=1,bn=1,K=None):
     D='art/gemini_test/sheets/out/'; sprites=[]; report={'id':cid,'issues':[]}

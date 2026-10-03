@@ -7,7 +7,7 @@ from PIL import Image
 from scipy import ndimage as ndi
 OX,OY=200,330   # crop origin used by armless.py
 # shoulder points in ORIGINAL image coordinates: fretting arm (front, right) and picking arm (back, left)
-SH={'bard':dict(front=(530,418),back=(352,452)),'monk':dict(front=(470,400),back=(310,390)),'busker':dict(front=(490,420),back=(330,420)),'hermit':dict(front=(470,430),back=(265,440)),'luthier':dict(front=(510,450),back=(320,420)),'carto':dict(front=(490,450),back=(290,450))}
+SH={'bard':dict(front=(530,418),back=(352,452)),'monk':dict(front=(470,400),back=(372,400)),'busker':dict(front=(490,420),back=(375,420)),'hermit':dict(front=(470,430),back=(372,440)),'luthier':dict(front=(510,450),back=(368,430)),'carto':dict(front=(490,450),back=(368,450))}   # back shoulders moved inside the torso when the hanging arms were cut away (armless2.py)
 def build(name,HEIGHT=104,BRIGHT=1.10):
     im=Image.open(f'art/gemini_test/chars/{name}_armless_body.png').convert('RGBA'); ox,oy=(0,0) if im.size==(864,1184) else (OX,OY)
     full=Image.open(f'art/gemini_test/chars/{name}_body.jpg' if os.path.exists(f'art/gemini_test/chars/{name}_body.jpg') else f'art/gemini_test/chars/{name}_body.png').convert('RGBA')
@@ -26,7 +26,7 @@ def build(name,HEIGHT=104,BRIGHT=1.10):
     out=Image.fromarray(np.dstack([np.asarray(q),al*255]).astype(np.uint8)); os.makedirs('art/sprites',exist_ok=True); out.save(f'art/sprites/{name}_body.png',optimize=True)
     ysl,xsl=np.where(al); low=ysl>ysl.max()-max(3,int(nh*0.1)); fx=int(np.median(xsl[low])); fy=int(ysl.max()+1)
     P=lambda p:[round((p[0]-x0)*s,1),round((p[1]-y0)*s,1)]
-    meta=dict(w=nw,h=nh,fx=fx,fy=fy,s1=P(SH[name]['front']),s2=P(SH[name]['back'])); json.dump(meta,open(f'art/sprites/{name}_body.json','w')); print(name,meta,os.path.getsize(f'art/sprites/{name}_body.png')//1024,'KB'); return out,meta
+    meta=dict(w=nw,h=nh,fx=fx,fy=fy,s1=P(SH[name]['front']),s2=P(SH[name]['back']),map=[int(x0),int(y0),float(s)]); json.dump(meta,open(f'art/sprites/{name}_body.json','w')); print(name,meta,os.path.getsize(f'art/sprites/{name}_body.png')//1024,'KB'); return out,meta
 def embed(names,path='index.html'):
     src={n:'data:image/png;base64,'+base64.b64encode(open(f'art/sprites/{n}_body.png','rb').read()).decode() for n in names}; meta={n:json.load(open(f'art/sprites/{n}_body.json')) for n in names}
     s=open(path,encoding='utf-8').read(); a=s.index('/*BODIES:BEGIN*/'); b=s.index('/*BODIES:END*/')+len('/*BODIES:END*/')

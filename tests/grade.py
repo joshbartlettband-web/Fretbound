@@ -7,10 +7,11 @@
 # Repo files that were byte-identical to an original are overwritten with the graded picture too.
 # usage: python3 tests/grade.py [--dry OUTDIR]   (--dry writes before/after sheets per block to OUTDIR and changes nothing)
 import re,os,sys,io,json,base64,hashlib,glob
+sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 from PIL import Image,ImageFilter
 from scipy import ndimage as ndi
-BLOCKS=['PEDAL_SRC','GUITAR_SRC','BODY_SRC','PORTRAIT_ART','CALLER_SRC','BANDART_SRC','VSP_SRC','STAGE_PLATE_SRC','TITLE_PLATES','CASTLE_SRC','WORLDMAP_SRC','VANART_SRC','RIVAL_PORT','MEMBER_PORT','PROP_SRC']
+BLOCKS=['PEDAL_SRC','GUITAR_SRC','BODY_SRC','PORTRAIT_ART','CALLER_SRC','BANDART_SRC','POSE_SRC','VSP_SRC','STAGE_PLATE_SRC','TITLE_PLATES','CASTLE_SRC','WORLDMAP_SRC','VANART_SRC','RIVAL_PORT','MEMBER_PORT','PROP_SRC']
 WIDE={'VSP_SRC','STAGE_PLATE_SRC','TITLE_PLATES','WORLDMAP_SRC'}     # big painted scenes: a softer unsharp
 ORIG='art/_ungraded'; MAN=ORIG+'/manifest.json'
 P=dict(target=56.0,kmax=1.20,lift=0.45,neutral=0.5,sharp=55)   # lift 0.45 brightens a 180 white about 20%
@@ -64,7 +65,12 @@ if __name__=='__main__':
             raw=base64.b64decode(b64); h=hashlib.sha1(raw).hexdigest(); mk=block+'/'+key; of=f'{ORIG}/{block}/{key}.'+('jpg' if fmt=='jpeg' else 'png')
             if man.get(mk,{}).get('graded')==h and os.path.exists(of): orig=open(of,'rb').read()        # already graded: start again from the original
             else: orig=raw                                                                               # new art: this is the original
-            oim=Image.open(io.BytesIO(orig)); gim=grade(oim,block in WIDE,block in SOFT); new=encode(gim,fmt)
+            oim=Image.open(io.BytesIO(orig)); gim=grade(oim,block in WIDE,block in SOFT)
+            if block=='POSE_SRC':   # the grade's sharpening alters the painted outline a little differently per pose: finish by giving every pose the same one-pixel outline again
+                import outlinefix; ga=np.asarray(gim.convert('RGBA')).copy(); cw,ch=ga.shape[1]//8,ga.shape[0]//2
+                for i in range(16): y0,x0=(i//8)*ch,(i%8)*cw; ga[y0:y0+ch,x0:x0+cw]=outlinefix.fix_cell(ga[y0:y0+ch,x0:x0+cw])
+                gim=Image.fromarray(ga,'RGBA')
+            new=encode(gim,fmt)
             c0,w0,k0=stats(oim); c1,w1,k1=stats(Image.open(io.BytesIO(new))); rep.append((block,key,c0,c1,w0,w1,k0,k1))
             if dry: before.append(oim.convert('RGBA')); after.append(Image.open(io.BytesIO(new)).convert('RGBA')); continue
             os.makedirs(os.path.dirname(of),exist_ok=True); open(of,'wb').write(orig)

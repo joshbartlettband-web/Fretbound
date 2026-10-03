@@ -1,29 +1,27 @@
-# Twelve pedal ideas (not built yet)
+# Twelve new pedals (built in v1.56)
 
-Scale used: common about +10 Tone or +1 to +2 Hype with a condition; uncommon about +2 to +3 Hype or +5 to +8 Tone per trigger; rare about x1.5 or scaling; legendary x2 or run-scaling.
+Prices are in dollars, the same scale as the rest of the shop. Rarity weights are unchanged (common 50, uncommon 32, rare 14, legendary 4).
+Gain figures are from `python3 tests/pedalsim.py`: the average score added on top of an Iron Comp, perfect answers, random calls.
 
-## Common
-1. **Goblin Fuzz** (25): +12 Tone, but -1 Hype if the hand has no note above fret 7. A cheap crunchy pedal that wants low notes kept honest.
-2. **Mushroom Ring** (25): +1 Hype for every note on the same string as the one before. Fairy rings grow in circles. Caps itself at +4 on a normal hand.
-3. **Pixie Chorus** (30): +8 Tone for each pair of notes one fret apart. Tiny and shimmery, rewards chromatic runs.
-4. **Barrel Roll** (30): First note of the hand counts twice. Dwarves rolling kegs down the stairs. About +15 Tone on an average opener.
+| Pedal | Rarity | $ | Effect | Fires | Gain |
+|---|---|---|---|---|---|
+| Harpy Shriek | common | 3 | +24 Tone. -1 Hype unless a note is at fret 8 or higher. | always | 16% |
+| Fairy Ring | common | 3 | +1 Hype for each note on the same string as the note before. | 45% | 15% |
+| Pixie Chorus | common | 3 | +9 Tone each time you hop to a different string. | always | 12% |
+| Centaur Gallop | common | 3 | +1 Hype for each note past the second. | 48% | 17% |
+| Hydra Splitter | uncommon | 4 | +6 Tone for each pedal on your board, this one too. | always | 13% with two pedals, 30% with five |
+| Mermaid Reverb | uncommon | 5 | +3 Hype if you replayed the call. | when you replay | 23% on a replayed call |
+| Leprechaun Comp | uncommon | 5 | +2 Tone for each dollar you hold, up to +30. | always | 22% at $10 |
+| Wizard Whammy | uncommon | 5 | +3 Hype for each leap of a 4th or more between notes. | 39% | about 14% |
+| Phoenix Echo | rare | 7 | +1 Hype. x1.5 Hype too on the call after a miss. | always | about 20%, more after a miss |
+| Gnome Gain | rare | 7 | x1.5 Tone if the call has 3 notes or fewer. | 72% | 22% |
+| Kraken Crush | legendary | 10 | x1.25 Hype. x2 instead if no two notes share a string. | always | 47% |
+| Gremlin Glitch | legendary | 10 | A random other pedal of yours fires a second time. | always | depends on the board |
 
-## Uncommon
-5. **Mermaid Reverb** (55): +3 Hype if the hand ends on the same note name it began with. Echoes that come back home.
-6. **Dragon Hoard** (60): Gains +1 Tone permanently for every 10 gold you hold, up to +20. Rewards saving over shopping.
-7. **Wizard's Whammy** (60): Once per night, the lowest-scoring note is replayed as the highest one. A little cheating from a pointy hat.
-8. **Troll Toll** (55): +6 Tone per pedal you own, but costs 1 gold per night. A bridge troll taking his cut. Weak with one pedal, fair with four.
-
-## Rare
-9. **Phoenix Delay** (90): After a flop, the next hand scores x1.5 Hype. If you never flop, it does nothing. A comeback pedal, so it needs a bad night to pay.
-10. **Gnome Gate** (95): Hand with three or fewer notes gets x1.5 Tone. Small hands, big result. The opposite of Thick.
-
-## Legendary
-11. **Dragon's Breath Overdrive** (160): x2 Hype on a HOT call, otherwise -2 Hype. High risk, high payoff. HOT calls already double base Tone, so this is a deliberate spike.
-12. **Jester's Wild Card** (150): At the start of each hand, a random effect from your other pedals fires one extra time. Chaotic on purpose, scales with how many pedals you carry.
-
-## Balance notes
-- Goblin Fuzz and Pixie Chorus compete with Glassy and Thick on the cheap end.
-- Dragon Hoard and Troll Toll pull opposite ways on gold. Pair them and the shop gets tense.
-- Phoenix Delay and Dragon's Breath both need state: a flop flag and a HOT check. Everything else uses data already in `evaluate()`.
-- Jester's Wild Card is the hardest to build and the easiest to break. Needs a cap on repeats and care with loop and rack boards.
+Notes on the pairings:
+- Fairy Ring and Pixie Chorus pull opposite ways (same string against hopping).
+- Mermaid Reverb and Grave Gate pull opposite ways (replay or don't).
+- Leprechaun Comp wants you to save money, which fights the shop.
+- Hydra Splitter gets better the more you buy. Gremlin Glitch does too.
+- Gnome Gain is the opposite of Basilisk Dist (3 notes or fewer against 4 or more).
+- Pedals the first draft used that clashed with an existing one were changed: Goblin Fuzz (we have Goblin Screamer), Troll Toll (Troll Boost), Dragon Hoard and Dragon's Breath (Dragon Stack), Barrel Roll (Moon Octaver already triples the first note).

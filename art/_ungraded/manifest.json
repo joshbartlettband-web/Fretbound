@@ -562,5 +562,41 @@
 },
 "POSE_SRC/brassc": {
 "graded": "522775517b133f2749f47169354f03c4314034fe"
+},
+"PEDAL_SRC/harpy": {
+"graded": "b57ceadb1911d4e6849a6bdd791e69f28868ac19"
+},
+"PEDAL_SRC/fairy": {
+"graded": "c199203ff43d5f461796504449407ca58eb66d71"
+},
+"PEDAL_SRC/pixie": {
+"graded": "72bd7e3748eec4d84622f0480d4eb8fc39bc6b45"
+},
+"PEDAL_SRC/centaur": {
+"graded": "18db606eccf40f87e4db4b54feaf331eb0b36a0c"
+},
+"PEDAL_SRC/mermaid": {
+"graded": "711c0361d769f395e36e5816d41212e108a35b8a"
+},
+"PEDAL_SRC/leprechaun": {
+"graded": "4233f89a4402df2f449588bfb0954e97d28f06c8"
+},
+"PEDAL_SRC/wizard": {
+"graded": "16e2a666c30c71c0bf326697623733c5234cb38b"
+},
+"PEDAL_SRC/hydra": {
+"graded": "198c95d11803aa2b912f08063640449a1e06a1f0"
+},
+"PEDAL_SRC/phoenix": {
+"graded": "cb9a10ebefc966b560f85e268debcbe77a2692a9"
+},
+"PEDAL_SRC/gnome": {
+"graded": "3e28757fbea34846e94ba3e493a29400e1ddabf9"
+},
+"PEDAL_SRC/kraken": {
+"graded": "4ab3ffbf3353ab3f37c3a8326ef3990032f39e84"
+},
+"PEDAL_SRC/gremlin": {
+"graded": "be84270820b5421514d1303623bd6b228a71c679"
 }
 }

@@ -166,6 +166,10 @@ h3{font-size:12px}
 #stage{display:block;width:100%;height:auto;image-rendering:pixelated;object-fit:contain;background:#000}
 .dialog{position:static;background:#1E0C0A;border:0;border-top:2px solid var(--brass);box-shadow:none;padding:4px 8px 5px;font-size:18px;line-height:1.05;display:block;visibility:hidden;color:var(--ink);min-height:calc(2.3em + 11px);flex:none}
 .dialog.show{visibility:visible}
+.stage-wrap{position:relative}
+.stage-wrap .dialog{position:relative;z-index:1;background:rgba(30,12,10,.86);opacity:0;transition:opacity .22s,visibility .22s}
+.stage-wrap .dialog.show{opacity:1}
+#frontRow{position:absolute;left:0;bottom:0;width:100%;height:0;image-rendering:pixelated;pointer-events:none;z-index:0}
 .dialog b{font-family:var(--pixel);font-size:8px;color:var(--amber);font-weight:normal;display:inline;margin:0 7px 0 0}
 .stage-wrap .dialog{font-size:15px}
 @media (max-height:460px){ .stage-wrap .dialog{font-size:13px;padding:3px 6px 4px} .stage-wrap .dialog b{font-size:13px} }
@@ -993,7 +997,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.61</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.62</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -1031,7 +1035,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     <div class="duel">
       <div class="col-a">
         <div class="win topbar"><span id="venueName">HOLLOW PINE JUKE</span><span id="callLabel">CALL 1/6</span><span id="topCash">$0</span><button class="icon-btn" id="btnPause" aria-label="Pause">II</button></div>
-        <div class="win stage-wrap"><canvas id="stage" width="640" height="240" aria-hidden="true"></canvas><div id="dialog" class="dialog" aria-live="polite"></div></div>
+        <div class="win stage-wrap"><canvas id="stage" width="640" height="240" aria-hidden="true"></canvas><div id="dialog" class="dialog" aria-live="polite"></div><canvas id="frontRow" aria-hidden="true"></canvas></div>
         <div class="win scoreline">
           <canvas id="tube" width="6" height="12" aria-hidden="true"></canvas><div class="sl-lab">SCORE</div>
           <div class="bar"><div id="barFill"></div><div class="half" title="Boss rule triggers here"></div></div>
@@ -4804,8 +4808,10 @@ function renderAll(){
 let dlgTimer=null, typeTimer=null;
 function say(who,text,ms,noType){
   const d=$('dialog'); clearTimeout(dlgTimer); clearInterval(typeTimer);
-  d.classList.add('show'); d.innerHTML='<b></b><span></span>'; d.querySelector('b').textContent=who;
+  d.classList.add('show'); d.style.fontSize=''; d.style.height=''; d.innerHTML='<b></b><span></span>'; d.querySelector('b').textContent=who;
   const sp=d.querySelector('span');
+  // the strip is two lines tall and must never grow (the layout below would jump): a long line is set a little smaller until it fits
+  const H0=d.offsetHeight; sp.textContent=text; let fs=parseFloat(getComputedStyle(d).fontSize)||15, k=0; while(d.scrollHeight>H0+1&&k<8){ fs*=0.92; d.style.fontSize=fs.toFixed(1)+'px'; k++; } d.style.height=H0+'px';
   if(noType||reduceMotion) sp.textContent=text;
   else { let i=0; typeTimer=setInterval(()=>{ i+=2; sp.textContent=text.slice(0,i); if(i>=text.length) clearInterval(typeTimer); },22); }
   if(ms>0) dlgTimer=setTimeout(hideDialog,ms);
@@ -5913,7 +5919,25 @@ function drawStage(t,dt){
   drawBandStage(sg,t,'front'); drawCrowdFront(sg,t,V.hats);
   if(A.motes) drawMotes2(sg,t);
   stageBlind(sg,V,t);
+  drawFrontRow(t,V);
 }
+// the front row: the people nearest you, under the caption strip. Twice the size of the crowd on the stage canvas and darker (closer to you, out of the stage light),
+// bobbing on the beat and cheering with everyone else. The caption darkens over them when someone speaks.
+const FR_CACHE={};
+function frSprite(k){ if(FR_CACHE[k]) return FR_CACHE[k]; const im=CROWD_IMG[k]; if(!im) return null; const c=document.createElement('canvas'); c.width=im.width*2; c.height=im.height*2; const g=c.getContext('2d');
+  g.imageSmoothingEnabled=false; g.filter='brightness(0.55) saturate(0.8)'; g.drawImage(im,0,0,c.width,c.height); g.filter='none';
+  g.globalCompositeOperation='source-atop'; const gr=g.createLinearGradient(0,0,0,c.height*0.4); gr.addColorStop(0,'rgba(255,190,120,.22)'); gr.addColorStop(1,'rgba(255,190,120,0)'); g.fillStyle=gr; g.fillRect(0,0,c.width,c.height);   // a little stage light on the tops of their heads
+  return FR_CACHE[k]=c; }
+function drawFrontRow(t,V){ const cv=$('frontRow'), dl=$('dialog'); if(!cv||!dl) return; const hcss=dl.offsetHeight, wcss=cv.clientWidth||cv.parentNode.clientWidth; if(!hcss||!wcss) return;
+  if(cv.style.height!==hcss+'px') cv.style.height=hcss+'px';
+  const W=320, H=Math.max(8,Math.round(hcss*W/wcss)); if(cv.width!==W||cv.height!==H){ cv.width=W; cv.height=H; }
+  const g=cv.getContext('2d'); g.imageSmoothingEnabled=false;
+  const gr=g.createLinearGradient(0,0,0,H); gr.addColorStop(0,'#2A140C'); gr.addColorStop(1,'#0C0504'); g.fillStyle=gr; g.fillRect(0,0,W,H);
+  const kind=V.hats; if(kind==='none') return; const cheering=anim.cheerUntil>t;
+  for(let i=0;i<10;i++){ const k=crowdPick(i*3+1,kind,cheering,0), sp=frSprite(k); if(!sp) continue;
+    const b=(tr.on&&((Math.max(0,state.beat)+i)%2===1))?2:0, up=cheering&&i%2?3:0, x=Math.round(14+i*33+((i*11)%7)-sp.width/2), y=Math.round(H*0.18+(i%3)*2-b-up);
+    g.drawImage(sp,x,y); }
+  if(state.blind){ g.fillStyle='rgba(10,3,8,.45)'; g.fillRect(0,0,W,H); } }
 function drawPortrait(c,V){
   const A=ART[V.id], t1=document.createElement('canvas'); t1.width=48; t1.height=48; const g=t1.getContext('2d');
   g.fillStyle=A.pbg; g.fillRect(0,0,48,48);
@@ -6482,7 +6506,7 @@ function bandExtent(id,one){ const ck=id+(one?'1':''); if(bandExtCache[ck]) retu
 // place one side's band: try every floor spot, keep the legal ones (on the floor, on screen, off the props, not inside anyone), take the best by role
 function bandPlaces(ids,mirror,vid){ ids=ids.filter(id=>BANDP[id]); const S=STAGE3D[vid]||{yb:190,props:[]}, yb=Math.min(S.yb,FIGHTER_Y-1);
   const drum=ids.filter(id=>BANDP[id].inst==='drums'), rest=ids.filter(id=>BANDP[id].inst!=='drums'); rest.sort((a,b)=>(b==='brass')-(a==='brass'));
-  const order=[...drum.slice(0,1),...rest.slice(0,3)], taken=stageFighters(), out=[];
+  const order=[...drum.slice(0,1),...rest.slice(0,3)], fighters=stageFighters(), taken=[], out=[];
   // preferred feet x (left side; the caller's band mirrors it) and row: the drummer at the back by the player's shoulder, the rest flanking
   const PREF={drum:[150,yb+2],r0:[262,yb+8],r1:[70,yb+14],r2:[300,yb+4]};
   order.forEach((id,k)=>{ const e0=bandExtent(id), e=mirror?{l:-e0.r,r:-e0.l,L:-e0.R,R:-e0.L}:e0;
@@ -6492,6 +6516,8 @@ function bandPlaces(ids,mirror,vid){ ids=ids.filter(id=>BANDP[id]); const S=STAG
       if(x+e.L<2||x+e.R>638) continue; const a=x+e.l, b=x+e.r;
       if(S.props.some(([p0,p1,pf])=>b>p0&&a<p1&&y<=pf+1)) continue;
       let bad=false, pen=0;
+      for(const o of fighters){ if(Math.min(b,o.b)-Math.max(a,o.a)>6){ bad=true; break; } }   // never in front of or behind the player or the caller: they are who you are watching
+      if(bad) continue;
       // overlap: side by side at the same depth only a few pixels; with a clear depth gap the one behind may be up to half hidden
       for(const o of taken){ const ov=Math.min(b,o.b)-Math.max(a,o.a); if(ov<=0) continue; const dz=Math.abs(y-o.y), nar=Math.min(b-a,o.b-o.a);
         if(dz<8?ov>4:ov>nar*0.5){ bad=true; break; } pen+=ov*(dz<8?6:1.5); }
@@ -8114,7 +8140,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

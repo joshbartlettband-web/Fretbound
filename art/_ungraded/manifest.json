@@ -496,5 +496,68 @@
 },
 "POSE_SRC/tide": {
 "graded": "b6e23af374abb9f3930288dc42b1e55c3df11848"
+},
+"POSE_SRC/aurora": {
+"graded": "d455f00d570162ef9bd66fd5d69ff9cc903fa5ba"
+},
+"POSE_SRC/bali": {
+"graded": "aa8e1bc233063237cfa00dda4a373a18392a940e"
+},
+"POSE_SRC/brass": {
+"graded": "4671eb86d3deaccefc38d56b12348eab102dc19d"
+},
+"POSE_SRC/brassb": {
+"graded": "51bf674da8d12b6e5b1ca048d06f682dba18afc0"
+},
+"POSE_SRC/cave": {
+"graded": "105ebd5b17aa0f52415bf0c2494bccbb1c4529ef"
+},
+"POSE_SRC/chicha": {
+"graded": "1a48f06f8ac0cc007f0410c27de7ebc1335dfc94"
+},
+"POSE_SRC/dee": {
+"graded": "a74cd08314e46057cc4d6474bbc49fc6180cfb6f"
+},
+"POSE_SRC/frost": {
+"graded": "2d4fcfa59a1badddee934f00c0bfe69ddb1c8e5b"
+},
+"POSE_SRC/grotto": {
+"graded": "03e70c1369c846878900f8fe4de095249fe9b8c7"
+},
+"POSE_SRC/hale": {
+"graded": "60b47ce9f9f956c8e9e8f2ff99ac505a628ac97f"
+},
+"POSE_SRC/jo": {
+"graded": "02ba48128f5f746c28d1d669ec1b0e77d59d154b"
+},
+"POSE_SRC/lanai": {
+"graded": "b5a6012a044cc712ad9d8246a8849883a3064dfd"
+},
+"POSE_SRC/mess": {
+"graded": "91a60855142be7f801f3c26765577e6cc5bf4ec5"
+},
+"POSE_SRC/milonga": {
+"graded": "d4f96da29ef73c0930891ef6b5182ae07fc804e2"
+},
+"POSE_SRC/outback": {
+"graded": "5b1e897e13f9542c31ed1a76df81249655f7b385"
+},
+"POSE_SRC/paris": {
+"graded": "70676b6c4d17ffe565ec99ed55ebe8c7c5632424"
+},
+"POSE_SRC/pole": {
+"graded": "84b5b7bedf15a56301bbf7cfce5690647e9b1a45"
+},
+"POSE_SRC/rio": {
+"graded": "22e389485c44ab55d60f7dd3d82de896f3d01322"
+},
+"POSE_SRC/rosa": {
+"graded": "7514d8424967bc7cfe75f1d320b81930d2a4892b"
+},
+"POSE_SRC/tam": {
+"graded": "b7cf8dac03a53bf52355dee419ed5c53dcfb0306"
+},
+"POSE_SRC/tokyo": {
+"graded": "e90da43a0fa6f6b2a25112f7b9041a677a23226b"
 }
 }

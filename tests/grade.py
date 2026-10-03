@@ -11,7 +11,7 @@ sys.path.insert(0,os.path.dirname(os.path.abspath(__file__)))
 import numpy as np
 from PIL import Image,ImageFilter
 from scipy import ndimage as ndi
-BLOCKS=['PEDAL_SRC','GUITAR_SRC','BODY_SRC','PORTRAIT_ART','CALLER_SRC','BANDART_SRC','POSE_SRC','VSP_SRC','STAGE_PLATE_SRC','TITLE_PLATES','CASTLE_SRC','WORLDMAP_SRC','VANART_SRC','RIVAL_PORT','MEMBER_PORT','PROP_SRC']
+BLOCKS=['PEDAL_SRC','GUITAR_SRC','BODY_SRC','PORTRAIT_ART','CALLER_SRC','BANDART_SRC','POSE_SRC','HANG_SRC','VSP_SRC','STAGE_PLATE_SRC','TITLE_PLATES','CASTLE_SRC','WORLDMAP_SRC','VANART_SRC','RIVAL_PORT','MEMBER_PORT','PROP_SRC']
 WIDE={'VSP_SRC','STAGE_PLATE_SRC','TITLE_PLATES','WORLDMAP_SRC'}     # big painted scenes: a softer unsharp
 ORIG='art/_ungraded'; MAN=ORIG+'/manifest.json'
 P=dict(target=56.0,kmax=1.20,lift=0.45,neutral=0.5,sharp=55)   # lift 0.45 brightens a 180 white about 20%

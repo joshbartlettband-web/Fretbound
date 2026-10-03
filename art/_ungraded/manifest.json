@@ -598,5 +598,50 @@
 },
 "PEDAL_SRC/gremlin": {
 "graded": "be84270820b5421514d1303623bd6b228a71c679"
+},
+"HANG_SRC/bard": {
+"graded": "78d3cb232a19e67a3b77adf448e85e37f2033811"
+},
+"HANG_SRC/monk": {
+"graded": "d92de662b792bcb855d5f593005ecc8421666e86"
+},
+"HANG_SRC/hermit": {
+"graded": "9882dd2e8d36f92811ea180bc53eacc37a86df82"
+},
+"HANG_SRC/busker": {
+"graded": "ff43e12f926d7186ea83ecb4107fba03eea572c1"
+},
+"HANG_SRC/luthier": {
+"graded": "028ffa3f7563ed4f1bc7f895b9ba83e151b58a5e"
+},
+"HANG_SRC/carto": {
+"graded": "0c063b5acd2eb4acf2061279f086f32addfe8160"
+},
+"HANG_SRC/lou": {
+"graded": "a804713ee95d5e4be9fe612fccf528b8669b1a5d"
+},
+"HANG_SRC/rosa": {
+"graded": "a5026f8f7dffd8231d6d38e50874de6159fc3305"
+},
+"HANG_SRC/dee": {
+"graded": "68b7313c56cc2733ef8a372802d2ff68b2309752"
+},
+"HANG_SRC/jo": {
+"graded": "8cbf4d06cbb9b61415975e99a560aaeffaae9d40"
+},
+"HANG_SRC/hale": {
+"graded": "8c3e9fe27886759651914b8b8eea9dcfddc62a02"
+},
+"HANG_SRC/tam": {
+"graded": "0edf4ac531b58f2c5518ba81475007e76e2db8cd"
+},
+"HANG_SRC/brass": {
+"graded": "8bdd652f114be856a565582b49c0fae5500d98b0"
+},
+"HANG_SRC/brassb": {
+"graded": "ab043e4e9f81ec2b4ce69bc89956c4a86b1234b4"
+},
+"HANG_SRC/brassc": {
+"graded": "f2d423843b187d7c812ab19e9f40b3167ded0632"
 }
 }

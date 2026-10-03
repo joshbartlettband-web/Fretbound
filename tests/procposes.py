@@ -10,7 +10,8 @@ from scipy import ndimage as ndi
 sys.path.insert(0,'art/gemini_test/sheets')
 import poses as P
 NAMES=[n for n,_ in P.A]+[n for n,_ in P.B]
-CALM_X,CALM_Y=4,4   # playing poses: the head may drift this many pixels from idle
+CALM_X,CALM_Y=4,4
+MASTER='art/gemini_test/poses_master'   # UNGRADED atlases (tests/grade.py never touches art/gemini_test); --embed copies them to art/poses and embeds those, so grading can never compound   # playing poses: the head may drift this many pixels from idle
 def key(im):
     a=np.asarray(im.convert('RGB')).astype(int); bg=np.median(np.concatenate([a[:6].reshape(-1,3),a[-6:].reshape(-1,3),a[:,:6].reshape(-1,3),a[:,-6:].reshape(-1,3)]),axis=0)
     d=np.abs(a-bg).sum(axis=2); fg=d>150                                              # every pixel near the background colour goes, enclosed gaps included
@@ -95,6 +96,9 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
     arr=np.asarray(atlas).copy(); al=arr[:,:,3]>140
     q=Image.fromarray(arr[:,:,:3]).quantize(colors=48,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
     out=Image.fromarray(np.dstack([np.asarray(q),al*255]).astype(np.uint8))
+    import outlinefix; oa=np.asarray(out).copy()                                  # the same one-pixel outline on every pose (tests/outlinefix.py)
+    for i in range(16): y0,x0=(i//8)*ch,(i%8)*cw; oa[y0:y0+ch,x0:x0+cw]=outlinefix.fix_cell(oa[y0:y0+ch,x0:x0+cw])
+    out=Image.fromarray(oa)
     # --- checks: the figures should be one size, nothing cut off, nothing missing
     ih=hts[0]
     for k in (1,2,3,4,5,6,7): 
@@ -120,6 +124,9 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
 def sheet_png(cid,out):
     cw=out[1]['cw']; ch=out[1]['ch']; im=out[0]; bg=Image.new('RGBA',im.size,(90,60,50,255)); bg.alpha_composite(im); return bg.convert('RGB')
 def embed(ids):
+    import shutil
+    for f in os.listdir(MASTER):
+        if f.endswith('_atlas.png'): shutil.copy(f'{MASTER}/{f}',f'art/poses/{f}')
     s=open('index.html',encoding='utf-8').read(); src={}; meta={}
     for f in sorted(os.listdir('art/poses')):
         if f.endswith('_atlas.png'):
@@ -135,5 +142,5 @@ if __name__=='__main__':
         cid,H=sys.argv[1],int(sys.argv[2]); an=int(sys.argv[3]) if len(sys.argv)>3 else 1; bn=int(sys.argv[4]) if len(sys.argv)>4 else 1
         res,rep=build(cid,H,an,bn)
         if res is None: print(rep); sys.exit(1)
-        os.makedirs('art/poses',exist_ok=True); out,meta=res; out.save(f'art/poses/{cid}_atlas.png',optimize=True); json.dump(meta,open(f'art/poses/{cid}_meta.json','w'))
+        os.makedirs('art/poses',exist_ok=True); os.makedirs(MASTER,exist_ok=True); out,meta=res; out.save(f'{MASTER}/{cid}_atlas.png',optimize=True); json.dump(meta,open(f'art/poses/{cid}_meta.json','w'))
         sheet_png(cid,res).save(f'/tmp/fbout/atlas_{cid}.png'); print(json.dumps(rep)); print(os.path.getsize(f'art/poses/{cid}_atlas.png')//1024,'KB',out.size)

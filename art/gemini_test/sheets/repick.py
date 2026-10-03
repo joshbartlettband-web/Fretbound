@@ -20,7 +20,7 @@ def work(cid):
             tried+=1; sc=rep['calm_score']+10*len(rep['issues'])
             if best is None or sc<best[0]: best=(sc,a,b,res,rep)
     if not best: return cid,None
-    sc,a,b,res,rep=best; out,meta=res; out.save(f'art/poses/{cid}_atlas.png',optimize=True); json.dump(meta,open(f'art/poses/{cid}_meta.json','w'))
+    sc,a,b,res,rep=best; out,meta=res; os.makedirs(PP.MASTER,exist_ok=True); out.save(f'{PP.MASTER}/{cid}_atlas.png',optimize=True); json.dump(meta,open(f'art/poses/{cid}_meta.json','w'))
     return cid,dict(A=a,B=b,calm=rep['calm_score'],issues=rep['issues'],tried=tried)
 if __name__=='__main__':
     ids=sys.argv[1:] or sorted(set(chars.CH)|{'bard','ghat'})

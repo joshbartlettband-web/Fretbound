@@ -252,5 +252,12 @@
   "calm": 7.1,
   "issues": [],
   "tried": 12
+ },
+ "green": {
+  "A": 2,
+  "B": 1,
+  "calm": 12.2,
+  "issues": [],
+  "tried": 4
  }
 }

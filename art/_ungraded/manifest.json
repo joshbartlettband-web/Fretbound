@@ -643,5 +643,26 @@
 },
 "HANG_SRC/brassc": {
 "graded": "f2d423843b187d7c812ab19e9f40b3167ded0632"
+},
+"POSE_SRC/green": {
+"graded": "e363cbb272c394d52931e754e3a2fa91b0a838e3"
+},
+"ROOM_SRC/door_ear": {
+"graded": "cf14e951b0d9f6d5ef79f73b0c67f61adb12bedb"
+},
+"ROOM_SRC/door_green": {
+"graded": "f26d73d3802266ce157b24c7779c5e0f63279319"
+},
+"ROOM_SRC/door_roster": {
+"graded": "82488ac5dd1e4b10fdb0986d86c49f7a120cb7e7"
+},
+"ROOM_SRC/merch": {
+"graded": "04d8bbfff47617d279c0290b7dafa67f542f193c"
+},
+"ROOM_SRC/wall": {
+"graded": "f1c528cfc0ec9969c9ef3da23946b37a49fd3594"
+},
+"STAGE_PLATE_SRC/green": {
+"graded": "11c29252c9dfb53045ee4dc822a101ec95509375"
 }
 }

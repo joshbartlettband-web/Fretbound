@@ -57,3 +57,6 @@ for c in ('dee',):
 CH['tam']['guitar']=None   # a double-neck has no matching game guitar sprite: describe it in words only (a gold single-neck reference made the playing poses gold)
 for c,v in list(CH.items()):
     if v.get('band') and v['kind']!='guitar': v.setdefault('guitar',None)
+# the Guitar Tech, the Green Room's caller (v1.63): her own reference from gen_rooms.py; no game guitar sprite matches her Telecaster, so it is described in words
+guitar('green',R+'gemini_test/rooms/tech.png','single','a Telecaster-style electric guitar with a sunburst body and a cream pickguard','the Guitar Tech: a roadie woman in her forties with a short grey-streaked dark bob, a headlamp on a band, a black T-shirt under a dark utility vest with picks and a string winder, a roll of gaffer tape and a wrench on her belt, olive cargo trousers and brown work boots',100)
+CH['green']['guitar']=None

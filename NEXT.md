@@ -26,7 +26,7 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 
 ## 4. Not painted yet (still code-drawn)
 - Title roadside: rocks, scrub, tufts, fences, walls, bales, mile and km posts, the pumpjack and a few small kinds. A painted ground beside the road was tried and backed out (see HANDOFF).
-- The seated band and player on the Van screen, the merch room, the backstage doors, the Green Room, and the panel frames.
+- Done in v1.61 to v1.63: the Van screen crowd, merch room, backstage wall and doors, Green Room and the Guitar Tech. Still code by choice: the panel frames (guitar strings), the backstage lamps, flyers and floor. Waiting on Josh: keep the string frames or paint them?
 
 ## 5. Housekeeping
 - PR [#3](https://github.com/joshbartlettband-web/Fretbound/pull/3) (v1.44 to v1.55) is open against `main`.

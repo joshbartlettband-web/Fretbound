@@ -997,7 +997,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.65</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.66</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -6712,7 +6712,7 @@ function spurWheel(g,cx){
 }
 // when the lights go out: what keeps burning. Hollow Pine: the lamps go dark, the stove stays bright and lights whoever stands near it.
 function stageBlind(sg,V,t){ if(!state.blind||V.whiteout) return; sg.fillStyle='rgba(26,6,20,0.42)'; sg.fillRect(0,0,SW*2,SH*2); if(BLIND_FX[V.id]) try{ BLIND_FX[V.id](sg,t); }catch(e){}
-  sg.fillStyle='#FFDA24'; sg.fillRect(RIVAL_X-6,FIGHTER_Y-80,4,2); sg.fillRect(RIVAL_X+2,FIGHTER_Y-80,4,2); }
+  if(!POSE_META[V.id]) sg.fillStyle='#FFDA24', sg.fillRect(RIVAL_X-6,FIGHTER_Y-80,4,2), sg.fillRect(RIVAL_X+2,FIGHTER_Y-80,4,2); }   // glowing eyes for the old code-drawn callers only; painted callers sit in the dark as they are
 const BLIND_FX={juke:(g,t)=>{
   [[200,16],[356,18],[570,20]].forEach(([x,y])=>{ const gr=g.createRadialGradient(x,y,0,x,y,14); gr.addColorStop(0,'rgba(14,6,10,0.72)'); gr.addColorStop(0.6,'rgba(14,6,10,0.45)'); gr.addColorStop(1,'rgba(14,6,10,0)'); g.fillStyle=gr; g.fillRect(x-14,y-14,28,28); });
   g.fillStyle='rgba(10,3,8,0.28)'; g.fillRect(0,0,640,240);

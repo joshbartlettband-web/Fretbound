@@ -215,7 +215,16 @@ h3{font-size:12px}
 .pedal.sel{border-color:var(--amber);background:#3A1C12}
 .pedal.fire{animation:fire .35s steps(4)}
 @keyframes fire{30%{transform:translateY(-6px) rotate(-3deg)}60%{transform:translateY(0) rotate(2deg)}}
-.answer{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:0 4px 6px;min-height:36px}
+.answer{display:flex;align-items:center;gap:10px;justify-content:space-between;padding:0 4px 6px;min-height:36px;position:relative}
+.namepick{position:absolute;inset:0 0 4px 0;z-index:6;display:flex;align-items:center;gap:6px;padding:0 4px;background:rgba(20,8,6,.94);border:2px solid var(--amber);box-sizing:border-box}
+.namepick .np-q{font-family:var(--ui);color:var(--amber);font-size:14px;white-space:nowrap;flex:0 0 auto}
+.namepick .btn{flex:1 1 0;min-width:0;padding-left:2px;padding-right:2px}
+.namepick .np-bar{position:absolute;left:0;bottom:0;height:3px;background:var(--amber);transition:width linear}
+.namepick.ok{border-color:#8ED36A}.namepick.bad{border-color:#FF4848}
+.mk.echo{width:15px;height:15px;border-radius:50%;background:radial-gradient(circle,#FFF4C8 0 30%,rgba(255,200,90,.7) 31% 60%,rgba(255,200,90,0) 61%);box-shadow:0 0 10px 4px rgba(255,200,90,.6);animation:echoFade .7s ease-out forwards}
+@keyframes echoFade{from{opacity:1;transform:translate(-50%,-50%) scale(1.4)}to{opacity:0;transform:translate(-50%,-50%) scale(.6)}}
+#stringsUI .tonight{width:auto!important;padding:0 4px;margin-left:4px;align-items:center;white-space:nowrap;color:var(--amber);border-color:var(--amber)!important;font-family:var(--ui);font-size:13px}
+#stringsUI .tonight::before{display:none}
 .phase{font-family:var(--pixel);font-size:9px;color:var(--amber);min-width:96px;line-height:1.4}
 .phase.go{color:var(--good)}
 .slots{display:flex;gap:6px}
@@ -1015,7 +1024,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.68</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.69</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -1079,6 +1088,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
           <div id="phaseLabel" class="phase">LISTEN</div>
           <div id="slots" class="slots"></div>
           <div class="pips" id="pips"><i></i><i></i><i></i><i></i></div>
+          <div class="namepick hidden" id="namePick" aria-live="polite"></div>
         </div>
         <div class="neck-area">
           <div class="minimap" id="minimap" aria-label="Whole neck. Tap to move your view."></div>
@@ -2332,6 +2342,9 @@ function evaluate(){
     else if(pk==='deep') gr={op:{toneMul:1.5},label:'DEEP TUNING X1.5',col:'tone'};
     if(gr) steps.push({op:gr.op,target:{type:'guitar'},label:gr.label,col:gr.col});
     if(CH==='bard') steps.push({op:{hype:1},target:{type:'char'},label:'CROWD FAVORITE +1',col:'hype'});
+    if(!state.practice&&state.tonight!=null){ const n=ans.filter(a=>((a.midi%12)+12)%12===state.tonight).length; if(n) steps.push({op:{tone:6*n},target:{type:'char'},label:'TONIGHT\'S NOTE +'+(6*n),col:'tone'}); }
+    if(!state.practice&&state.nameRes==='ok') steps.push({op:{hype:1},target:{type:'char'},label:'NAMED IT +1 HYPE',col:'hype'});
+    if(!state.practice&&state.nameRes==='miss') steps.push({op:{hype:-1},target:{type:'char'},label:'WRONG NAME -1 HYPE',col:'bad'});
     { const RM=state.practice?null:state.roadMod; if(RM){ if(RM.hype) steps.push({op:{hype:RM.hype},target:{type:'char'},label:'ROAD +'+RM.hype+' HYPE',col:'hype'}); if(RM.tone){ const v=RM.tone*ans.length; steps.push({op:{tone:v},target:{type:'char'},label:'ROAD +'+v+' TONE',col:'tone'}); } } }
     if(CH==='carto'){ const n=ans.filter(a=>a.f>=9).length; if(n) steps.push({op:{tone:6*n},target:{type:'char'},label:'SURVEY +'+6*n,col:'tone'}); }
     const c={call,ans};
@@ -2371,6 +2384,7 @@ function setHand(name,sub,cls){ const n=$('handName'); n.textContent=name; n.cla
 function renderScore(){ if(state.practice){ renderPracticeHud(); return; } $('totalNum').textContent=state.total; $('targetNum').textContent=TARGET; $('barFill').style.width=Math.min(100,state.total/TARGET*100)+'%'; drawTube(Math.min(1,state.total/TARGET)); }
 function renderStrings(){
   let h=''; for(let s=NS-1;s>=0;s--) h+='<span class="'+(state.broken[s]?'broken':'')+'">'+SNAMES[s]+'</span>';
+  if(!state.practice&&state.tonight!=null&&state.inVenue) h+='<span class="tonight" title="Tonight\'s note: every one you play right scores +6 Tone">TONIGHT '+NN[state.tonight]+'</span>';
   if(state.spares>0||hasSeat('tech')) h+='<span class="spare" title="Spare strings">'+(hasSeat('tech')&&!state.techUsed?'T':'')+(state.spares?'+'+state.spares:'')+'</span>';
   $('stringsUI').innerHTML=h;
 }
@@ -3756,14 +3770,16 @@ function showPause(){
     sliderRow('sVol','Volume',s.vol)+sliderRow('sMus','Music',s.music)+sliderRow('sBand','Backing band',s.band==null?0.7:s.band)+
     '<div class="setrow"><span>CRT scanlines</span>'+knobBtn('sCrt',s.crt)+'</div>'+
     '<div class="setrow"><span>Note names<br><span class="dim">Training wheels. Halves your Tone.</span></span>'+knobBtn('sNames',s.names)+'</div>'+
+    '<div class="setrow"><span>Octave echo<br><span class="dim">A right note glows everywhere else it lives.</span></span>'+knobBtn('sEcho',s.echo!==false)+'</div>'+
     '<div class="setrow"><span>Tap offset<br><span class="dim">Adjust if Groove feels off.</span></span><span class="stepper"><button class="btn small blue" id="sLm">-</button><span id="sLv">'+s.latency+'ms</span><button class="btn small blue" id="sLp">+</button></span></div></div>'+
     '<div class="setbtns"><div class="row-btns"><button class="btn gold" id="pRes">RESUME</button><button class="btn blue" id="pHow">HOW TO PLAY</button>'+(state.screen==='duel'?'<button class="btn" id="pQuit">QUIT</button>':'')+'</div>'+(s.dev?'<div class="row-btns"><button class="btn small blue" id="pDev">DEV MENU</button>'+(state.screen==='duel'&&!state.practice?'<button class="btn small gold" id="pWin">WIN THIS NIGHT</button>':'')+'</div>':'')+
     '<div class="row-btns"><button class="btn small blue" id="pReset">RESET EAR STATS</button></div></div>');
-  setKnob('sCrt',s.crt); setKnob('sNames',s.names);
+  setKnob('sCrt',s.crt); setKnob('sNames',s.names); setKnob('sEcho',s.echo!==false);
   if($('pDev')) $('pDev').onclick=()=>{ blip(660,0.05); showDev(); }; if($('pWin')) $('pWin').onclick=()=>{ blip(990,0.08); devWinNight(); };
   const vol=(id,key)=>{ $(id).oninput=e=>{ s[key]=e.target.value/100; $(id+'V').textContent=e.target.value; applyVolume(); }; $(id).onchange=()=>{ save(); if(key==='vol') blip(660,0.06); if(key==='band') bandPreview(); }; };
   vol('sVol','vol'); vol('sMus','music'); vol('sBand','band');
   $('sCrt').onclick=()=>{ s.crt=!s.crt; save(); applySettings(); setKnob('sCrt',s.crt); blip(s.crt?660:440,0.04); };
+  $('sEcho').onclick=()=>{ s.echo=s.echo===false; save(); setKnob('sEcho',s.echo!==false); blip(s.echo!==false?660:440,0.04); };
   $('sNames').onclick=()=>{ s.names=!s.names; save(); applySettings(); setKnob('sNames',s.names); blip(s.names?660:440,0.04); };
   $('sLm').onclick=()=>{ s.latency=Math.max(-100,s.latency-10); save(); $('sLv').textContent=s.latency+'ms'; };
   $('sLp').onclick=()=>{ s.latency=Math.min(250,s.latency+10); save(); $('sLv').textContent=s.latency+'ms'; };
@@ -4592,6 +4608,26 @@ function roadPose(id,s,left){ const M=POSE_META[id], im=left?POSE_IMG_L[id]:POSE
   return vsCache[key]={c,w,h,fx:(left?M.cw-M.fx:M.fx)*s,fy:M.fy*s}; }
 function roadBpm(){ return (state.roadMod&&state.roadMod.bpm)||0; }
 
+
+/* ---------- note names (v1.69) ----------
+   (1) After a true call, name its first note: three buttons, four seconds. Right: +1 Hype. Wrong or too slow: -1 Hype.
+   (2) Tonight's note: one note name per night, every true note of that name scores +6 Tone.
+   (3) Octave echo: a correct note glows briefly everywhere else it lives on the visible neck.
+   Every answer is logged in store.names (per pitch class), for the Ear Report and the fading names to come. */
+store.names=store.names||{};
+function nameLog(pc,ok){ try{ const r=store.names[pc]||(store.names[pc]={n:0,ok:0}); r.n++; if(ok) r.ok++; save(); }catch(e){} }
+function askName(tok){ return new Promise(res=>{ const el=$('namePick'), m=state.call.notes[0].midi, pc=((m%12)+12)%12;
+  const d=shuffle([1,-1,2,-2,5,-5,7]).slice(0,2).map(x=>((pc+x)%12+12)%12), opts=shuffle([pc,...d]), T=4000; let done=false;
+  el.className='namepick'; el.innerHTML='<span class="np-q">FIRST NOTE?</span>'+opts.map(o=>'<button class="btn small gold" data-pc="'+o+'">'+NN[o]+'</button>').join('')+'<i class="np-bar" style="width:100%"></i>';
+  requestAnimationFrame(()=>{ const b=el.querySelector('.np-bar'); if(b){ b.style.transitionDuration=T+'ms'; b.style.width='0%'; } });
+  const end=(pick)=>{ if(done) return; done=true; clearTimeout(to); const ok=pick===pc; nameLog(pc,ok);
+    el.classList.add(ok?'ok':'bad'); el.innerHTML='<span class="np-q">'+(ok?'YES, '+NN[pc]+'!':pick==null?'TOO SLOW: IT WAS '+NN[pc]:'NO, IT WAS '+NN[pc])+'</span>'; if(ok) blip(1180,0.06); else thud();
+    setTimeout(()=>{ el.className='namepick hidden'; el.innerHTML=''; res(ok?'ok':'miss'); },ok?550:950); };
+  el.querySelectorAll('button').forEach(b=>b.onclick=()=>end(+b.dataset.pc));
+  const to=setTimeout(()=>end(null),T);
+  const chk=setInterval(()=>{ if(!alive(tok)){ clearInterval(chk); if(!done){ done=true; clearTimeout(to); el.className='namepick hidden'; el.innerHTML=''; res(null); } } else if(done) clearInterval(chk); },100); }); }
+function pickTonight(){ state.tonight=Math.floor(Math.random()*12); }
+function echoNote(midi){ if(store.settings.echo===false) return; state.echo={pc:((midi%12)+12)%12,until:perfNow()+0.75}; renderNeck(); clearTimeout(echoNote.t); echoNote.t=setTimeout(()=>{ state.echo=null; renderNeck(); },760); }
 function setTab(t){ document.querySelectorAll('#scr-results .tab').forEach(b=>b.classList.toggle('sel',b.dataset.t===t)); $('tabEars').classList.toggle('hidden',t!=='ears'); $('tabMap').classList.toggle('hidden',t!=='map'); $('linerWrap').classList.toggle('hidden',t!=='notes'); if(t==='map') renderEar($('tabMap'),{compact:true}); }
 
 function setPhase(){
@@ -4871,6 +4907,7 @@ function markersHTML(){
     } else if(state.phase!=='idle'){
       if(state.char!=='hermit'&&!state.noGlow) h+=mk('gem',c.notes[0].s,c.notes[0].f,'');
       state.answer.forEach((a,k)=>{ h+=mk('pick tap',a.s,a.f,k+1); });
+      if(state.echo&&perfNow()<state.echo.until&&!state.blind){ const last=state.answer[state.answer.length-1]; for(let s=0;s<NS;s++){ if(state.broken[s]) continue; for(let c2=0;c2<state.win;c2++){ const f=state.pos+c2; if(f>MAXF||(OPEN[s]+f)%12!==state.echo.pc) continue; if(last&&last.s===s&&last.f===f) continue; h+=mk('echo',s,f,''); } } }
     }
   }
   return h;
@@ -8064,7 +8101,7 @@ function applyVenue(V){
 async function startVenue(){
   const tok=++state.runId, V=VEN();
   trStop(); hideDialog();
-  Object.assign(state,{total:0,callIdx:0,replays:VEN().replays!=null?VEN().replays:REPLAYS,blind:!!VEN().whiteout,call:null,answer:[],phase:'idle',sel:-1,over:null,used:{},beat:-1,pos:0,spareUsed:false,noGlow:!!VEN().silence}); try{ metaVenue(); }catch(e){} if(state.roadMod&&state.roadMod.replays&&!VEN().silence) state.replays=Math.max(0,state.replays+state.roadMod.replays);
+  Object.assign(state,{total:0,callIdx:0,replays:VEN().replays!=null?VEN().replays:REPLAYS,blind:!!VEN().whiteout,call:null,answer:[],phase:'idle',sel:-1,over:null,used:{},beat:-1,pos:0,spareUsed:false,noGlow:!!VEN().silence}); pickTonight(); try{ metaVenue(); }catch(e){} if(state.roadMod&&state.roadMod.replays&&!VEN().silence) state.replays=Math.max(0,state.replays+state.roadMod.replays);
   for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; }
   applyVenue(V); try{ heroWarm(state.char||'bard'); }catch(e){}
   $('toneBox').textContent='0'; $('hypeBox').textContent='0'; setHand('READY?','','');
@@ -8107,6 +8144,7 @@ function onFretTap(s,f,e){
   if(state.phase!=='answer') return;
   const g=grooveOf(tapTime(e));
   state.answer.push({midi,s,f,g,t:performance.now()});
+  { const tg=state.call.notes[state.answer.length-1]; if(tg&&tg.midi===midi) echoNote(midi); }
   if(g) popAtCell(s,f,g==='pocket'?'POCKET':'GROOVE',g==='pocket'?'#FF7A52':'#FFC857');
   renderSlots(); renderNeck();
   if(state.answer.length>=state.call.notes.length) finishAnswer();
@@ -8116,6 +8154,7 @@ async function finishAnswer(){
   state.phase='score'; setPhase();
   if(state.answer.every((a,k)=>state.call.notes[k]&&a.midi===state.call.notes[k].midi)){ trStop(); crash(); } else tapeStop();
   await sleep(250); if(!alive(tok)) return;
+  state.nameRes=null; if(state.answer.every((a,k)=>state.call.notes[k]&&a.midi===state.call.notes[k].midi)&&!namesOn()){ state.nameRes=await askName(tok); if(!alive(tok)) return; }
   earLog(); if(state.practice) return finishPractice(tok); const res=evaluate();
   await animateScore(res,tok); if(!alive(tok)) return;
   const c=state.call;
@@ -8345,7 +8384,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

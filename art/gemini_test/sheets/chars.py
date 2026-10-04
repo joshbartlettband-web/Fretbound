@@ -18,7 +18,7 @@ for cid,gid,gd,who in [
 LOOK={
 'spur':'the Twang Knight: an armoured knight in silver plate armour with a white cowboy hat on its helmet and a red tabard with a white heart',
 'tide':'the Reverb Siren: a mermaid with long teal hair and a small crown, a seashell top and a green fish tail instead of legs (NO legs and NO feet: the tail curls on the floor and is the same in every pose)',
-'juke':'Mister Midnight: a tall slender man with deep blue-purple skin, a black top hat with a magenta band, a purple jacket, white shirt, dark trousers, black shoes, white eyes and a wide smile',
+'juke':'Mister Midnight, a moon spirit: a tall slender figure whose whole head is a softly glowing pale cream full moon with gentle grey craters and a calm kind face (soft half-closed eyes, small closed-mouth smile, no teeth), a black top hat with a magenta band, a deep purple suit jacket, white shirt with a black string tie, dark trousers, black shoes and white gloves',
 'dunes':'the Dune Looper: a faceless sand spirit in a blue-purple hooded cloak with a sand-brown body, hood up, tan boots',
 'sebene':'the Sebene Peacock: an anthropomorphic peacock with a blue head and a huge fan of green eyed tail feathers behind it, a pink jacket, navy trousers',
 'azmari':'the Qenet Scholar: a big brown owl with a round owl head, a long white robe with gold trim, feathered feet',
@@ -60,3 +60,6 @@ for c,v in list(CH.items()):
 # the Guitar Tech, the Green Room's caller (v1.63): her own reference from gen_rooms.py; no game guitar sprite matches her Telecaster, so it is described in words
 guitar('green',R+'gemini_test/rooms/tech.png','single','a Telecaster-style electric guitar with a sunburst body and a cream pickguard','the Guitar Tech: a roadie woman in her forties with a short grey-streaked dark bob, a headlamp on a band, a black T-shirt under a dark utility vest with picks and a string winder, a roll of gaffer tape and a wrench on her belt, olive cargo trousers and brown work boots',100)
 CH['green']['guitar']=None
+
+# v1.67: Mister Midnight was redrawn as a moon spirit (the old look, dark skin with white eyes and a wide grin, read as a minstrel caricature)
+CH['juke']['ref']=R+'gemini_test/callers/juke_moon.png'; CH['juke']['gdesc']='a silver resonator guitar with a round metal cone'

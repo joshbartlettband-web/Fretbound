@@ -57,10 +57,10 @@
  },
  "juke": {
   "A": 2,
-  "B": 1,
-  "calm": 4.4,
+  "B": 2,
+  "calm": 2.7,
   "issues": [],
-  "tried": 9
+  "tried": 4
  },
  "dunes": {
   "A": 2,

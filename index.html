@@ -812,6 +812,20 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
 .dragging{z-index:5;position:relative;filter:drop-shadow(0 6px 4px rgba(0,0,0,.55));transition:none!important}
 .lmore{max-width:34em}.lmore p{font-family:var(--body);font-size:15px;line-height:1.35;margin:6px 0 10px}.lmore h3{margin:2px 0}.lmore-btn{margin-top:4px}
 @media (max-height:420px){ .lmore p{font-size:13px;line-height:1.25;margin:4px 0 6px} }
+.road{display:flex;flex-direction:column;gap:8px;height:100%;padding:8px;box-sizing:border-box}
+.road-art{flex:1 1 auto;padding:0;overflow:hidden;min-height:30vh}
+.road-art canvas{width:100%;height:100%;display:block;image-rendering:pixelated}
+.road-text{flex:0 0 auto;display:flex;flex-direction:column;gap:6px;min-height:0;padding:10px 12px}
+.road-text h2{margin:0;font-family:var(--head)}
+.road-text p{margin:0;font-family:var(--body);font-size:15px;line-height:1.3}
+.road-ch{display:flex;flex-direction:column;gap:6px}
+.road-ch .btn{width:100%}
+.road-q{font-family:var(--ui);color:var(--amber);font-size:14px}
+.road-ch.quiz{flex-direction:row;flex-wrap:wrap;align-items:center}.road-ch.quiz .road-q{flex:1 0 100%}.road-ch.quiz .btn{width:auto;flex:1 1 30%}
+.road-out{color:var(--amber)}
+#roadGo{margin-top:6px;align-self:center}
+@media (orientation:landscape) and (max-height:560px){ .road{flex-direction:row} .road-art{flex:1 1 52%;min-height:0} .road-text{flex:1 1 48%;overflow:hidden} .road-text p{font-size:13px} .road-ch{gap:4px} }
+@media (max-height:760px) and (orientation:portrait){ .road-text p{font-size:13px} .road-ch{gap:4px} }
 .mhint{text-align:center;font-size:13px;margin:4px 0 0}
 .bs-door{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;touch-action:manipulation;color:inherit}
 .bs-doorcv{width:88px;height:152px;image-rendering:pixelated;display:block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.45))}
@@ -1001,7 +1015,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.67</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.68</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -1119,6 +1133,14 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
         <button class="btn blue" id="btnNewChar">NEW PLAYER</button>
         <button class="btn blue" id="btnTitle">TITLE</button>
       </div>
+    </div>
+  </section>
+
+  <section id="scr-road" class="screen" aria-label="On the road">
+    <div class="road">
+      <div class="win road-art"><canvas id="roadScene" aria-hidden="true"></canvas></div>
+      <div class="win road-text"><div class="kicker">On the road</div><h2 id="roadTitle"></h2><p id="roadStory"></p><div class="road-ch" id="roadChoices"></div><p class="road-out" id="roadOut" aria-live="polite"></p>
+        <button class="btn gold hidden" id="roadGo">ON TO THE SHOW</button></div>
     </div>
   </section>
 
@@ -2300,7 +2322,7 @@ function evaluate(){
     else steps.push({op:{},target:{type:'note',k},label:((a.midi-call.notes[k].midi)%12===0)?'WRONG OCTAVE':'MISS',col:'bad'});
   });
   if(perfect){
-    ans.forEach((a,k)=>{ if(a.g){ const v=a.g==='pocket'?(CH==='monk'?3:1)+bandPocket():(CH==='monk'?1:0.5); steps.push({op:{hype:v},target:{type:'note',k},label:'+'+v+' '+(a.g==='pocket'?'POCKET':'GROOVE'),col:'hype'}); } });
+    ans.forEach((a,k)=>{ if(a.g){ const v=(a.g==='pocket'?(CH==='monk'?3:1)+bandPocket():(CH==='monk'?1:0.5))*(state.roadMod&&state.roadMod.groove2?2:1); steps.push({op:{hype:v},target:{type:'note',k},label:'+'+v+' '+(a.g==='pocket'?'POCKET':'GROOVE'),col:'hype'}); } });
     const pk=S.perk.id; let gr=null;
     if(pk==='glassy'){ const n=ans.filter(a=>a.s<=2).length; if(n) gr={op:{tone:5*n},label:'GLASSY +'+5*n,col:'tone'}; }
     else if(pk==='thick'){ const n=ans.filter(a=>a.g==='pocket').length; if(n) gr={op:{hype:n},label:'THICK +'+n+' HYPE',col:'hype'}; }
@@ -2310,6 +2332,7 @@ function evaluate(){
     else if(pk==='deep') gr={op:{toneMul:1.5},label:'DEEP TUNING X1.5',col:'tone'};
     if(gr) steps.push({op:gr.op,target:{type:'guitar'},label:gr.label,col:gr.col});
     if(CH==='bard') steps.push({op:{hype:1},target:{type:'char'},label:'CROWD FAVORITE +1',col:'hype'});
+    { const RM=state.practice?null:state.roadMod; if(RM){ if(RM.hype) steps.push({op:{hype:RM.hype},target:{type:'char'},label:'ROAD +'+RM.hype+' HYPE',col:'hype'}); if(RM.tone){ const v=RM.tone*ans.length; steps.push({op:{tone:v},target:{type:'char'},label:'ROAD +'+v+' TONE',col:'tone'}); } } }
     if(CH==='carto'){ const n=ans.filter(a=>a.f>=9).length; if(n) steps.push({op:{tone:6*n},target:{type:'char'},label:'SURVEY +'+6*n,col:'tone'}); }
     const c={call,ans};
     state.pedals.forEach((p,pi)=>{ const r=FX[p.id](c); if(r) steps.push({op:r.op,target:{type:'pedal',pi},label:r.label,col:r.col});
@@ -4368,8 +4391,9 @@ const BOARD_MAX=5, RESTRING=2, REROLL_BASE=2;
 function goShop(){
   const V=VEN(); trStop(); hideDialog(); state.inVenue=false; applyTuning();
   const callsLeft=Math.max(0,SETLEN-state.callIdx), interest=Math.min(3,Math.floor(state.money/5));
-  state.earnRows=[['Door',V.pay],['Calls left',callsLeft],['Replays left',state.replays],['Interest',interest]]; if(META.van.cooler) state.earnRows.push(['Cooler',1]); const wg=crewWages(); if(wg) state.earnRows.push(['Crew wages',-wg]);
-  state.money=Math.max(0,state.money+state.earnRows.reduce((a,r)=>a+r[1],0));
+  let door=V.pay; const RM=state.roadMod; if(RM&&RM.doorBet) door=Math.random()<0.5?V.pay*2:0;
+  state.earnRows=[[RM&&RM.doorBet?(door?'Door (bet won)':'Door (bet lost)'):'Door',door],['Calls left',callsLeft],['Replays left',state.replays],['Interest',interest]]; if(META.van.cooler) state.earnRows.push(['Cooler',1]); const wg=crewWages(); if(wg) state.earnRows.push(['Crew wages',-wg]);
+  state.money=Math.max(0,state.money+state.earnRows.reduce((a,r)=>a+r[1],0)); state.roadMod=null;
   state.shop=rollShop(); state.sfocus={kind:'sale',k:0};
   renderShop(); goScreen('shop'); saveRun(); setTimeout(()=>{ try{ if(state.screen==='shop') maybeRecruit(); }catch(e){} },700);
   if(ctx) trStart('jam',ctx.currentTime+0.1);
@@ -4377,7 +4401,7 @@ function goShop(){
 const RUN_KEY='fretbound.run.v1';
 function saveRun(){ try{ localStorage.setItem(RUN_KEY,JSON.stringify({runSeed:state.runSeed,char:state.char,guitar:state.guitar,tour:state.tour,tourSel:state.tourSel,nextTour:state.nextTour,visited:state.visited,legNo:state.legNo,legPending:!!state.legPending,venueIdx:state.venueIdx,
   money:state.money,broken:state.broken,pedals:state.pedals.map(q=>q.id),board:state.board,streak:state.streak,loopCharge:state.loopCharge,afterMiss:!!state.afterMiss,trueCalls:state.trueCalls,grooveHits:state.grooveHits,notesPlayed:state.notesPlayed,best:state.best,callsTotal:state.callsTotal,
-  cleared:state.cleared,tourScore:state.tourScore,earnRows:state.earnRows,tough:state.tough||0,spares:state.spares||0,lineup:state.lineup||[],gauge:state.gauge||'standard',seven:!!state.seven,when:Date.now()})); }catch(e){} }
+  cleared:state.cleared,tourScore:state.tourScore,earnRows:state.earnRows,roadDone:!!state.roadDone,roadSeen:state.roadSeen||[],roadMod:state.roadMod||null,tough:state.tough||0,spares:state.spares||0,lineup:state.lineup||[],gauge:state.gauge||'standard',seven:!!state.seven,when:Date.now()})); }catch(e){} }
 function loadRun(){ try{ const r=JSON.parse(localStorage.getItem(RUN_KEY)||'null'); return r&&TOURS[r.tour]&&CHAR_BY[r.char]?r:null; }catch(e){ return null; } }
 function clearRun(){ try{ localStorage.removeItem(RUN_KEY); }catch(e){} renderContinue(); }
 function renderContinue(){ const b=$('btnContinue'); if(!b) return; const r=loadRun(); b.classList.toggle('hidden',!r);
@@ -4387,7 +4411,7 @@ function resumeRun(){
   const r=loadRun(); if(!r) return false;
   Object.assign(state,{runSeed:r.runSeed||7,nextTour:r.nextTour,visited:r.visited||[r.tour],char:r.char,guitar:r.guitar,tourSel:r.tourSel,legNo:r.legNo,legPending:r.legPending,venueIdx:r.venueIdx,money:r.money,broken:r.broken.slice(),seven:!!r.seven,tough:r.tough||0,spares:r.spares||0,lineup:r.lineup||[],gauge:r.gauge||'standard',
     pedals:r.pedals.map(id=>PEDALS.find(q=>q.id===id)).filter(Boolean),trueCalls:r.trueCalls,grooveHits:r.grooveHits,notesPlayed:r.notesPlayed,best:r.best,callsTotal:r.callsTotal,
-    cleared:r.cleared.slice(),tourScore:r.tourScore,earnRows:r.earnRows||[],board:r.board||'classic',streak:r.streak||0,loopCharge:r.loopCharge||0,afterMiss:!!r.afterMiss,runId:state.runId+1,over:null});
+    cleared:r.cleared.slice(),tourScore:r.tourScore,earnRows:r.earnRows||[],roadDone:!!r.roadDone,roadSeen:r.roadSeen||[],roadMod:r.roadMod||null,board:r.board||'classic',streak:r.streak||0,loopCharge:r.loopCharge||0,afterMiss:!!r.afterMiss,runId:state.runId+1,over:null});
   setTour(r.tour); applyTuning(); applyVenue(VEN());
   for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; snap[k]=null; }
   if(playerRig){ playerRig.setGuitar(curGuitar()); playerRig.setPedals(state.pedals.map(q=>q.id)); }
@@ -4436,6 +4460,138 @@ function linerMore(id){ const pages=LINER_MORE[id]; if(!pages||!pages.length) re
   const show=()=>{ openModal('<div class="lmore"><div class="kicker">Liner notes, '+(k+1)+' of '+pages.length+'</div><h3>'+((V&&V.liner&&V.liner.title)||'')+'</h3><p>'+pages[k]+'</p><div class="row-btns"><button class="btn small blue" id="lmB"'+(k?'':' disabled')+'>BACK</button><button class="btn small '+(k<pages.length-1?'gold':'blue')+'" id="lmN">'+(k<pages.length-1?'NEXT':'CLOSE')+'</button></div></div>');
     $('lmB').onclick=()=>{ blip(600,0.04); k=Math.max(0,k-1); show(); }; $('lmN').onclick=()=>{ blip(700,0.04); if(k<pages.length-1){ k++; show(); } else closeModal(); }; };
   show(); }
+/* ---------- the road: one encounter per leg, between night 1 and night 2 (v1.68) ----------
+   Each continent draws from its own pool plus a shared one, never repeating within a run. An encounter is a painted scene
+   (the continent's Van-scene plate, the player and a band member in their hang-out poses, sometimes a caller), a short
+   story and two or three choices. Choices change money, strings, pedals, or the next show (state.roadMod, cleared at the shop). */
+const RD={ money:n=>{ state.money=Math.max(0,state.money+n); renderCash(); },
+  mod:o=>{ const m=state.roadMod||(state.roadMod={}); for(const k in o) m[k]=(typeof o[k]==='number'?(m[k]||0)+o[k]:o[k]); },
+  restring:()=>{ state.broken=state.broken.map(()=>false); },
+  spares:n=>{ state.spares=Math.min(PACK_MAX,(state.spares||0)+n); },
+  breakOne:()=>{ const ok=state.broken.map((b,i)=>b?-1:i).filter(i=>i>=0); if(ok.length) state.broken[ok[Math.floor(Math.random()*ok.length)]]=true; },
+  pedal:rar=>{ const own=new Set(state.pedals.map(p=>p.id)), pool=PEDALS.filter(p=>!own.has(p.id)&&(!rar||rarOf(p.id)===rar)); if(!pool.length) return null; const p=pool[Math.floor(Math.random()*pool.length)];
+    if(state.pedals.length>=boardMax()){ const v=PEDAL_ART[p.id].price; RD.money(v); return {p,sold:v}; } state.pedals.push(p); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); return {p}; },
+  pname:r=>PEDAL_TYPE[r.p.id].name+(r.sold?' (your board is full, so you sell it for $'+r.sold+')':''),
+  seat:()=>(state.lineup||[]).filter(id=>HANG_META[id])[0]||null };
+const RARUP={common:'uncommon',uncommon:'rare',rare:'legendary',legendary:'legendary'};
+// a short ear quiz played on the caller's rig: hear two notes, name the step between them
+const QUIZ_IV=[[3,'minor 3rd'],[4,'major 3rd'],[5,'4th'],[7,'5th'],[12,'octave']], QUIZ_HARD=[[1,'half step'],[2,'whole step'],[6,'tritone'],[9,'6th'],[10,'flat 7th']];
+const ROAD={
+  // shared pool
+  flat:{t:'Flat tire',bg:'vsp',story:'Halfway to the next town, the van lurches onto the shoulder. Flat tire, and the spare is flat too.',
+    ch:()=>[ {l:'Pay a tow truck ($4)',dis:state.money<4,go:()=>{ RD.money(-4); return 'Twenty minutes and four dollars later, you are rolling again.'; }},
+      (state.char==='luthier'||hasSeat('tech'))?{l:(state.char==='luthier'?'Let the Luthier patch it':'Let the Guitar Tech patch it'),go:()=>'A patch kit, some swearing and a lot of gaffer tape. Good as new, nearly.'}:null,
+      {l:'Everyone pushes to the next garage',go:()=>{ RD.mod({replays:-1}); return 'You make it, but your arms are shaking. One fewer replay tonight.'; }} ]},
+  friend:{t:'An old friend',bg:'vsp',caller:'friend',req:()=>!!roadFriend(),story:()=>{ const v=roadFriend(); return titleCase(v.rival)+' is parked at the same diner, guitar case on the next stool. "You again! Sit down."'; },
+    ch:()=>[ {l:'Jam for a pedal',go:()=>{ const r=RD.pedal('uncommon'); return r?'You trade licks until the coffee goes cold. They hand you a '+RD.pname(r)+'.':'You trade licks until the coffee goes cold.'; }},
+      {l:'Ask for advice',go:()=>{ RD.mod({hype:1}); return '"Listen to the whole phrase before you move." +1 Hype on every true call tonight.'; }} ]},
+  pawn:{t:'The pawn shop',bg:'vsp',req:()=>state.pedals.length>0,story:'A dusty pawn shop with a wall of second-hand pedals. The owner eyes your board.',
+    ch:()=>{ const c=state.pedals.slice().sort((a,b)=>PEDAL_ART[a.id].price-PEDAL_ART[b.id].price)[0], cn=PEDAL_TYPE[c.id].name;
+      return [ {l:'Trade your '+cn+' up',go:()=>{ state.pedals.splice(state.pedals.indexOf(c),1); const r=RD.pedal(RARUP[rarOf(c.id)]); return r?'He takes the '+cn+' and pulls a '+RD.pname(r)+' off the wall.':'He takes it, shrugs, and gives you nothing better. Rough deal.'; }},
+        {l:'Sell it for full price ($'+PEDAL_ART[c.id].price+')',go:()=>{ state.pedals.splice(state.pedals.indexOf(c),1); RD.money(PEDAL_ART[c.id].price); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); return 'Cash in hand. The board feels lighter.'; }},
+        {l:'Just look around',go:()=>'You leave with nothing but a sticker.'} ]; }},
+  radio:{t:'Live on the radio',bg:'vsp',story:'A small station has you on the morning show. The host has an ear quiz: name the step between two notes. $2 for each right answer.',quiz:{n:3,pay:2,set:QUIZ_IV}},
+  motel:{t:'A rainy motel',bg:'vsp',story:'Rain hammers the roof of a cheap motel. Nobody is going anywhere tonight.',
+    ch:()=>[ {l:'Rest and restring',go:()=>{ RD.restring(); RD.spares(1); return 'New strings all round, and a spare set in the case.'; }},
+      {l:'Practise all night',go:()=>{ RD.mod({hot:1}); return 'You run the hard ones until dawn. Tonight’s first call is a HOT call: base Tone x2.'; }} ]},
+  fan:{t:'A superfan',bg:'vsp',story:'Someone in a homemade shirt with your face on it is waiting by the van. They have a gift, and a request: play it fast tonight.',
+    ch:()=>[ {l:'Accept the gift',go:()=>{ const r=RD.pedal('common'); RD.mod({bpm:6}); return (r?'A '+RD.pname(r)+'! ':'')+'You promise a fast set. Tonight’s tempo is 6 BPM quicker.'; }},
+      {l:'Sign their shirt',go:()=>{ RD.money(3); return 'They insist on paying for your lunch. +$3.'; }} ]},
+  // North America
+  jukebox:{c:'na',t:'Truck stop jukebox',bg:'vsp',story:'The truck stop jukebox has three pedals taped to the back, with a note: $2 each.',
+    ch:()=>{ const own=new Set(state.pedals.map(p=>p.id)), pool=shuffle(PEDALS.filter(p=>!own.has(p.id)&&rarOf(p.id)==='common')).slice(0,3);
+      return pool.map(p=>({l:'Buy the '+PEDAL_TYPE[p.id].name+' ($2)',dis:state.money<2,go:()=>{ RD.money(-2); if(state.pedals.length<boardMax()){ state.pedals.push(p); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); return 'The '+PEDAL_TYPE[p.id].name+' goes on your board.'; } RD.money(PEDAL_ART[p.id].price); return 'Your board is full, so you sell it straight on for $'+PEDAL_ART[p.id].price+'.'; }})).concat([{l:'Play a song and leave',go:()=>'Somebody’s old country record plays you out the door.'}]); }},
+  session:{c:'na',t:'A session gig',bg:'vsp',story:'A studio in town needs a rhythm guitarist for a country record. It pays, but it is long.',
+    ch:()=>[ {l:'Take the session',go:()=>{ RD.money(5); RD.mod({replays:-1}); return '+$5. Your hands are tired: one fewer replay tonight.'; }}, {l:'Save your hands',go:()=>'You wish them luck and drive on.'} ]},
+  moonbet:{c:'na',t:'A moonlit bet',bg:'vsp',caller:'juke',story:'Mister Midnight leans on your van, glowing faintly. "A friendly wager. Tonight’s door money: double, or nothing."',
+    ch:()=>[ {l:'Take the bet',go:()=>{ RD.mod({doorBet:1}); return '"Splendid." You will find out at the end of the night.'; }}, {l:'Decline politely',go:()=>'"Another time, then." He tips his hat and fades with the dawn.'} ]},
+  // Africa
+  tea:{c:'af',t:'Tea in the desert camp',bg:'vsp',story:'Musicians at a camp invite you to sit for tea. By custom there are three glasses: strong, then sweet, then gentle. Each one takes a while.',
+    ch:()=>[ {l:'Stay for one glass',go:()=>{ RD.spares(1); return 'Strong tea and a spare set of strings from a new friend.'; }},
+      {l:'Stay for two',go:()=>{ RD.spares(1); RD.money(3); RD.mod({bpm:4}); return 'A spare set and $3 for joining the jam, but you arrive late and rushed: tempo +4 tonight.'; }},
+      {l:'Stay for all three',go:()=>{ RD.spares(1); RD.money(3); RD.mod({hype:1,bpm:8}); return 'A spare set, $3, and their riffs in your head: +1 Hype per true call. You arrive very late: tempo +8.'; }} ]},
+  tailor:{c:'af',t:'The Kinshasa tailor',bg:'vsp',story:'A tailor near the dance halls measures you with one glance. "You cannot play the sebene in that."',
+    ch:()=>[ {l:'Buy the sharp suit ($5)',dis:state.money<5,go:()=>{ RD.money(-5); RD.mod({hype:1}); return 'You walk out looking magnifique. +1 Hype on every true call tonight.'; }}, {l:'Admire the window',go:()=>'Maybe next time.'} ]},
+  coffee:{c:'af',t:'The coffee ceremony',bg:'vsp',story:'Your host roasts green coffee beans over coals and pours three rounds: abol, tona and baraka. "What do you need today?"',
+    ch:()=>[ {l:'Fresh strings',go:()=>{ RD.restring(); return 'Your host’s cousin sells strings. All of yours are new.'; }},
+      {l:'Rest',go:()=>{ RD.mod({replays:1}); return 'You leave calm and clear-headed. One extra replay tonight.'; }},
+      {l:'A blessing',go:()=>{ RD.mod({hype:1}); return 'Baraka, the blessing of the third cup. +1 Hype on every true call tonight.'; }} ]},
+  // South America
+  samba:{c:'sa',t:'Samba school rehearsal',bg:'vsp',story:'A samba school is rehearsing in the street, a hundred drums strong. They wave you into the bateria.',
+    ch:()=>[ {l:'March with them',go:()=>{ RD.mod({bpm:8,groove2:1}); return 'Your feet will not stop. Tonight is 8 BPM faster, but every groove hit counts double.'; }}, {l:'Watch from the curb',go:()=>{ RD.money(1); return 'Someone hands you a cold drink and a coin for luck. +$1.'; }} ]},
+  practica:{c:'sa',t:'A tango practica',bg:'vsp',story:'In a dance hall at noon, couples practise slowly. The teacher asks if you can play for them.',
+    ch:()=>[ {l:'Play for the dancers',go:()=>{ RD.mod({tone:3}); return 'Every note had to land just right. +3 Tone on every note tonight.'; }}, {l:'Take a lesson instead',go:()=>{ RD.money(-1); RD.mod({replays:1}); return 'Your feet hurt, but you listen better. -$1, one extra replay tonight.'; }} ]},
+  mercado:{c:'sa',t:'The market stall',bg:'vsp',story:'At a market stall in Lima, an old fuzz pedal sits between the cassettes. The seller says $6.',
+    ch:()=>[ {l:'Pay $6',dis:state.money<6,go:()=>{ RD.money(-6); const r=RD.pedal('uncommon'); return r?'It is a '+RD.pname(r)+'.':'It turns out to be empty inside. Oh well.'; }},
+      {l:'Haggle',go:()=>{ if(Math.random()<0.5){ if(state.money<3) return 'You talk him down to $3, then find you cannot afford even that.'; RD.money(-3); const r=RD.pedal('uncommon'); return 'You talk him down to $3. '+(r?'It is a '+RD.pname(r)+'.':''); } return 'He laughs, packs up the stall and goes to lunch.'; }} ]},
+  // Europe
+  metro:{c:'eu',t:'Busking in the Metro',bg:'vsp',story:'A tiled corridor under Paris, perfect echo. Your case is open and the trains are full.',
+    ch:()=>[ {l:'Play for tips',go:()=>{ const n=2+Math.floor(Math.random()*4)+(state.char==='busker'?2:0); RD.money(n); return 'Coins and a ticket stub. +$'+n+'.'; }}, {l:'Keep moving',go:()=>'You catch your train.'} ]},
+  pena:{c:'eu',t:'A late-night pena',bg:'vsp',story:'Behind a bar door, a flamenco session runs past midnight. Someone hands you a guitar.',
+    ch:()=>[ {l:'Join the session',go:()=>{ RD.mod({hot:1,bpm:4}); return 'Fire in the fingers. Tonight’s first call is HOT (base Tone x2), and you play a little quicker.'; }}, {l:'Just listen',go:()=>{ RD.mod({replays:1}); return 'You hear more than you play. One extra replay tonight.'; }} ]},
+  ferry:{c:'eu',t:'The fjord ferry',bg:'vsp',story:'The ferry crossing is rough. The deck is freezing, and a cabin costs extra.',
+    ch:()=>[ {l:'Pay for a cabin ($3)',dis:state.money<3,go:()=>{ RD.money(-3); return 'Warm, dry and asleep in minutes.'; }}, {l:'Ride on deck',go:()=>{ RD.mod({replays:-1}); return 'Cold hands. One fewer replay tonight.'; }} ]},
+  // Asia
+  karaoke:{c:'as',t:'The karaoke box',bg:'vsp',story:'A tiny karaoke room in Tokyo, and the song list has an ear-test channel. Name the step between two notes. $2 each.',quiz:{n:3,pay:2,set:QUIZ_IV}},
+  chai:{c:'as',t:'The chai stall',bg:'vsp',story:'By the river steps, a chai seller hums along with a distant drone. You sit and let the tonic soak in.',
+    ch:()=>[ {l:'Sit and listen',go:()=>{ RD.mod({hype:1}); return 'Your ear settles on home. +1 Hype on every true call tonight.'; }}, {l:'Buy chai for the band ($2)',dis:state.money<2,go:()=>{ RD.money(-2); RD.mod({replays:1}); return 'Everyone is in a good mood. One extra replay tonight.'; }} ]},
+  gamelan:{c:'as',t:'A village rehearsal',bg:'vsp',story:'In a pavilion, a village gamelan is rehearsing. The leader shows you how two players split one fast line.',
+    ch:()=>[ {l:'Learn to interlock',go:()=>{ RD.mod({tone:2}); return 'Locked in. +2 Tone on every note tonight.'; }}, {l:'Make an offering of thanks ($2)',dis:state.money<2,go:()=>{ RD.money(-2); RD.mod({hype:1}); return 'They smile and play one more piece for you. +1 Hype on every true call tonight.'; }} ]},
+  // Oceania
+  bonfire:{c:'oc',t:'Bonfire on the beach',bg:'vsp',story:'A beach bonfire, and somebody has a slack key guitar. Songs go round the circle.',
+    ch:()=>[ {l:'Join the singalong',go:()=>{ RD.mod({hype:1}); return 'Everyone sings. +1 Hype on every true call tonight.'; }}, {l:'Learn a tuning',go:()=>{ RD.restring(); return 'You loosen everything and tune it back up. Fresh strings all round.'; }} ]},
+  trivia:{c:'oc',t:'Pub trivia night',bg:'vsp',story:'The pub runs a music round. Name the step between two notes. $2 a correct answer.',quiz:{n:3,pay:2,set:QUIZ_IV}},
+  party:{c:'oc',t:'The flat party',bg:'vsp',story:'A student flat in Dunedin is throwing a garage show. The amp is huge and the ceiling is low.',
+    ch:()=>[ {l:'Play loud',go:()=>{ META.fame=(META.fame||0)+2; state.fameGain=(state.fameGain||0)+2; RD.breakOne(); save(); return '+2 Fame, and you snap a string on the last chord.'; }}, {l:'Go to bed early',go:()=>{ RD.mod({replays:1}); return 'Well rested. One extra replay tonight.'; }} ]},
+  // Antarctica
+  supply:{c:'an',t:'Supply flight delayed',bg:'vsp',story:'The supply flight is grounded by wind. The station needs hands to unload the last one.',
+    ch:()=>[ {l:'Help unload',go:()=>{ RD.spares(2); return 'They let you raid the spare strings. Two spare sets.'; }}, {l:'Stay warm inside',go:()=>{ RD.mod({replays:1}); return 'Hot cocoa and a nap. One extra replay tonight.'; }} ]},
+  station:{c:'an',t:'Station radio',bg:'vsp',story:'Every station on the continent tunes in for your set on the radio. It is a hard quiz: name the step between two notes. $3 each.',quiz:{n:3,pay:3,set:QUIZ_HARD}},
+};
+function roadFriend(){ const here=new Set((TOURS[state.tour]||{venues:[]}).venues.map(v=>v.id)); const all=TOURS.flatMap(T=>T.venues).filter(v=>!here.has(v.id)&&dexC0(v.id).won>0&&POSE_META[v.id]); return all[(state.runSeed||0)%Math.max(1,all.length)]||null; }
+function roadPick(){ const cid=(TOURS[state.tour]||{}).id, seen=new Set(state.roadSeen||[]);
+  const pool=Object.keys(ROAD).filter(k=>ROAD[k].story&&(!ROAD[k].c||ROAD[k].c===cid)&&!seen.has(k)&&(!ROAD[k].req||ROAD[k].req()));
+  const local=pool.filter(k=>ROAD[k].c===cid), pick=(local.length&&Math.random()<0.6)?local:pool; return pick.length?pick[Math.floor(Math.random()*pick.length)]:null; }
+let roadState=null;
+function goRoad(next,force){
+  const id=(force&&(!ROAD[force].req||ROAD[force].req()))?force:roadPick(); if(!id){ next(); return; }
+  try{ closeModal(); trStop(); hideDialog(); }catch(e){} ++state.runId;
+  state.roadSeen=(state.roadSeen||[]).concat([id]); state.roadDone=true;
+  const E=ROAD[id]; roadState={id,next,t0:performance.now(),cast:roadCast(E)};
+  $('roadTitle').textContent=E.t; $('roadStory').textContent=typeof E.story==='function'?E.story():E.story; $('roadOut').textContent=''; $('roadGo').classList.add('hidden');
+  const box=$('roadChoices'); box.innerHTML=''; box.classList.remove('quiz');
+  if(E.quiz) roadQuiz(E.quiz); else (E.ch()||[]).filter(Boolean).forEach(c=>{ const b=document.createElement('button'); b.className='btn small '+(c.dis?'':'gold'); b.textContent=c.l; b.disabled=!!c.dis;
+    b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||''; roadDoneBtn(); }; box.appendChild(b); });
+  goScreen('road'); saveRun(); requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },140); });
+}
+function roadDoneBtn(){ const b=$('roadGo'); b.classList.remove('hidden'); b.textContent='ON TO THE SHOW'; renderCash(); saveRun(); }
+function roadQuiz(Q){ let k=0, right=0; const box=$('roadChoices'); box.classList.add('quiz');
+  const ask=()=>{ if(k>=Q.n){ RD.money(right*Q.pay); box.innerHTML=''; $('roadOut').textContent=right+' of '+Q.n+' right. +$'+(right*Q.pay)+'.'; roadDoneBtn(); return; }
+    const [iv,name]=Q.set[Math.floor(Math.random()*Q.set.length)], root=45+Math.floor(Math.random()*8), wrong=shuffle(Q.set.filter(q=>q[1]!==name)).slice(0,2), opts=shuffle([[iv,name],...wrong]);
+    const play=()=>{ try{ initAudio(); const t=ctx.currentTime+0.08; pluckOn('r',3,root,t); pluckOn('r',2,root+iv,t+0.55); }catch(e){} };
+    box.innerHTML=''; const hd=document.createElement('div'); hd.className='road-q'; hd.textContent='Question '+(k+1)+' of '+Q.n; box.appendChild(hd);
+    const hb=document.createElement('button'); hb.className='btn small blue'; hb.textContent='HEAR IT AGAIN'; hb.onclick=play; box.appendChild(hb);
+    opts.forEach(o=>{ const b=document.createElement('button'); b.className='btn small gold'; b.textContent=o[1]; b.onclick=()=>{ const ok=o[1]===name; if(ok){ right++; blip(990,0.06); } else thud(); $('roadOut').textContent=(ok?'Right: ':'It was a ')+name+'.'; k++; setTimeout(ask,700); }; box.appendChild(b); });
+    play(); };
+  ask(); }
+function roadCast(E){ const c=[{id:state.char||'bard',hang:true,side:0}], m=RD.seat(); if(m) c.push({id:m,hang:true,side:0});
+  if(E.caller){ const v=E.caller==='friend'?roadFriend():{id:E.caller}; if(v&&POSE_META[v.id]) c.push({id:v.id,hang:false,side:1}); } return c; }
+function drawRoadScene(){ const cv=$('roadScene'); if(!cv||!roadState) return; const r=cv.getBoundingClientRect(); if(!r.width) return;
+  const W=Math.max(120,Math.round(r.width/2)), H=Math.max(60,Math.round(r.height/2)); if(cv.width!==W||cv.height!==H){ cv.width=W; cv.height=H; }
+  const g=cv.getContext('2d'), t=performance.now()/1000, PL=vspPlate(); g.fillStyle='#120806'; g.fillRect(0,0,W,H);
+  if(PL){ const s=Math.max(W/480,H/200), dw=480*s, dh=200*s; g.imageSmoothingEnabled=s!==Math.round(s); g.drawImage(PL.img,Math.round((W-dw)/2),Math.round(H-dh),dw,dh); g.imageSmoothingEnabled=false; }
+  const foot=H-Math.round(H*0.06), ss=Math.min(H*0.5,W*0.55)/104, mid=W/2;
+  roadState.cast.forEach((p,i)=>{ const cx=p.side?Math.round(W*0.74):Math.round(W*(roadState.cast.length>2?0.2:0.3)+i*W*0.2);
+    let spr=null;
+    if(p.hang){ const step=1.8+hfrac(p.id+'rd')*1.4; spr=vsHang(p.id,ss,HANG_SEQ[Math.floor(t/step+hfrac(p.id+'r2')*20)%HANG_SEQ.length],cx>mid); }
+    if(!spr) spr=roadPose(p.id,ss,!!p.side);
+    if(!spr) return; g.fillStyle='rgba(0,0,0,.35)'; g.fillRect(cx-Math.round(spr.w*0.22),foot,Math.round(spr.w*0.44),2); g.drawImage(spr.c,Math.round(cx-spr.fx),Math.round(foot-spr.fy+1)); });
+  g.fillStyle='rgba(10,4,2,.25)'; g.fillRect(0,0,W,H); }
+function roadPose(id,s,left){ const M=POSE_META[id], im=left?POSE_IMG_L[id]:POSE_IMG[id]; if(!M||!im) return null; const key='rp'+id+(left?'L':'R')+s.toFixed(3); if(vsCache[key]) return vsCache[key];
+  const w=Math.max(1,Math.round(M.cw*s)), h=Math.max(1,Math.round(M.ch*s)), c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d'); cg.imageSmoothingEnabled=true; cg.imageSmoothingQuality='high'; cg.drawImage(im,(left?7*M.cw:0),0,M.cw,M.ch,0,0,w,h);
+  return vsCache[key]={c,w,h,fx:(left?M.cw-M.fx:M.fx)*s,fy:M.fy*s}; }
+function roadBpm(){ return (state.roadMod&&state.roadMod.bpm)||0; }
+
 function setTab(t){ document.querySelectorAll('#scr-results .tab').forEach(b=>b.classList.toggle('sel',b.dataset.t===t)); $('tabEars').classList.toggle('hidden',t!=='ears'); $('tabMap').classList.toggle('hidden',t!=='map'); $('linerWrap').classList.toggle('hidden',t!=='notes'); if(t==='map') renderEar($('tabMap'),{compact:true}); }
 
 function setPhase(){
@@ -7887,7 +8043,7 @@ function startRun(){
   if(state.practice) leavePractice();
   clearRun(); state.seven=!!(META.seven&&META.sevenOn); state.runSeed=1+Math.floor(Math.random()*999983);
   applyTuning(); setTour(state.tourSel||0);
-  Object.assign(state,{visited:[state.tourSel||0],nextTour:null,board:'classic',streak:0,loopCharge:0,afterMiss:false,legNo:1,legPending:false,money:state.char==='busker'?8:0,venueIdx:0,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:[],tourScore:0});
+  Object.assign(state,{visited:[state.tourSel||0],nextTour:null,board:'classic',streak:0,loopCharge:0,afterMiss:false,legNo:1,legPending:false,money:state.char==='busker'?8:0,venueIdx:0,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:[],tourScore:0,roadDone:false,roadSeen:[],roadMod:null});
   state.tough=Math.min(META.tough,META.toughMax); state.money+=2*(META.van.trunk||0); state.fameGain=0;
   state.gauge=META.rack?META.gauge:'standard'; state.lineup=(META.lineup||[]).filter(id=>META.hired[id]).slice(0,vanSeats()); state.spares=0;
   for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; snap[k]=null; }
@@ -7898,7 +8054,7 @@ function applyVenue(V){
   if(rivalRig) rivalRig.gate=V.staccato?0.14:0;
   document.body.classList.toggle('foxfire',!!V.foxfire);
   TARGET=venueTarget(V); SETLEN=V.setLen; TIERS=V.tiers; RIVAL=V.rival; LINES=V.lines; try{ pickRivalBand(); if(RIVAL_VEC[V.id]) rivalWarm(V.id); bandWarm(); }catch(e){}
-  setTempo(V.bpm+bandBpm());
+  setTempo(V.bpm+bandBpm()+(state.inVenue&&!state.practice?roadBpm():0));
   buildBg(V);
   if(rivalRig){ rivalRig.setGuitar(GUITAR_BY[V.rig.guitar]); rivalRig.setPedals(V.rig.fx); rivalRig.out.gain.value=V.rig.level; }
   if(playerRig){ playerRig.setGuitar(curGuitar()); playerRig.setPedals(state.pedals.map(p=>p.id)); }
@@ -7908,7 +8064,7 @@ function applyVenue(V){
 async function startVenue(){
   const tok=++state.runId, V=VEN();
   trStop(); hideDialog();
-  Object.assign(state,{total:0,callIdx:0,replays:VEN().replays!=null?VEN().replays:REPLAYS,blind:!!VEN().whiteout,call:null,answer:[],phase:'idle',sel:-1,over:null,used:{},beat:-1,pos:0,spareUsed:false,noGlow:!!VEN().silence}); try{ metaVenue(); }catch(e){}
+  Object.assign(state,{total:0,callIdx:0,replays:VEN().replays!=null?VEN().replays:REPLAYS,blind:!!VEN().whiteout,call:null,answer:[],phase:'idle',sel:-1,over:null,used:{},beat:-1,pos:0,spareUsed:false,noGlow:!!VEN().silence}); try{ metaVenue(); }catch(e){} if(state.roadMod&&state.roadMod.replays&&!VEN().silence) state.replays=Math.max(0,state.replays+state.roadMod.replays);
   for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; }
   applyVenue(V); try{ heroWarm(state.char||'bard'); }catch(e){}
   $('toneBox').textContent='0'; $('hypeBox').textContent='0'; setHand('READY?','','');
@@ -7923,10 +8079,11 @@ async function startVenue(){
 async function startCall(tok){
   try{ crewRestring(); }catch(e){}
   state.callIdx++; state.callsTotal++;
-  if(VEN().fever) setTempo(VEN().bpm+bandBpm()+4*(state.callIdx-1));
+  if(VEN().fever) setTempo(VEN().bpm+bandBpm()+roadBpm()+4*(state.callIdx-1));
   if(state.practice&&PR){ setTempo(PR.bpm); if(PR.tempoPending){ PR.tempoPending=false; renderPracticeHud(); } }
   state.replaysAtCall=state.replays; state.answer=[]; state.phase='listen'; state.sel=-1; state.callReplayed=false;
   const c=state.call=makeCall(TIERS[state.callIdx-1]);
+  if(state.callIdx===1&&state.roadMod&&state.roadMod.hot&&!state.practice) c.hot=true;
   state.used[c.hand.id]=true;
   setHand(c.hot?'??? HOT CALL':'???',c.hot?(state.practice?'You missed this one before.':'You missed this one before. Base Tone x2.'):c.notes.length+(state.char==='hermit'?' notes. Find the first one by ear.':' notes. The first one glows.'),c.hot?'hot':'');
   $('toneBox').textContent='0'; $('hypeBox').textContent='0';
@@ -8044,7 +8201,7 @@ function devStart(ti,vi){
   const ids=(state.pedals&&state.pedals.length===3)?state.pedals.map(p=>p.id):PEDALS.map(p=>p.id).sort(()=>Math.random()-0.5).slice(0,3);
   state.pedals=ids.map(id=>PEDALS.find(p=>p.id===id)); state.pick=ids.slice(); if(playerRig){ playerRig.setGuitar(curGuitar()); playerRig.setPedals(ids); }
   const all=TOURS.map((_,i)=>i), enc=TOURS[ti].id==='an';
-  Object.assign(state,{tourSel:ti,visited:enc?all:[ti],nextTour:null,board:'classic',streak:0,loopCharge:0,afterMiss:false,legNo:enc?(typeof RUN_LEGS==='number'?RUN_LEGS+1:5):1,legPending:false,money:DEV.cash,venueIdx:vi,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:TOURS[ti].venues.slice(0,vi).map(v=>v.id),tourScore:0,tough:0,fameGain:0,gauge:'standard',spares:0});
+  Object.assign(state,{tourSel:ti,visited:enc?all:[ti],nextTour:null,board:'classic',streak:0,loopCharge:0,afterMiss:false,roadDone:false,roadSeen:[],roadMod:null,legNo:enc?(typeof RUN_LEGS==='number'?RUN_LEGS+1:5):1,legPending:false,money:DEV.cash,venueIdx:vi,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:TOURS[ti].venues.slice(0,vi).map(v=>v.id),tourScore:0,tough:0,fameGain:0,gauge:'standard',spares:0});
   state.lineup=DEV.band?Object.keys(MEMBERS).filter(k=>MEMBERS[k].kind==='band').slice(0,4):[];
   for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; snap[k]=null; }
   window.__fbNoRecruit=true; startVenue(); }
@@ -8120,8 +8277,10 @@ $('btnNext').onclick=()=>{ if(state.phase!=='review'||$('btnNext').disabled) ret
 $('btnReroll').onclick=()=>{ if(state.money<rerollCost()) return; state.money-=rerollCost(); state.shop=rollShop(); blip(660,0.06); renderShop(); };
 $('btnPack').onclick=()=>{ if(state.money<PACK||(state.spares||0)>=PACK_MAX) return; state.money-=PACK; state.spares=(state.spares||0)+1; blip(990,0.06); saveRun(); renderShop(); };
 $('btnRestring').onclick=()=>{ const s=state.broken.findIndex(Boolean), rc=state.char==='luthier'?0:RESTRING; if(s<0||state.money<rc) return; state.money-=rc; state.broken[s]=false; snap[s]=null; if(playerRig&&ctx){ playerRig.pluck(OPEN[s],s,ctx.currentTime+0.05); } blip(990,0.05); renderShop(); };
+$('roadGo').onclick=()=>{ blip(990,0.08); clearInterval(goRoad.iv); const n=roadState&&roadState.next; roadState=null; if(n) n(); };
 $('btnNextGig').onclick=()=>{ blip(990,0.08);
-  if(state.legPending){ state.legPending=false; setTour(state.nextTour); state.visited=(state.visited||[]).concat([state.nextTour]); state.legNo++; state.venueIdx=0; state.cleared=[]; startVenue(); return; }
+  if(state.legPending){ state.legPending=false; state.roadDone=false; setTour(state.nextTour); state.visited=(state.visited||[]).concat([state.nextTour]); state.legNo++; state.venueIdx=0; state.cleared=[]; startVenue(); return; }
+  if(state.venueIdx===0&&!state.roadDone&&!state.practice){ state.venueIdx++; goRoad(()=>startVenue()); return; }
   state.venueIdx++; startVenue(); };
 const RUN_LEGS=4;
 function unvisited(){ const v=state.visited||[state.tour], an=TOURS.findIndex(T=>T.id==='an');
@@ -8186,7 +8345,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

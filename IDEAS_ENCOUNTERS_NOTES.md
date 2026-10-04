@@ -1,4 +1,4 @@
-# Ideas: road encounters and learning note names (2026-10-04, not built)
+# Ideas: road encounters and learning note names (2026-10-04). Encounters built in v1.68, always one per leg (no choice); note names next. Josh: missing a note name may cost Tone or Hype.
 
 ## Road encounters
 **How it works.** After night 1 of each leg, the road card gives a choice: take the highway (straight to the next show), or take the back road (one encounter). Each continent has a pool of 5 to 10 encounters. A run draws one per leg, never repeating within a run.

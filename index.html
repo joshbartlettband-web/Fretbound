@@ -997,7 +997,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.63</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.64</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -6484,7 +6484,7 @@ const STAGE3D={
   spur:{yb:192,props:[]}, juke:{yb:192,props:[[44,140,224],[518,572,206],[578,640,206]]}, tide:{yb:191,props:[[185,445,196],[18,42,240],[575,602,240]]},
   dunes:{yb:177,props:[[25,75,224],[545,640,224]]}, sebene:{yb:181,props:[[0,92,226],[540,640,226],[160,236,182],[410,472,182]]},
   azmari:{yb:181,props:[[20,120,208],[505,640,218]]}, outback:{yb:192,props:[[0,40,200],[515,640,196]]},
-  rio:{yb:184,props:[[0,32,232],[605,640,232]]}, milonga:{yb:192,props:[[0,40,215],[600,640,215]]}, chicha:{yb:184,props:[[0,104,208],[560,640,212]]},
+  rio:{yb:184,props:[[0,32,232],[605,640,232]]}, milonga:{yb:196,props:[[0,40,215],[600,640,215]]}, chicha:{yb:184,props:[[0,104,208],[560,640,212]]},
   paris:{yb:196,props:[[0,72,238],[572,640,240],[78,118,206],[520,558,206]]}, cave:{yb:190,props:[[28,82,218],[595,640,232]]},
   grotto:{yb:198,props:[[0,30,240],[610,640,240]]}, tokyo:{yb:184,props:[[0,20,240],[600,640,240]]}, ghat:{yb:199,props:[[0,60,236],[585,640,236]]},
   bali:{yb:196,props:[[20,98,212],[542,618,212]]}, lanai:{yb:191,props:[[0,102,204],[535,640,214]]}, frost:{yb:186,props:[[0,82,212],[555,640,212]]},
@@ -6523,7 +6523,7 @@ function bandPlaces(ids,mirror,vid){ ids=ids.filter(id=>BANDP[id]); const S=STAG
   const drum=ids.filter(id=>BANDP[id].inst==='drums'), rest=ids.filter(id=>BANDP[id].inst!=='drums'); rest.sort((a,b)=>(b==='brass')-(a==='brass'));
   const order=[...drum.slice(0,1),...rest.slice(0,3)], fighters=stageFighters(), taken=[], out=[];
   // preferred feet x (left side; the caller's band mirrors it) and row: the drummer at the back by the player's shoulder, the rest flanking
-  const PREF={drum:[150,yb+2],r0:[262,yb+8],r1:[70,yb+14],r2:[300,yb+4]};
+  const PREF={drum:[150,yb+7],r0:[262,yb+8],r1:[70,yb+14],r2:[300,yb+4]};
   order.forEach((id,k)=>{ const e0=bandExtent(id), e=mirror?{l:-e0.r,r:-e0.l,L:-e0.R,R:-e0.L}:e0;
     const role=BANDP[id].inst==='drums'?'drum':'r'+(k-(drum.length?1:0)), pr=PREF[role]||PREF.r2, px=mirror?640-pr[0]:pr[0], py=Math.max(yb+2,Math.min(STAGE_FRONT,pr[1]));
     let best=null;

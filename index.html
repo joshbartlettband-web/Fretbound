@@ -1058,7 +1058,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.76</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.77</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4628,7 +4628,7 @@ function goRoad(next,force){
   if(E.quiz) roadQuiz(E.quiz); else (E.ch()||[]).filter(Boolean).forEach(c=>{ const b=document.createElement('button'); b.className='btn small '+(c.dis?'':'gold'); b.textContent=c.l; b.disabled=!!c.dis;
     b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||''; roadDoneBtn(); }; box.appendChild(b); });
   goScreen('road'); saveRun(); try{ if(ctx&&ROAD_CUES[id]){ cueWarmDef(ROAD_CUES[id]); cueStart(ROAD_CUES[id],'road'); } }catch(e){}
-  requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },140); });
+  requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },40); });
 }
 function roadDoneBtn(){ const b=$('roadGo'); b.classList.remove('hidden'); b.textContent='ON TO THE SHOW'; renderCash(); saveRun(); }
 function roadQuiz(Q){ let k=0, right=0; const box=$('roadChoices'); box.classList.add('quiz');
@@ -4643,18 +4643,42 @@ function roadQuiz(Q){ let k=0, right=0; const box=$('roadChoices'); box.classLis
 function roadCast(E){ const c=[{id:state.char||'bard',hang:true,side:0}], m=RD.seat(); if(m) c.push({id:m,hang:true,side:0});
   if(E.caller){ const v=E.caller==='friend'?roadFriend():{id:E.caller}; if(v&&POSE_META[v.id]) c.push({id:v.id,hang:false,side:1}); } return c; }
 function drawRoadScene(){ const cv=$('roadScene'); if(!cv||!roadState) return; const r=cv.getBoundingClientRect(); if(!r.width) return;
-  const W=Math.max(120,Math.round(r.width/2)), H=Math.max(60,Math.round(r.height/2)); if(cv.width!==W||cv.height!==H){ cv.width=W; cv.height=H; }
+  // full device resolution (v1.77): the plate and the figures are scaled once, crisply, instead of drawn at half size and stretched
+  const dpr=Math.min(3,window.devicePixelRatio||1), W=Math.max(120,Math.round(r.width*dpr)), H=Math.max(60,Math.round(r.height*dpr)); if(cv.width!==W||cv.height!==H){ cv.width=W; cv.height=H; }
   const g=cv.getContext('2d'), t=performance.now()/1000, PL=vspPlate(); g.fillStyle='#120806'; g.fillRect(0,0,W,H);
-  if(PL){ const s=Math.max(W/480,H/200), dw=480*s, dh=200*s; g.imageSmoothingEnabled=s!==Math.round(s); g.drawImage(PL.img,Math.round((W-dw)/2),Math.round(H-dh),dw,dh); g.imageSmoothingEnabled=false; }
+  if(PL){ const s=Math.max(W/480,H/200), dw=480*s, dh=200*s; g.imageSmoothingEnabled=s<1.5; if(s<1.5) g.imageSmoothingQuality='high'; g.drawImage(PL.img,Math.round((W-dw)/2),Math.round(H-dh),dw,dh); }
+  g.imageSmoothingEnabled=true;
   const foot=H-Math.round(H*0.06), ss=Math.min(H*0.5,W*0.55)/104, mid=W/2;
-  roadState.cast.forEach((p,i)=>{ const cx=p.side?Math.round(W*0.74):Math.round(W*(roadState.cast.length>2?0.2:0.3)+i*W*0.2);
-    let spr=null;
-    if(p.hang){ const step=1.8+hfrac(p.id+'rd')*1.4; spr=vsHang(p.id,ss,HANG_SEQ[Math.floor(t/step+hfrac(p.id+'r2')*20)%HANG_SEQ.length],cx>mid); }
-    if(!spr) spr=roadPose(p.id,ss,!!p.side);
-    if(!spr) return; g.fillStyle='rgba(0,0,0,.35)'; g.fillRect(cx-Math.round(spr.w*0.22),foot,Math.round(spr.w*0.44),2); g.drawImage(spr.c,Math.round(cx-spr.fx),Math.round(foot-spr.fy+1)); });
+  const hasC=roadState.cast.some(q=>q.side);
+  roadState.cast.forEach((p,i)=>{ const cx=p.side?Math.round(W*0.74):Math.round(W*(hasC?(roadState.cast.length>2?0.2:0.3):0.3)+i*W*(hasC?0.2:0.3));
+    const A=roadAnim(p,t), get=k=>(p.hang?vsHang(p.id,ss,k,cx>mid):null)||roadPose(p.id,ss,!!p.side,p.hang?0:k);
+    const spr=get(A.cur); if(!spr) return;
+    const br=1+0.007*Math.sin(t*2*Math.PI/(3.4+hfrac(p.id+'br')*1.4)+i*2.1);   // breathing, a slow rise of the chest anchored at the feet
+    g.fillStyle='rgba(0,0,0,.35)'; g.fillRect(cx-Math.round(spr.w*0.22),foot,Math.round(spr.w*0.44),Math.max(2,Math.round(2*dpr)));
+    const put=(sp,a)=>{ if(!sp||a<=0) return; g.globalAlpha=a; g.drawImage(sp.c,Math.round(cx-sp.fx),Math.round(foot-sp.fy*br+dpr),sp.w,sp.h*br); };
+    const f=A.fade>0?Math.min(1,(t-A.t0)/A.fade):1;
+    if(f<1) put(get(A.prev),1-f); put(spr,f<1?f:1); g.globalAlpha=1; });
   g.fillStyle='rgba(10,4,2,.25)'; g.fillRect(0,0,W,H); }
-function roadPose(id,s,left){ const M=POSE_META[id], im=left?POSE_IMG_L[id]:POSE_IMG[id]; if(!M||!im) return null; const key='rp'+id+(left?'L':'R')+s.toFixed(3); if(vsCache[key]) return vsCache[key];
-  const w=Math.max(1,Math.round(M.cw*s)), h=Math.max(1,Math.round(M.ch*s)), c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d'); cg.imageSmoothingEnabled=true; cg.imageSmoothingQuality='high'; cg.drawImage(im,(left?7*M.cw:0),0,M.cw,M.ch,0,0,w,h);
+// each figure keeps its own clock: long rests, short gestures, and they take turns, so nobody moves in step with anyone else
+const ROAD_REST=[2,3], ROAD_TALK=[0,5,6], ROAD_REACT=[1,2,4];
+function roadAnim(p,t){ let A=p.anim; const R=()=>Math.random();
+  if(!A){ A=p.anim={cur:p.hang?ROAD_REST[R()<0.5?0:1]:0,prev:0,t0:t,fade:0,next:t+0.8+R()*3.2,blink:t+1.5+R()*3}; }
+  if(!p.hang){   // the caller: idle and breath frames, a blink now and then, sometimes a nod or a word
+    if(A.cur===14&&t>=A.t0+0.13){ A.cur=A.back; A.fade=0; }
+    else if(A.cur!==14&&t>=A.blink){ A.back=A.cur; A.cur=14; A.t0=t; A.fade=0; A.blink=t+2.4+R()*4; }
+    else if(A.cur!==14&&t>=A.next){ A.prev=A.cur; A.cur=(A.cur===7||A.cur===15)?(R()<0.5?0:1):(R()<0.35?(R()<0.5?7:15):(A.cur?0:1)); A.t0=t; A.fade=0.22; A.next=t+((A.cur===7||A.cur===15)?1.2+R():2.5+R()*3.5); }
+    return A; }
+  if(t>=A.next){ const others=roadState.cast.filter(q=>q!==p&&q.hang&&q.anim), talking=others.some(q=>ROAD_TALK.indexOf(q.anim.cur)>=0), rest=ROAD_REST.indexOf(A.cur)>=0;
+    let nx;
+    if(!rest) nx=ROAD_REST[R()<0.6?0:1];
+    else if(talking) nx=R()<0.55?ROAD_REACT[Math.floor(R()*ROAD_REACT.length)]:ROAD_REST[R()<0.5?0:1];
+    else nx=R()<0.7?ROAD_TALK[Math.floor(R()*ROAD_TALK.length)]:ROAD_REST[A.cur===2?1:0];
+    if(nx===A.cur) nx=ROAD_REST[A.cur===2?1:0];
+    A.prev=A.cur; A.cur=nx; A.t0=t; A.fade=0.18; A.next=t+(ROAD_REST.indexOf(nx)>=0?3+R()*4.5:1.6+R()*1.8); }
+  return A; }
+function roadPose(id,s,left,k){ k=k||0; const M=POSE_META[id], im=left?POSE_IMG_L[id]:POSE_IMG[id]; if(!M||!im) return null; const key='rp'+id+(left?'L':'R')+k+'@'+s.toFixed(3); if(vsCache[key]) return vsCache[key];
+  const w=Math.max(1,Math.round(M.cw*s)), h=Math.max(1,Math.round(M.ch*s)), c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d');
+  cg.imageSmoothingEnabled=s<1.5; cg.imageSmoothingQuality='high'; const col=k&7, row=k>>3; cg.drawImage(im,(left?7-col:col)*M.cw,row*M.ch,M.cw,M.ch,0,0,w,h);
   return vsCache[key]={c,w,h,fx:(left?M.cw-M.fx:M.fx)*s,fy:M.fy*s}; }
 function roadBpm(){ return (state.roadMod&&state.roadMod.bpm)||0; }
 
@@ -7059,7 +7083,7 @@ function drawVanScene(){
 const HANG_IMG={}; Object.keys(HANG_SRC).forEach(id=>{ const im=new Image(); im.onload=()=>{ HANG_IMG[id]=im; }; im.src=HANG_SRC[id]; });
 const HANG_SEQ=[2,0,2,3,1,2,4,2,5,2,6,2,3,7];   // listening, chatting, laughing, hands in pockets, sipping, explaining, shrugging, stretching
 function vsHang(id,s,pose,mirror){ const M=HANG_META[id], im=HANG_IMG[id]; if(!M||!im) return null; const key='vh'+id+'@'+s.toFixed(3)+'_'+pose+(mirror?'m':''); if(vsCache[key]) return vsCache[key];
-  const w=Math.max(1,Math.round(M.cw*s)), h=Math.max(1,Math.round(M.ch*s)), c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d'); cg.imageSmoothingEnabled=true; cg.imageSmoothingQuality='high';
+  const w=Math.max(1,Math.round(M.cw*s)), h=Math.max(1,Math.round(M.ch*s)), c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d'); cg.imageSmoothingEnabled=s<1.5; cg.imageSmoothingQuality='high';
   if(mirror){ cg.translate(w,0); cg.scale(-1,1); } cg.drawImage(im,pose*M.cw,0,M.cw,M.ch,0,0,w,h);
   return vsCache[key]={c,w,h,fx:(mirror?M.cw-M.fx:M.fx)*s,fy:M.fy*s}; }
 function vsPose(id,s){ const M=POSE_META[id], im=POSE_IMG[id]; if(!M||!im) return null; const key='vp'+id+'@'+s.toFixed(3); if(vsCache[key]) return vsCache[key];
@@ -8864,7 +8888,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={huntNow:(pc)=>{ runHunt(pc,3,12,'FIND',null); },noWarm:v=>{ window.__fbNoWarm=v; },vhats:()=>TOURS.flatMap(T=>T.venues).map(v=>[v.id,v.hats]),crowdRows:n=>{ CROWD_ROWS=n; },fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),cueCheck:()=>cueCheck(),cueTest:(id,n,r,so)=>cueTest(id,n,r,so),songTest:(a,n)=>songTest(a,n),cueState:()=>({on:CUE.on,screen:CUE.screen,riff:CUE.riff&&CUE.riff.id,i:CUE.i}),giftEval:(ch,sf,ci)=>{ const oc=state.char, oi=state.callIdx; state.char=ch; applyTuning(); const c=makeCall(1); c.notes=sf.map(([s,f])=>({midi:OPEN[s]+f,s,f})); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); if(ci!=null) state.callIdx=ci; const r=evaluate(); state.char=oc; state.callIdx=oi; applyTuning(); return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={huntNow:(pc)=>{ runHunt(pc,3,12,'FIND',null); },noWarm:v=>{ window.__fbNoWarm=v; },vhats:()=>TOURS.flatMap(T=>T.venues).map(v=>[v.id,v.hats]),crowdRows:n=>{ CROWD_ROWS=n; },fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),cueCheck:()=>cueCheck(),cueTest:(id,n,r,so)=>cueTest(id,n,r,so),songTest:(a,n)=>songTest(a,n),roadAnimState:()=>roadState&&roadState.cast.map(p=>p.id+':'+(p.anim?p.anim.cur:'-')).join(' '),cueState:()=>({on:CUE.on,screen:CUE.screen,riff:CUE.riff&&CUE.riff.id,i:CUE.i}),giftEval:(ch,sf,ci)=>{ const oc=state.char, oi=state.callIdx; state.char=ch; applyTuning(); const c=makeCall(1); c.notes=sf.map(([s,f])=>({midi:OPEN[s]+f,s,f})); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); if(ci!=null) state.callIdx=ci; const r=evaluate(); state.char=oc; state.callIdx=oi; applyTuning(); return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

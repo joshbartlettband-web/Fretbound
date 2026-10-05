@@ -18,6 +18,12 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 5. **The Monk critical error** (strings, pedals and player vanished) was never reproduced. Ask for the device, browser, which night, and whether it was a resumed save. Resolved for now (2026-10-03): Josh never reproduced it; safeguards stay in place.
 6. **A real signing key** so builds update over each other (section 1).
 
+## 2b. Sound still to do (audit 2026-10-05, v1.77)
+- No music at all: the Van, Backstage, the Roster, the Ear Report, the Green Room setup, the Results screen after its jingle.
+- The soundcheck and the shop share one generic 8-step menu loop (`JAM`/`LEAD` in `schedStep`).
+- UI sounds are mostly one square-wave `blip`. Candidates: buying and selling, a passport stamp, a recruit joining, drag-and-drop on the board, the tour map.
+- Encounter backdrops are the 480x200 Van-screen plate of each continent; painted scenes per encounter would be much sharper (about $0.134 each at 2K).
+
 ## 3. Known problems not yet fixed
 - Stage lights (v1.44) are generic (`stageLights`): check on the phone that the pools and cones read as light and not as a stain. Amounts are the numbers in `stageLights`. The older code-stage fallbacks still aim cones at x 156 and 472 (only used if a plate fails to load).
 - **Some frame spikes remain**: about 10 frames over 33 ms per 400 at 4x CPU throttle, the worst about 50 to 60 ms (was 17 and 76). Ideas: warm more poses in the background, or build the first pose of each character before the night starts. Check on the real phone first.

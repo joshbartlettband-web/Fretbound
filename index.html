@@ -849,6 +849,13 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
 .fx-stamp.out{opacity:0}
 @keyframes fxStamp{from{transform:translate(-50%,-50%) rotate(-30deg) scale(3.2);opacity:0}to{transform:translate(-50%,-50%) rotate(-12deg) scale(1);opacity:1}}
 @media (prefers-reduced-motion:reduce){ .fx-banner,.fx-neon,.fx-stamp{animation-duration:.01s} .fx-banner{animation:none} }
+.streak-tag{position:absolute;left:8px;top:8px;padding:3px 7px;background:rgba(20,8,6,.72);border:1px solid rgba(255,200,87,.6);z-index:5;pointer-events:none;font-family:var(--ui);font-size:var(--sz,12px);line-height:1;color:#FFE08A;white-space:nowrap;text-shadow:1px 1px 0 #2A1206,0 0 calc(var(--glow,0)*10px) rgba(255,200,80,.9)}
+.streak-tag.grow{animation:stGrow .45s ease-out}
+@keyframes stGrow{0%{scale:1.6}100%{scale:1}}
+.streak-tag.shatter{animation:stShatter .6s ease-in forwards;color:#FF6A50}
+@keyframes stShatter{0%{transform:none;opacity:1;filter:none}30%{transform:translateX(-3px) rotate(-4deg)}60%{transform:translateY(6px) rotate(8deg);scale:1.1;opacity:.6;filter:blur(1px)}100%{transform:translateY(16px) rotate(14deg);scale:.6;opacity:0;filter:blur(3px)}}
+@media (prefers-reduced-motion:reduce){ .streak-tag.grow,.streak-tag.shatter{animation:none} }
+#shopCash.bump{animation:stGrow .35s ease-out}
 .mhint{text-align:center;font-size:13px;margin:4px 0 0}
 .bs-door{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;touch-action:manipulation;color:inherit}
 .bs-doorcv{width:88px;height:152px;image-rendering:pixelated;display:block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.45))}
@@ -1038,7 +1045,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.71</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.72</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -1076,7 +1083,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     <div class="duel">
       <div class="col-a">
         <div class="win topbar"><span id="venueName">HOLLOW PINE JUKE</span><span id="callLabel">CALL 1/6</span><span id="topCash">$0</span><button class="icon-btn" id="btnPause" aria-label="Pause">II</button></div>
-        <div class="win stage-wrap"><canvas id="stage" width="640" height="240" aria-hidden="true"></canvas><div id="dialog" class="dialog" aria-live="polite"></div><canvas id="frontRow" aria-hidden="true"></canvas></div>
+        <div class="win stage-wrap"><canvas id="stage" width="640" height="240" aria-hidden="true"></canvas><div id="streakTag" class="streak-tag hidden" data-n="0" aria-live="polite"></div><div id="dialog" class="dialog" aria-live="polite"></div><canvas id="frontRow" aria-hidden="true"></canvas></div>
         <div class="win scoreline">
           <canvas id="tube" width="6" height="12" aria-hidden="true"></canvas><div class="sl-lab">SCORE</div>
           <div class="bar"><div id="barFill"></div><div class="half" title="Boss rule triggers here"></div></div>
@@ -2357,7 +2364,7 @@ function evaluate(){
     if(gr) steps.push({op:gr.op,target:{type:'guitar'},label:gr.label,col:gr.col});
     if(CH==='bard') steps.push({op:{hype:1},target:{type:'char'},label:'CROWD FAVORITE +1',col:'hype'});
     if(!state.practice&&state.tonight!=null){ const n=ans.filter(a=>((a.midi%12)+12)%12===state.tonight).length; if(n) steps.push({op:{tone:6*n},target:{type:'char'},label:'TONIGHT\'S NOTE +'+(6*n),col:'tone'}); }
-    if(!state.practice&&state.nameRes==='ok') steps.push({op:{hype:1},target:{type:'char'},label:'NAMED IT +1 HYPE',col:'hype'});
+    if(!state.practice&&state.nameRes==='ok'){ const ns=state.nameStreak||0, v=1+(ns>=3?1:0)+(ns>=5?1:0)+(ns>=8?1:0); steps.push({op:{hype:v},target:{type:'char'},label:(ns>=3?'NAME STREAK '+ns+' +':'NAMED IT +')+v+' HYPE',col:'hype'}); }
     if(!state.practice&&state.nameRes==='miss') steps.push({op:{hype:-1},target:{type:'char'},label:'WRONG NAME -1 HYPE',col:'bad'});
     { const RM=state.practice?null:state.roadMod; if(RM){ if(RM.hype) steps.push({op:{hype:RM.hype},target:{type:'char'},label:'ROAD +'+RM.hype+' HYPE',col:'hype'}); if(RM.tone){ const v=RM.tone*ans.length; steps.push({op:{tone:v},target:{type:'char'},label:'ROAD +'+v+' TONE',col:'tone'}); } } }
     if(CH==='carto'){ const n=ans.filter(a=>a.f>=9).length; if(n) steps.push({op:{tone:6*n},target:{type:'char'},label:'SURVEY +'+6*n,col:'tone'}); }
@@ -2367,7 +2374,7 @@ function evaluate(){
     if(state.board==='rack'&&state.pedals.length) steps.push({op:{toneMul:1.5},target:{type:'hand'},label:'TUBE RACK X1.5',col:'tone'});
     if(CH==='hermit') steps.push({op:{hypeMul:2},target:{type:'char'},label:'BY EAR X2',col:'hype'});
   }
-  if(store.settings.names) steps.push({op:{toneMul:0.5},target:{type:'wheels'},label:'NOTE NAMES X0.5',col:'tone'});
+  if(store.settings.names){ const lab=ans.filter(a=>!cellLearned(a.s,a.f)).length, m=+(1-0.5*lab/Math.max(1,ans.length)).toFixed(2); if(m<1) steps.push({op:{toneMul:m},target:{type:'wheels'},label:'NOTE NAMES X'+m,col:'tone'}); }
   const st={tone:0,hype:0}; steps.forEach(s=>applyOp(st,s.op));
   return {perfect,correct,steps,score:Math.round(st.tone*st.hype),firstWrong:correct.indexOf(false)};
 }
@@ -2378,7 +2385,7 @@ async function animateScore(res,tok){
     const tg=s.target;
     if(tg.type==='hand') setHand(s.label,s.sub,res.perfect?(state.call.hot?'hot':''):'bad');
     else if(tg.type==='note'){ const el=$('slots').children[tg.k]; if(el){ el.classList.add(res.correct[tg.k]?'ok':'no'); pop(el,s.label,colorOf(s.col)); } }
-    else if(tg.type==='pedal'){ firePedal(tg.pi); const el=pedalEl(tg.pi); if(el) pop(el,s.label,colorOf(s.col)); }
+    else if(tg.type==='pedal'){ try{ fxSignal(tg.pi); }catch(e){} firePedal(tg.pi); const el=pedalEl(tg.pi); if(el) pop(el,s.label,colorOf(s.col)); }
     else if(tg.type==='wheels') pop(tb,s.label,colorOf('tone'));
     else if(tg.type==='guitar'){ const el=document.querySelector('#board .board-gtr'); pop((el&&el.offsetParent)?el:tb,s.label,colorOf(s.col)); }
     else if(tg.type==='char'){ const r=$('stage').getBoundingClientRect(); popAt(r.left+r.width*0.25,r.top+r.height*0.45,s.label,colorOf(s.col)); }
@@ -3783,7 +3790,7 @@ function showPause(){
   openModal('<h3>Settings</h3><div class="setgrid">'+
     sliderRow('sVol','Volume',s.vol)+sliderRow('sMus','Music',s.music)+sliderRow('sBand','Backing band',s.band==null?0.7:s.band)+
     '<div class="setrow"><span>CRT scanlines</span>'+knobBtn('sCrt',s.crt)+'</div>'+
-    '<div class="setrow"><span>Note names<br><span class="dim">Training wheels. Halves your Tone.</span></span>'+knobBtn('sNames',s.names)+'</div>'+
+    '<div class="setrow"><span>Note names<br><span class="dim">Training wheels. Each label fades once you know that spot; notes on labels score half Tone.</span></span>'+knobBtn('sNames',s.names)+'</div>'+
     '<div class="setrow"><span>Octave echo<br><span class="dim">A right note glows everywhere else it lives.</span></span>'+knobBtn('sEcho',s.echo!==false)+'</div>'+
     '<div class="setrow"><span>Tap offset<br><span class="dim">Adjust if Groove feels off.</span></span><span class="stepper"><button class="btn small blue" id="sLm">-</button><span id="sLv">'+s.latency+'ms</span><button class="btn small blue" id="sLp">+</button></span></div></div>'+
     '<div class="setbtns"><div class="row-btns"><button class="btn gold" id="pRes">RESUME</button><button class="btn blue" id="pHow">HOW TO PLAY</button>'+(state.screen==='duel'?'<button class="btn" id="pQuit">QUIT</button>':'')+'</div>'+(s.dev?'<div class="row-btns"><button class="btn small blue" id="pDev">DEV MENU</button>'+(state.screen==='duel'&&!state.practice?'<button class="btn small gold" id="pWin">WIN THIS NIGHT</button>':'')+'</div>':'')+
@@ -4423,15 +4430,15 @@ function goShop(){
   const callsLeft=Math.max(0,SETLEN-state.callIdx), interest=Math.min(3,Math.floor(state.money/5));
   let door=V.pay; const RM=state.roadMod; if(RM&&RM.doorBet) door=Math.random()<0.5?V.pay*2:0;
   state.earnRows=[[RM&&RM.doorBet?(door?'Door (bet won)':'Door (bet lost)'):'Door',door],['Calls left',callsLeft],['Replays left',state.replays],['Interest',interest]]; if(META.van.cooler) state.earnRows.push(['Cooler',1]); const wg=crewWages(); if(wg) state.earnRows.push(['Crew wages',-wg]);
-  state.money=Math.max(0,state.money+state.earnRows.reduce((a,r)=>a+r[1],0)); state.roadMod=null;
+  const cashBefore=state.money; state.money=Math.max(0,state.money+state.earnRows.reduce((a,r)=>a+r[1],0)); state.roadMod=null;
   state.shop=rollShop(); state.sfocus={kind:'sale',k:0};
-  renderShop(); goScreen('shop'); saveRun(); setTimeout(()=>{ try{ if(state.screen==='shop') maybeRecruit(); }catch(e){} },700);
+  renderShop(); goScreen('shop'); saveRun(); requestAnimationFrame(()=>{ try{ fxCashOut(cashBefore,state.money); }catch(e){} }); setTimeout(()=>{ try{ if(state.screen==='shop') maybeRecruit(); }catch(e){} },700);
   if(ctx) trStart('jam',ctx.currentTime+0.1);
 }
 const RUN_KEY='fretbound.run.v1';
 function saveRun(){ try{ localStorage.setItem(RUN_KEY,JSON.stringify({runSeed:state.runSeed,char:state.char,guitar:state.guitar,tour:state.tour,tourSel:state.tourSel,nextTour:state.nextTour,visited:state.visited,legNo:state.legNo,legPending:!!state.legPending,venueIdx:state.venueIdx,
   money:state.money,broken:state.broken,pedals:state.pedals.map(q=>q.id),board:state.board,streak:state.streak,loopCharge:state.loopCharge,afterMiss:!!state.afterMiss,trueCalls:state.trueCalls,grooveHits:state.grooveHits,notesPlayed:state.notesPlayed,best:state.best,callsTotal:state.callsTotal,
-  cleared:state.cleared,tourScore:state.tourScore,earnRows:state.earnRows,roadDone:!!state.roadDone,roadSeen:state.roadSeen||[],roadMod:state.roadMod||null,tough:state.tough||0,spares:state.spares||0,lineup:state.lineup||[],gauge:state.gauge||'standard',seven:!!state.seven,when:Date.now()})); }catch(e){} }
+  cleared:state.cleared,tourScore:state.tourScore,earnRows:state.earnRows,roadDone:!!state.roadDone,roadSeen:state.roadSeen||[],roadMod:state.roadMod||null,nameStreak:state.nameStreak||0,tough:state.tough||0,spares:state.spares||0,lineup:state.lineup||[],gauge:state.gauge||'standard',seven:!!state.seven,when:Date.now()})); }catch(e){} }
 function loadRun(){ try{ const r=JSON.parse(localStorage.getItem(RUN_KEY)||'null'); return r&&TOURS[r.tour]&&CHAR_BY[r.char]?r:null; }catch(e){ return null; } }
 function clearRun(){ try{ localStorage.removeItem(RUN_KEY); }catch(e){} renderContinue(); }
 function renderContinue(){ const b=$('btnContinue'); if(!b) return; const r=loadRun(); b.classList.toggle('hidden',!r);
@@ -4441,7 +4448,7 @@ function resumeRun(){
   const r=loadRun(); if(!r) return false;
   Object.assign(state,{runSeed:r.runSeed||7,nextTour:r.nextTour,visited:r.visited||[r.tour],char:r.char,guitar:r.guitar,tourSel:r.tourSel,legNo:r.legNo,legPending:r.legPending,venueIdx:r.venueIdx,money:r.money,broken:r.broken.slice(),seven:!!r.seven,tough:r.tough||0,spares:r.spares||0,lineup:r.lineup||[],gauge:r.gauge||'standard',
     pedals:r.pedals.map(id=>PEDALS.find(q=>q.id===id)).filter(Boolean),trueCalls:r.trueCalls,grooveHits:r.grooveHits,notesPlayed:r.notesPlayed,best:r.best,callsTotal:r.callsTotal,
-    cleared:r.cleared.slice(),tourScore:r.tourScore,earnRows:r.earnRows||[],roadDone:!!r.roadDone,roadSeen:r.roadSeen||[],roadMod:r.roadMod||null,board:r.board||'classic',streak:r.streak||0,loopCharge:r.loopCharge||0,afterMiss:!!r.afterMiss,runId:state.runId+1,over:null});
+    cleared:r.cleared.slice(),tourScore:r.tourScore,earnRows:r.earnRows||[],roadDone:!!r.roadDone,roadSeen:r.roadSeen||[],roadMod:r.roadMod||null,nameStreak:r.nameStreak||0,board:r.board||'classic',streak:r.streak||0,loopCharge:r.loopCharge||0,afterMiss:!!r.afterMiss,runId:state.runId+1,over:null});
   setTour(r.tour); applyTuning(); applyVenue(VEN());
   for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; snap[k]=null; }
   if(playerRig){ playerRig.setGuitar(curGuitar()); playerRig.setPedals(state.pedals.map(q=>q.id)); }
@@ -4630,13 +4637,18 @@ function roadBpm(){ return (state.roadMod&&state.roadMod.bpm)||0; }
    (3) Octave echo: a correct note glows briefly everywhere else it lives on the visible neck.
    Every answer is logged in store.names (per pitch class), for the Ear Report and the fading names to come. */
 store.names=store.names||{};
+const NN_FLAT=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+// a spot on the neck is learned once you have found the note there at least 3 times, 3 out of 4 times or better (store.fret, from earLog)
+function cellLearned(s,f){ const r=store.fret&&store.fret[s+','+f]; return !!(r&&r.n>=3&&r.ok/r.n>=0.75); }
 function nameLog(pc,ok){ try{ const r=store.names[pc]||(store.names[pc]={n:0,ok:0}); r.n++; if(ok) r.ok++; save(); }catch(e){} }
 function askName(tok){ return new Promise(res=>{ const el=$('namePick'), m=state.call.notes[0].midi, pc=((m%12)+12)%12;
   const d=shuffle([1,-1,2,-2,5,-5,7]).slice(0,2).map(x=>((pc+x)%12+12)%12), opts=shuffle([pc,...d]), T=4000; let done=false;
-  el.className='namepick'; el.innerHTML='<span class="np-q">FIRST NOTE?</span>'+opts.map(o=>'<button class="btn small gold" data-pc="'+o+'">'+NN[o]+'</button>').join('')+'<i class="np-bar" style="width:100%"></i>';
+  const flat=Math.random()<0.5, sp=o=>(flat&&NN[o].length>1)?NN_FLAT[o]:NN[o], both=o=>NN[o].length>1?NN[o]+' / '+NN_FLAT[o]:NN[o];   // sharps or flats, so both spellings get learned
+  el.className='namepick'; el.innerHTML='<span class="np-q">FIRST NOTE?</span>'+opts.map(o=>'<button class="btn small gold" data-pc="'+o+'">'+sp(o)+'</button>').join('')+'<i class="np-bar" style="width:100%"></i>';
   requestAnimationFrame(()=>{ const b=el.querySelector('.np-bar'); if(b){ b.style.transitionDuration=T+'ms'; b.style.width='0%'; } });
   const end=(pick)=>{ if(done) return; done=true; clearTimeout(to); const ok=pick===pc; nameLog(pc,ok);
-    el.classList.add(ok?'ok':'bad'); el.innerHTML='<span class="np-q">'+(ok?'YES, '+NN[pc]+'!':pick==null?'TOO SLOW: IT WAS '+NN[pc]:'NO, IT WAS '+NN[pc])+'</span>'; if(ok) blip(1180,0.06); else thud();
+    el.classList.add(ok?'ok':'bad'); state.nameStreak=ok?(state.nameStreak||0)+1:0; const ns=state.nameStreak;
+    el.innerHTML='<span class="np-q">'+(ok?'YES, '+both(pc)+'!'+(ns>=3?' '+ns+' IN A ROW':''):pick==null?'TOO SLOW: IT WAS '+both(pc):'NO, IT WAS '+both(pc))+'</span>'; if(ok) blip(1180,0.06); else thud();
     setTimeout(()=>{ el.className='namepick hidden'; el.innerHTML=''; res(ok?'ok':'miss'); },ok?550:950); };
   el.querySelectorAll('button').forEach(b=>b.onclick=()=>end(+b.dataset.pc));
   const to=setTimeout(()=>end(null),T);
@@ -4663,6 +4675,9 @@ function fxDraw(g,p){ const x=Math.round(p.x), y=Math.round(p.y);
   else if(p.k==='pick'){ g.save(); g.translate(x,y); g.rotate(p.t*p.spin+p.ph); g.scale(1,Math.max(0.2,Math.abs(Math.cos(p.t*5+p.ph)))); g.fillStyle='#1A0C08'; g.beginPath(); g.moveTo(-8,-7); g.quadraticCurveTo(0,-11,8,-7); g.quadraticCurveTo(7,4,0,10); g.quadraticCurveTo(-7,4,-8,-7); g.fill(); g.fillStyle=p.col; g.beginPath(); g.moveTo(-6,-5.5); g.quadraticCurveTo(0,-9,6,-5.5); g.quadraticCurveTo(5,3,0,8); g.quadraticCurveTo(-5,3,-6,-5.5); g.fill(); g.restore(); }
   else if(p.k==='spark'){ g.fillStyle=p.col; g.fillRect(x-1,y-1,3,3); if(p.t<p.life*0.5){ g.globalAlpha*=0.4; g.fillRect(x-Math.round(p.vx*0.03),y-Math.round(p.vy*0.03),2,2); } }
   else if(p.k==='rocket'){ g.fillStyle='#FFF0C0'; g.fillRect(x-1,y-2,2,5); if(p.t>=p.burst&&!p.done){ p.done=true; p.life=p.t; fxBurst(p.x,p.y,p.col); } }
+  else if(p.k==='sig'){ const u=Math.min(1,p.t/p.dur), px=p.x0+(p.x1-p.x0)*u; const fo=1-Math.max(0,(p.t-p.dur)/(p.life-p.dur)); g.globalAlpha=0.45*fo; g.fillStyle='#FFB030'; g.beginPath(); g.arc(px,p.y0,8,0,6.283); g.fill(); for(let k=0;k<9;k++){ const q=px-k*5; if(q<p.x0) break; g.globalAlpha=(1-k/9)*fo; g.fillStyle=k?'#FFC857':'#FFFFFF'; const z=k?3:5; g.fillRect(Math.round(q)-(z>>1),Math.round(p.y0)-(z>>1),z,z); } }
+  else if(p.k==='party'){ fxDrawParty(g,p,x,y); }
+  else if(p.k==='home'){ const u=Math.min(1,p.t/p.dur), e=u*u*(3-2*u), hx=p.x0+(p.x1-p.x0)*e, hy=p.y0+(p.y1-p.y0)*e-Math.sin(u*Math.PI)*60; const sx=Math.max(1.2,Math.abs(Math.cos(p.t*10+p.ph))*6); g.fillStyle='#5A3A06'; g.beginPath(); g.ellipse(hx,hy,sx+1.2,7.2,0,0,6.283); g.fill(); g.fillStyle='#E8B030'; g.beginPath(); g.ellipse(hx,hy,sx,6,0,0,6.283); g.fill(); if(u>=1){ p.life=p.t; try{ blip(1400+Math.random()*300,0.025); }catch(e){} } }
   else if(p.k==='dust'){ const r=3+p.t*14; g.fillStyle='rgba(200,180,150,.5)'; g.beginPath(); g.arc(x,y,r,0,6.283); g.fill(); } }
 function fxBurst(x,y,col){ const cols=[col,'#FFF4C0',col]; for(let i=0;i<40;i++){ const a=i/40*6.283, v=90+Math.random()*90; FX_P.push({k:'spark',x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,grav:60,drag:0.985,life:0.9+Math.random()*0.5,t:0,fade:1,col:cols[i%3]}); } }
 function fxRect(el){ const e=typeof el==='string'?$(el):el; return e?e.getBoundingClientRect():{left:innerWidth/2,top:innerHeight/2,width:0,height:0}; }
@@ -4691,6 +4706,44 @@ function drawStreakAura(g,t){ const n=state.streak||0; if(n<5||state.practice||r
     g.fillStyle='rgba('+col+','+Math.min(1,a*1.1).toFixed(2)+')'; g.fillRect(cx,cy-r,2,r*2+2); g.fillRect(cx-r,cy,r*2+2,2); g.fillStyle='rgba(255,255,255,'+Math.min(1,a*1.2).toFixed(2)+')'; g.fillRect(cx-1,cy-1,4,4); }
   g.restore(); }
 function fxBigCall(score){ fxCoins(Math.min(60,20+Math.round(score/100))); fxStrobe(); }
+
+/* ---------- more zest (v1.72): signal flow, each crowd's own celebration, cash-out coins, the true-call counter ---------- */
+// a spark runs along the board cable into each pedal as it fires
+function fxSignal(pi){ if(reduceMotion) return; const to=pedalEl(pi), from=pi>0?pedalEl(pi-1):document.querySelector('#board .board-gtr'); if(!to||!from) return;
+  const a=from.getBoundingClientRect(), b=to.getBoundingClientRect(); if(!a.width||!b.width) return; const y=b.top+b.height*0.55;
+  FX_P.push({k:'sig',x:a.right-2,y,x0:a.right-2,x1:b.left+b.width*0.5,y0:y,dur:0.2,life:0.32,t:0}); fxStart(); }
+// each venue's audience celebrates in its own way (only scenery and crowd things, nothing sacred)
+const CROWD_PARTY={spur:'hat',outback:'hat',tide:'bubble',juke:'firefly',ghat:'firefly',grotto:'glow',dunes:'star',azmari:'star',aurora:'star',sebene:'streamer',rio:'streamer',chicha:'streamer',milonga:'petal',paris:'petal',cave:'petal',bali:'blossom',lanai:'blossom',frost:'snow',pole:'snow',mess:'snow',tokyo:'lantern'};
+function fxCrowdParty(big){ if(reduceMotion||state.practice) return; const V=VEN(), kind=CROWD_PARTY[V.id]; if(!kind) return; const r=fxRect('stage'); if(!r.width) return;
+  const n=big?34:20, cols={streamer:['#FF5A4A','#FFC040','#6AE07A','#4AB0FF','#E0609E'],petal:['#C8203A','#E83A50','#F06A7A'],blossom:['#FFF6E8','#FFE2EC','#FFF0C0']}[kind]||['#FFF'];
+  for(let i=0;i<n;i++){ const x=r.left+Math.random()*r.width, base={kind,k:'party',t:-Math.random()*0.6,ph:Math.random()*6,col:cols[i%cols.length]};
+    if(kind==='hat') FX_P.push(Object.assign(base,{x,y:r.bottom-10,vx:(Math.random()-0.5)*60,vy:-260-Math.random()*160,grav:420,spin:(Math.random()-0.5)*8,life:1.8}));
+    else if(kind==='bubble') FX_P.push(Object.assign(base,{x,y:r.bottom-6,vx:0,vy:-40-Math.random()*50,sway:3,life:3.2,fade:1,s:2+Math.random()*4}));
+    else if(kind==='firefly'||kind==='glow'||kind==='star') FX_P.push(Object.assign(base,{x,y:r.top+r.height*(0.15+Math.random()*0.7),vx:(Math.random()-0.5)*20,vy:(Math.random()-0.5)*16,life:2.6,fade:0}));
+    else if(kind==='lantern') FX_P.push(Object.assign(base,{x,y:r.bottom-6,vx:(Math.random()-0.5)*10,vy:-26-Math.random()*22,sway:1.2,life:4,fade:0}));
+    else FX_P.push(Object.assign(base,{x,y:r.top-6-Math.random()*30,vx:(Math.random()-0.5)*20,vy:40+Math.random()*50,sway:2.5,spin:(Math.random()-0.5)*5,life:3.6,fade:0})); }
+  if(V.hats==='penguins') anim.hopUntil=perfNow()+2.4;
+  fxStart(); }
+function fxDrawParty(g,p,x,y){ const life=p.life, a=Math.min(1,p.t/0.25,(life-p.t)/0.6); g.globalAlpha=Math.max(0,a);
+  switch(p.kind){
+    case 'hat': g.save(); g.translate(x,y); g.rotate(p.t*p.spin); g.fillStyle='#1A0C08'; g.fillRect(-9,1,18,3); g.fillRect(-5,-6,10,8); g.fillStyle='#8A5A2E'; g.fillRect(-8,1,16,2); g.fillRect(-4,-5,8,6); g.fillStyle='#C83A2A'; g.fillRect(-4,-1,8,1); g.restore(); break;
+    case 'bubble': { const s=Math.round(p.s); g.strokeStyle='rgba(220,250,255,.9)'; g.lineWidth=1; g.beginPath(); g.arc(x,y,s,0,6.283); g.stroke(); g.fillStyle='rgba(255,255,255,.8)'; g.fillRect(x-Math.round(s/2),y-Math.round(s/2),1,1); break; }
+    case 'firefly': case 'glow': case 'star': { const tw=0.5+0.5*Math.sin(p.t*6+p.ph), c=p.kind==='firefly'?'255,236,120':p.kind==='glow'?'120,240,255':'255,250,220';
+      g.fillStyle='rgba('+c+','+(0.25*tw).toFixed(2)+')'; g.fillRect(x-3,y-3,7,7); g.fillStyle='rgba('+c+','+(0.6+0.4*tw).toFixed(2)+')'; g.fillRect(x-1,y-1,3,3); if(p.kind==='star'&&tw>0.7){ g.fillRect(x,y-4,1,9); g.fillRect(x-4,y,9,1); } break; }
+    case 'lantern': g.fillStyle='rgba(255,140,60,.35)'; g.fillRect(x-6,y-8,12,16); g.fillStyle='#C8302A'; g.fillRect(x-4,y-6,8,11); g.fillStyle='#FFB070'; g.fillRect(x-3,y-4,6,7); g.fillStyle='#2A1206'; g.fillRect(x-4,y-7,8,1); g.fillRect(x-4,y+5,8,1); break;
+    case 'snow': g.fillStyle='#FFFFFF'; g.fillRect(x-1,y-1,3,3); g.fillStyle='rgba(255,255,255,.5)'; g.fillRect(x-2,y,5,1); g.fillRect(x,y-2,1,5); break;
+    default: g.save(); g.translate(x,y); g.rotate(p.t*(p.spin||2)+p.ph); g.fillStyle=p.col; if(p.kind==='streamer'){ g.scale(1,Math.max(0.2,Math.abs(Math.cos(p.t*4+p.ph)))); g.fillRect(-2,-7,4,14); } else { g.beginPath(); g.ellipse(0,0,4,2.4,0,0,6.283); g.fill(); g.fillStyle='rgba(255,255,255,.35)'; g.fillRect(-2,-1,2,1); } g.restore(); } }
+// cash-out: each earnings chip throws its coins into the cash total, which counts up
+function fxCashOut(before,after){ const el=$('shopCash'); if(!el) return; if(reduceMotion||after<=before){ el.textContent='$'+after; return; } el.textContent='$'+before;
+  const tr=el.getBoundingClientRect(), tx=tr.left+tr.width/2, ty=tr.top+tr.height/2, chips=[...document.querySelectorAll('#shopEarn .chip')]; let delay=0, total=0;
+  chips.forEach((c,i)=>{ const v=(state.earnRows[i]||[])[1]||0; if(v<=0) return; const r=c.getBoundingClientRect(); for(let k=0;k<Math.min(6,v);k++){ FX_P.push({k:'home',x0:r.left+r.width*(0.3+Math.random()*0.4),y0:r.top+r.height/2,x1:tx,y1:ty,x:0,y:0,dur:0.55,life:0.6,t:-delay-k*0.06,ph:Math.random()*6}); } delay+=0.18; total++; });
+  fxStart(); const t0=performance.now()+300, ms=Math.max(500,delay*1000+300); const f=now=>{ const k=Math.max(0,Math.min(1,(now-t0)/ms)); el.textContent='$'+Math.round(before+(after-before)*k); if(k<1) requestAnimationFrame(f); else { el.classList.remove('bump'); void el.offsetWidth; el.classList.add('bump'); } }; requestAnimationFrame(f); }
+// the true-call counter beside YOUR ANSWER: grows with the streak, shatters on a miss
+function renderStreakTag(broke){ const el=$('streakTag'); if(!el) return; const n=state.practice?0:(state.streak||0);
+  if(broke&&el.dataset.n>=2){ el.classList.remove('grow'); el.classList.add('shatter'); setTimeout(()=>{ el.className='streak-tag hidden'; el.dataset.n=0; },600); return; }
+  if(n<2){ el.className='streak-tag hidden'; el.dataset.n=n; return; }
+  el.textContent=n+' IN A ROW'; el.dataset.n=n; el.style.setProperty('--sz',Math.min(20,11+n)+'px'); el.style.setProperty('--glow',Math.min(1,(n-1)/8).toFixed(2));
+  el.className='streak-tag'; void el.offsetWidth; el.classList.add('grow'); }
 
 function setTab(t){ document.querySelectorAll('#scr-results .tab').forEach(b=>b.classList.toggle('sel',b.dataset.t===t)); $('tabEars').classList.toggle('hidden',t!=='ears'); $('tabMap').classList.toggle('hidden',t!=='map'); $('linerWrap').classList.toggle('hidden',t!=='notes'); if(t==='map') renderEar($('tabMap'),{compact:true}); }
 
@@ -4957,7 +5010,7 @@ function mk(cls,s,f,txt){
 }
 function markersHTML(){
   let h='';
-  if(namesOn()){ for(let s=0;s<NS;s++){ if(state.broken[s]) continue; for(let c=0;c<state.win;c++){ const f=state.pos+c; if(f>MAXF) continue; h+=mk('nn',s,f,NN[(OPEN[s]+f)%12]); } } }
+  if(namesOn()){ const fade=!state.practice; for(let s=0;s<NS;s++){ if(state.broken[s]) continue; for(let c=0;c<state.win;c++){ const f=state.pos+c; if(f>MAXF) continue; if(fade&&cellLearned(s,f)) continue; h+=mk('nn',s,f,NN[(OPEN[s]+f)%12]); } } }
   const c=state.call;
   if(c){
     if(state.phase==='review'){
@@ -5252,7 +5305,7 @@ function crowdPick(i,kind,cheering,b){
 function drawCrowdPainted(g,t,kind){
   const cheering=anim.cheerUntil>t; g.imageSmoothingEnabled=false;
   for(let i=0;i<15;i++){
-    const x=6+i*22+((i*7)%5), b=(tr.on&&((Math.max(0,state.beat)+i)%2===0))?1:0, y=112+(i%3)-b-(cheering&&i%2?2:0), im=CROWD_IMG[crowdPick(i,kind,cheering,b)];
+    const hop=(kind==='penguins'&&anim.hopUntil&&t<anim.hopUntil)?Math.round(Math.abs(Math.sin(t*9+i*1.3))*5):0, x=6+i*22+((i*7)%5), b=(tr.on&&((Math.max(0,state.beat)+i)%2===0))?1:0, y=112+(i%3)-b-hop-(cheering&&i%2?2:0), im=CROWD_IMG[crowdPick(i,kind,cheering,b)];
     if(!im) return false;
     g.drawImage(im,Math.round(x-im.width/2),Math.round(y+15-im.height)); }
   return true; }
@@ -8146,7 +8199,7 @@ function startRun(){
   if(state.practice) leavePractice();
   clearRun(); state.seven=!!(META.seven&&META.sevenOn); state.runSeed=1+Math.floor(Math.random()*999983);
   applyTuning(); setTour(state.tourSel||0);
-  Object.assign(state,{visited:[state.tourSel||0],nextTour:null,board:'classic',streak:0,loopCharge:0,afterMiss:false,legNo:1,legPending:false,money:state.char==='busker'?8:0,venueIdx:0,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:[],tourScore:0,roadDone:false,roadSeen:[],roadMod:null});
+  Object.assign(state,{visited:[state.tourSel||0],nextTour:null,board:'classic',streak:0,loopCharge:0,afterMiss:false,legNo:1,legPending:false,money:state.char==='busker'?8:0,venueIdx:0,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:[],tourScore:0,roadDone:false,roadSeen:[],roadMod:null,nameStreak:0}); try{ renderStreakTag(false); }catch(e){}
   state.tough=Math.min(META.tough,META.toughMax); state.money+=2*(META.van.trunk||0); state.fameGain=0;
   state.gauge=META.rack?META.gauge:'standard'; state.lineup=(META.lineup||[]).filter(id=>META.hired[id]).slice(0,vanSeats()); state.spares=0;
   for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; snap[k]=null; }
@@ -8220,7 +8273,7 @@ async function finishAnswer(){
   state.phase='score'; setPhase();
   if(state.answer.every((a,k)=>state.call.notes[k]&&a.midi===state.call.notes[k].midi)){ trStop(); crash(); } else tapeStop();
   await sleep(250); if(!alive(tok)) return;
-  state.nameRes=null; if(state.answer.every((a,k)=>state.call.notes[k]&&a.midi===state.call.notes[k].midi)&&!namesOn()){ state.nameRes=await askName(tok); if(!alive(tok)) return; }
+  state.nameRes=null; if(state.answer.every((a,k)=>state.call.notes[k]&&a.midi===state.call.notes[k].midi)&&(!namesOn()||(!state.practice&&cellLearned(state.call.notes[0].s,state.call.notes[0].f)))){ state.nameRes=await askName(tok); if(!alive(tok)) return; }
   earLog(); if(state.practice) return finishPractice(tok); const res=evaluate();
   await animateScore(res,tok); if(!alive(tok)) return;
   const c=state.call;
@@ -8228,8 +8281,9 @@ async function finishAnswer(){
   st.seen++; if(res.perfect) st.correct++; st.lastMissed=!res.perfect; save();
   state.notesPlayed+=state.answer.length; state.grooveHits+=state.answer.filter(a=>a.g).length;
   if(res.perfect){ state.trueCalls++; state.streak=(state.streak||0)+1; if(state.pedals.some(q=>q.id==='looper')) state.loopCharge=(state.loopCharge||0)+3; } else state.streak=0;
+  try{ renderStreakTag(!res.perfect); }catch(e){}
   state.afterMiss=!res.perfect; if(!res.perfect) state.nightMisses=(state.nightMisses||0)+1;
-  if(res.perfect&&res.score>=1000) try{ fxBigCall(res.score); }catch(e){}
+  if(res.perfect&&res.score>=1000) try{ fxBigCall(res.score); fxCrowdParty(false); }catch(e){}
   if(res.perfect&&(store.bestCall||0)>0&&res.score>store.bestCall&&res.score>=300) try{ fxNeon('NEW BEST'); }catch(e){}
   if(res.score>(store.bestCall||0)){ store.bestCall=res.score; save(); }
   state.best=Math.max(state.best,res.score);
@@ -8266,7 +8320,7 @@ async function finishAnswer(){
   const win=state.total>=TARGET, lose=!win&&(state.callIdx>=SETLEN||state.broken.every(Boolean));
   state.over=win?'win':lose?'lose':null; dexNight(state.over);
   if(win){ jingleWin(); state.cleared.push(VEN().id); state.tourScore+=state.total;
-    try{ const perfect=!state.nightMisses, head=!!VEN().headliner;
+    try{ fxCrowdParty(true); const perfect=!state.nightMisses, head=!!VEN().headliner;
       if(head){ fxBanner('HEADLINER DOWN',titleCase(RIVAL)+' takes a bow','#FFC857'); fxFireworks(); }
       if(perfect) setTimeout(()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head?2700:0); }catch(e){} } else if(lose) jingleLose();
   const names=c.notes.map(n=>NN[n.midi%12]).join(' - ');
@@ -8456,7 +8510,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; }})[k](); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

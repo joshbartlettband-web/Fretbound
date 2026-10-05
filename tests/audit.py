@@ -24,7 +24,7 @@ def run(w,h):
         A=lambda k: res.__setitem__(k,pg.evaluate(AUDIT))
         A('title'); pg.click("#btnStart"); time.sleep(0.3)
         print("  chars overflow:",pg.evaluate("(()=>{const e=document.querySelector('#scr-chars .check'); return e.scrollHeight-e.clientHeight})()"))
-        for i in range(6): pg.query_selector_all("#charTiles .ctile")[i].click(); time.sleep(0.05); A('chars'+str(i))
+        for i in range(len(pg.query_selector_all("#charTiles .ctile"))): pg.query_selector_all("#charTiles .ctile")[i].click(); time.sleep(0.05); A('chars'+str(i))
         pg.query_selector_all("#charTiles .ctile")[0].click(); pg.click("#btnCharGo"); time.sleep(0.3)
         for i in range(5): pg.query_selector_all("#offer .ptile")[i].click(); time.sleep(0.05); A('check'+str(i))
         pg.click("#btnSound"); time.sleep(0.2); A('settings'); pg.click("#pRes")

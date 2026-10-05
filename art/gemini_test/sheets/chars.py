@@ -63,3 +63,7 @@ CH['green']['guitar']=None
 
 # v1.67: Mister Midnight was redrawn as a moon spirit (the old look, dark skin with white eyes and a wide grin, read as a minstrel caricature)
 CH['juke']['ref']=R+'gemini_test/callers/juke_moon.png'; CH['juke']['gdesc']='a silver resonator guitar with a round metal cone'
+# v1.74: three new players
+guitar('smith',R+'gemini_test/chars/smith_body.png','baritone','a dark brown baritone electric guitar with a long neck','the Blacksmith: a broad friendly woman blacksmith with soot on her cheeks, a short dark undercut with a braid, a thick brown leather apron over a sleeveless black T-shirt, leather bracers and gloves, heavy brown boots, a small hammer on her belt',104)
+guitar('wizard',R+'gemini_test/chars/wizard_body.png','single','a teal-green Stratocaster-style electric guitar with a cream pickguard','the Math Rock Wizard: a lanky young wizard with round glasses and a short beard, a deep blue pointed hat and long robe embroidered with small gold numbers, triangles and fractions, brown sneakers, a small abacus charm on his belt',104)
+guitar('king',R+'gemini_test/chars/king_body.png','humbucker','a gold Les Paul style electric guitar','the King of Rock: a showman with a tall glossy black pompadour under a small tilted gold crown, a white jumpsuit with gold rhinestones and a high collar, a red velvet cape with white ermine trim, white boots',104)

@@ -664,5 +664,41 @@
 },
 "STAGE_PLATE_SRC/green": {
 "graded": "11c29252c9dfb53045ee4dc822a101ec95509375"
+},
+"PORTRAIT_ART/smith_card": {
+"graded": "be0e5dd0fedb31fb509c55abbd59c200437834a1"
+},
+"PORTRAIT_ART/smith_tile": {
+"graded": "95806de941f7c44cbc9f417a8ea67f16fd607359"
+},
+"PORTRAIT_ART/wizard_card": {
+"graded": "3c78865488fed5d53bb0f7f6ecc0cbb927deb5fc"
+},
+"PORTRAIT_ART/wizard_tile": {
+"graded": "4de472a71fc3c972fbd48af0bc3b996b9410bead"
+},
+"PORTRAIT_ART/king_card": {
+"graded": "b175c67a4873cfb232e9551d28dbcdd1f7df1e61"
+},
+"PORTRAIT_ART/king_tile": {
+"graded": "54430dec977034021136f4fef3019cdcd82583ae"
+},
+"POSE_SRC/king": {
+"graded": "69e06a490369afafa224ef5a4afa93a4917579b5"
+},
+"POSE_SRC/smith": {
+"graded": "de2e48102ac400a58dd97db13270301c4bc13c80"
+},
+"POSE_SRC/wizard": {
+"graded": "164b5546ea8fa5d0e7d7cea17301e2c30c4f2fdc"
+},
+"HANG_SRC/smith": {
+"graded": "ce7afaca63487a84b9b33361ec09a92242c80894"
+},
+"HANG_SRC/wizard": {
+"graded": "c6b88b2411921f1abdf9aa59dbdad32f17ed1091"
+},
+"HANG_SRC/king": {
+"graded": "ddf372a220fec0023d07577b07bf08ab23d802c3"
 }
 }

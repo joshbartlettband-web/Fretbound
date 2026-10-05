@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 import procposes as PP
 import gen_sheet as GS
-IDS='bard monk hermit busker luthier carto lou rosa dee jo hale tam brass brassb brassc'.split()
+IDS='bard monk hermit busker luthier carto smith wizard king lou rosa dee jo hale tam brass brassb brassc'.split()
 MASTER='art/gemini_test/hang_master'
 def build(cid,n=1):
     im,fg,masks=PP.split(f'art/gemini_test/sheets/out/hang_{cid}_{n}.png')

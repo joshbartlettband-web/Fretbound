@@ -259,5 +259,26 @@
   "calm": 12.2,
   "issues": [],
   "tried": 4
+ },
+ "wizard": {
+  "A": 2,
+  "B": 1,
+  "calm": 4.2,
+  "issues": [],
+  "tried": 4
+ },
+ "king": {
+  "A": 2,
+  "B": 1,
+  "calm": 4.8,
+  "issues": [],
+  "tried": 4
+ },
+ "smith": {
+  "A": 2,
+  "B": 1,
+  "calm": 4.6,
+  "issues": [],
+  "tried": 4
  }
 }

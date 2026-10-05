@@ -19,8 +19,7 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 6. **A real signing key** so builds update over each other (section 1).
 
 ## 2b. Sound still to do (audit 2026-10-05, v1.77)
-- No music at all: the Van, Backstage, the Roster, the Ear Report, the Green Room setup, the Results screen after its jingle.
-- The soundcheck and the shop share one generic 8-step menu loop (`JAM`/`LEAD` in `schedStep`).
+- Done in v1.78: every screen has its own music now.
 - UI sounds are mostly one square-wave `blip`. Candidates: buying and selling, a passport stamp, a recruit joining, drag-and-drop on the board, the tour map.
 - Encounter backdrops are the 480x200 Van-screen plate of each continent; painted scenes per encounter would be much sharper (about $0.134 each at 2K).
 

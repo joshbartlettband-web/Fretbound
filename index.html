@@ -1058,7 +1058,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.77</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.78</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4431,7 +4431,7 @@ function goCheck(){
   state.offer=shuffle(PEDALS.filter(p=>{ const r=rarOf(p.id); return r==='common'||r==='uncommon'; })).slice(0,5); state.pick=[]; state.focus=null;
   applyTuning(); renderGuitars(); renderOffer(); renderTourStrip();
   if(playerRig){ playerRig.setGuitar(curGuitar()); playerRig.setPedals([]); }
-  if(ctx) trStart('jam',ctx.currentTime+0.1);
+  if(ctx){ trStop(); menuCue('check'); }
   goScreen('check');
 }
 function showVenueCard(V){
@@ -4459,7 +4459,7 @@ function goShop(){
   const cashBefore=state.money; state.money=Math.max(0,state.money+state.earnRows.reduce((a,r)=>a+r[1],0)); state.roadMod=null;
   state.shop=rollShop(); state.sfocus={kind:'sale',k:0};
   renderShop(); goScreen('shop'); saveRun(); requestAnimationFrame(()=>{ try{ fxCashOut(cashBefore,state.money); }catch(e){} }); setTimeout(()=>{ try{ if(state.screen==='shop') maybeRecruit(); }catch(e){} },700);
-  if(ctx) trStart('jam',ctx.currentTime+0.1);
+  if(ctx){ trStop(); menuCue('shop'); }
 }
 const RUN_KEY='fretbound.run.v1';
 function saveRun(){ try{ localStorage.setItem(RUN_KEY,JSON.stringify({runSeed:state.runSeed,char:state.char,guitar:state.guitar,tour:state.tour,tourSel:state.tourSel,nextTour:state.nextTour,visited:state.visited,legNo:state.legNo,legPending:!!state.legPending,venueIdx:state.venueIdx,
@@ -4481,7 +4481,7 @@ function resumeRun(){
   warmCache(curGuitar());
   state.shop=rollShop(); state.sfocus={kind:'sale',k:0};
   renderShop(); goScreen('shop');
-  if(ctx) trStart('jam',ctx.currentTime+0.1);
+  if(ctx){ trStop(); menuCue('shop'); }
   return true;
 }
 function showResults(){
@@ -4517,7 +4517,7 @@ function showResults(){
     lw.appendChild(bar); lw.appendChild(card); show(state.cleared.length-1);
   }
   setTab('ears');
-  goScreen('results');
+  goScreen('results'); menuCue(state.over==='win'?'win':'lose');
 }
 const LINER_TITLE={herald:'Who built rock and roll'};
 const LINER_MORE={"herald":["Rock and roll was built by Black musicians. It grew out of blues, gospel, jump blues and rhythm and blues, played in churches, juke joints and dance halls across the South and in the cities people moved to. Record companies sold that music as race records and kept it on separate charts and separate radio stations.", "Sister Rosetta Tharpe was born in Cotton Plant, Arkansas, in 1915 and grew up singing and playing guitar in church. She took gospel into nightclubs and theatres and played electric guitar loud, with bent notes and quick runs. Her 1944 record Strange Things Happening Every Day became a hit far beyond the church, and many count it among the first rock and roll records. People call her the godmother of rock and roll.", "In 1947 she heard a 14-year-old Little Richard singing her songs before her show in Macon, Georgia. She brought him on stage to open her show and paid him afterwards. He said that was when he decided to become a performer. Eight years later his Tutti Frutti hit the charts, with pounding piano and a whoop nobody could copy.", "Chuck Berry, from St. Louis, mixed rhythm and blues with country picking and made the guitar the lead voice of rock. Maybellene (1955) and Johnny B. Goode (1958) open with riffs guitar players still learn first. Rocket 88 (1951), by Jackie Brenston with Ike Turner's band, had a fuzzy guitar sound from an amp that, the story goes, was damaged on the drive to the studio.", "Bo Diddley gave rock its famous shuffle beat, and Fats Domino brought New Orleans piano. Big Mama Thornton recorded Hound Dog in 1952, years before Elvis Presley's hit version. Many of these musicians were paid little for songs that made others rich. Softer cover versions by white singers often got the airplay instead, and some writers were cheated out of their royalties.", "Sister Rosetta Tharpe died in 1973 and lay in an unmarked grave until fans paid for a headstone in 2008. She entered the Rock and Roll Hall of Fame in 2018. The Herald in this game is an original character, not a picture of any one person. Think of her as a thank-you note. Listen: Sister Rosetta Tharpe, Up Above My Head; Little Richard, Tutti Frutti; Chuck Berry, Johnny B. Goode; Big Mama Thornton, Hound Dog."],"spur":["Bakersfield's country came from people who had lost almost everything. In the 1930s, Dust Bowl families from Oklahoma, Texas and Arkansas moved to California's Central Valley to pick crops and work the oil fields. Locals called them Okies, and it was not a kind word.","Their children grew up playing the dance halls. Buck Owens and Merle Haggard were both sons of those migrant families. They kept country raw and loud on purpose, with Fender Telecasters, drums up front and a two-beat shuffle, at a time when Nashville was adding string sections."],"tide":["The best-known surf guitar song has older roots than the beach. Dick Dale grew up with a Lebanese father, and an uncle taught him to play the darbuka drum and watch the oud. Misirlou, his 1962 hit, is an old Eastern Mediterranean song he first heard on that oud.","His fast, single-string tremolo picking came from that drumming. So the sound of 1960s California surf is partly an Arab-American family's music, played very loud through a Fender amp and a spring reverb tank."],"juke":["The blues came out of African American communities in the Deep South after slavery: work songs, field hollers, spirituals and dance music, played by people living under segregation. The Delta, along the Mississippi River, was one of its homes.","The crossroads story was first told about Tommy Johnson and later attached to Robert Johnson. Some scholars hear an older West African figure in it, Legba, the keeper of crossroads. Others hear how church folks talked about music played in juke joints. Either way, it is a story, not a biography.","In this game, Mister Midnight is a moon spirit, not a picture of a real person. The players who built this music were working musicians, and their records are still the best teachers.","Rock and roll grew from this music and from gospel. Pick the Herald and open her liner notes for that story: Sister Rosetta Tharpe, Little Richard, Chuck Berry and the others who built it."],"dunes":["Desert blues, often called tishoumaren or assouf, belongs to the Kel Tamasheq, the Tuareg people of the Sahara. Tinariwen formed among young Tuareg in exile in the late 1970s, and their songs carry homesickness and politics as much as groove.","The real Festival au Désert ran near Timbuktu from 2001. In 2012 armed groups took northern Mali and banned music, and the festival went into exile, touring as a caravan of musicians. The dune stage in this game is a tribute to it, not a picture of today's Mali."],"sebene":["Kinshasa's guitar bands took Cuban son and rumba records that came in by ship and radio, and sang over them in Lingala. By the 1960s, the sebene, the long dancing guitar section, could last longer than the song itself.","The sharp-dressed peacock is a nod to La Sape, the Kinshasa and Brazzaville tradition of dressing in elegant suits as a form of pride and art. Congolese rumba was listed by UNESCO for both Congos together, in 2021."],"azmari":["An azmari is a singer and musician who often plays the masenqo, a one-stringed fiddle, or the krar, a lyre. Azmaris are known for improvising verses on the spot, including witty or teasing lines about the people listening.","The coffee here is more than a prop. The Ethiopian coffee ceremony is a long, sociable ritual of roasting, grinding and brewing, often in three rounds. Ethiopia is also where coffee comes from.","The four qenet in the game are simplified to four notes each. The real modes have five notes and many regional variations, and the singer's ornaments matter as much as the notes themselves."],"rio":["Bossa nova rests on samba, and samba grew in Afro-Brazilian communities in Rio, from the Bahian families who gathered in the Praça Onze neighborhood in the early 1900s. The quiet bossa guitar is a samba rhythm, scaled down to one player.","The beach-side, middle-class scene of the late 1950s made bossa famous around the world, but the beat underneath came from those older, poorer neighborhoods."],"milonga":["Tango has African roots that were long left out of the story. Enslaved Africans brought to the Río de la Plata kept their music alive in candombe, a drum and dance tradition, and Afro-Argentine dance halls helped shape the first tangos.","For a long time, Argentina presented itself as a European nation, and the Afro-Argentine part of tango was played down. Historians and musicians have been putting it back. Candombe is still played in the streets of Montevideo today."],"chicha":["Chicha was the music of Andean families who moved from the highlands to Lima from the 1950s on, looking for work. Many settled on the edges of the city, and the music mixed the huayno of home with the cumbia and electric guitar of the radio.","For years it was looked down on as music of migrants. The bright posters, often hand-printed in neon colours, are now shown in galleries, and chicha is played with pride."],"paris":["The Manouche are a branch of the Sinti, part of the wider Romani people, who have lived in Europe for centuries and often faced prejudice. Django Reinhardt grew up in a caravan camp outside Paris.","During the Second World War the Nazis persecuted and murdered Roma and Sinti in great numbers, an atrocity Romani people call the Porajmos. Django survived the war in France, and his music is now played by Sinti families and fans around the world."],"cave":["Flamenco grew from the Gitano, the Roma of Spain, together with Andalusian and older Moorish and Jewish musical layers. It was listed by UNESCO in 2010.","Duende is a word for the deep, almost dangerous feeling a performer can reach, made famous by the poet Federico García Lorca. In this game the Duende is a fire spirit, a playful picture of that idea, not a folk creature."],"frost":["The early black metal scene had a dark side that is part of the record. Some of its members burned churches, including the medieval Fantoft stave church in Bergen in 1992, and there were murders. The church was rebuilt in 1997.","The game takes only the sound: tremolo picking, cold harmony and the long Norwegian winter. The ice cathedral here is a fantasy hall, and the Lich is happy to play in it, not burn it."],"tokyo":["The fox in the game comes from real belief. At Inari shrines, of which there are tens of thousands in Japan, white foxes serve as the messengers of Inari, the kami of rice and harvest. Stone foxes often guard the gates, with red bibs.","Shrines are working places of worship. A neon shrine with a guitar battle is fantasy. If you visit a real one, bow at the torii gate and keep your voice down."],"ghat":["The ghats of Varanasi are stone steps down to the Ganges, one of the holiest places in Hinduism. Every evening at Dashashwamedh Ghat, priests perform the Ganga aarti with lamps, bells and chanted hymns. Some ghats are also used for cremation.","The Tiger plays at dusk out of respect for that music, not over it. In Hindustani music, Sa is the home note, and the drone, usually from a tanpura, keeps it sounding the whole time."],"bali":["In Bali, gamelan is part of religious life. Every temple holds an odalan, an anniversary festival, every 210 days, and gamelan accompanies the processions and sacred dances.","Gong kebyar, the fast, flashing style, appeared around 1915 in North Bali. The village of Peliatan is famous for its ensemble, and also for one of Bali's rare all-women gamelan groups. The Bronze Warden is a fantasy guardian of the sound, not a deity."],"lanai":["Hawaiians first got guitars from Mexican and Spanish vaqueros, cowboys brought by the king in the 1830s to manage cattle. When the vaqueros left, the guitars stayed, and families retuned them to fit Hawaiian song. Tunings were kept as family secrets.","The name is kī hōʻalu, loosen the key. The honu, the green sea turtle, is protected in Hawaiʻi, and some families honour it as an ʻaumakua, a guardian ancestor. Here it is a kind old uncle with a guitar."],"outback":["Alice Springs is Mparntwe, on Arrernte country, and the people there have the oldest continuous culture on Earth. The rock in the window is Uluṟu, which belongs to the Aṉangu people, who ask visitors to treat it as sacred.","That is why the window shows it only from far away, at sunset. Aṉangu ask that close-up images of some parts of the rock are not taken or shown."],"grotto":["Waitomo means water and hole in te reo Māori. Local Māori knew the caves long before Chief Tāne Tinorau and the surveyor Fred Mace explored them by candlelight in 1887, and Tāne Tinorau opened them to visitors in 1889.","In 1904 the government took the cave under a scenery law. In 1990 most of it was returned, and today the hapū trust of his descendants runs it. The glowworms are the larvae of a small fly, found only in New Zealand."]};   // v1.67: the Keep reading pages under each liner note (history, the people the music belongs to, and what in the game is fantasy)
@@ -7329,7 +7329,7 @@ function renderBackstage(){
     $('bsDoors').appendChild(b); });
   $('bsMsg').textContent='';
 }
-function goBackstage(){ renderBackstage(); try{ renderBsMap(); }catch(e){} goScreen('backstage'); requestAnimationFrame(()=>requestAnimationFrame(drawBackstageScene)); }
+function goBackstage(){ renderBackstage(); try{ renderBsMap(); }catch(e){} goScreen('backstage'); requestAnimationFrame(()=>requestAnimationFrame(drawBackstageScene)); menuCue('backstage'); }
 
 /* ----- the roster ----- */
 let rosterTab='callers', rosterCont=0;
@@ -7378,7 +7378,7 @@ function renderRoster(){
     body.appendChild(grid);
   }
 }
-function goRoster(){ renderRoster(); goScreen('roster'); }
+function goRoster(){ renderRoster(); goScreen('roster'); menuCue('roster'); }
 
 /* ---------- the ear report: where on the neck, and which notes, you find or lose ---------- */
 const EAR_ZONES=[[0,4,'near the nut'],[5,8,'around frets 5 to 8'],[9,12,'around frets 9 to 12'],[13,15,'above fret 12']];
@@ -7450,7 +7450,7 @@ function renderEar(root,opts){ opts=opts||{}; const S=earSummary();
   root.querySelectorAll('.ear-mode button[data-m]').forEach(b=>b.onclick=()=>{ earMode=b.dataset.m; blip(700,0.04); renderEar(root,opts); });
   if(opts.compact&&root.querySelector('#earFull')) root.querySelector('#earFull').onclick=()=>{ blip(880,0.06); goEar(); };
 }
-function goEar(){ $('earSub').textContent=earCount()+' notes logged on your device'; $('btnEarPractice').disabled=!BS_READY.green; $('btnEarPractice').textContent=BS_READY.green?'PRACTICE THESE':'PRACTICE THESE (SOON)'; goScreen('ear'); requestAnimationFrame(()=>requestAnimationFrame(()=>renderEar($('earPanel'),{}))); }
+function goEar(){ $('earSub').textContent=earCount()+' notes logged on your device'; $('btnEarPractice').disabled=!BS_READY.green; $('btnEarPractice').textContent=BS_READY.green?'PRACTICE THESE':'PRACTICE THESE (SOON)'; goScreen('ear'); menuCue('ear'); requestAnimationFrame(()=>requestAnimationFrame(()=>renderEar($('earPanel'),{}))); }
 
 /* ---------- the Green Room: a backstage dressing room, and the tech who plays you the notes ---------- */
 function buildGreenBg(g){
@@ -7647,7 +7647,7 @@ function renderGreen(){
     else if(a==='names') C.names=!C.names; else if(a==='glow') C.glow=!C.glow;
     renderGreen(); });
 }
-function openGreenRoom(preset,cfg){ initAudio(); leavePractice(); PRSETUP=Object.assign(pracDefault(),cfg||{}); if(preset){ PRSETUP.preset=preset; if(preset==='weak'){ const w=earWeakSpots(); if(w.zone){ const z=Object.keys(PR_FRETS).find(k=>k!=='all'&&PR_FRETS[k][0]<=w.zone.lo&&PR_FRETS[k][1]>=w.zone.hi); PRSETUP.frets=z||'all'; PRSETUP.strings=w.zone.low?'low':'high'; } } } renderGreen(); goScreen('green'); }
+function openGreenRoom(preset,cfg){ initAudio(); leavePractice(); PRSETUP=Object.assign(pracDefault(),cfg||{}); if(preset){ PRSETUP.preset=preset; if(preset==='weak'){ const w=earWeakSpots(); if(w.zone){ const z=Object.keys(PR_FRETS).find(k=>k!=='all'&&PR_FRETS[k][0]<=w.zone.lo&&PR_FRETS[k][1]>=w.zone.hi); PRSETUP.frets=z||'all'; PRSETUP.strings=w.zone.low?'low':'high'; } } } renderGreen(); goScreen('green'); menuCue('green'); }
 window.startGreenRoom=()=>openGreenRoom('weak');
 
 /* ---------- world tour title scenes: each continent's sky, horizon and roadside ---------- */
@@ -8187,7 +8187,7 @@ function pickRivalBand(){ if(state.practice){ state.rivalBand=[]; return []; } c
 function rivalBandHTML(){ const b=state.rivalBand||[]; if(!b.length) return '';
   return '<div class="vband"><span class="dim">Backing band</span>'+b.map(id=>'<span>'+(MEMBER_PORT[id]?'<img class="vb-por" alt="" src="'+MEMBER_PORT[id]+'">':'')+'<b>'+MEMBERS[id].name+'</b> <i>'+MEMBERS[id].role.toLowerCase()+'</i>: '+RIVAL_FX[id]+'</span>').join('')+'</div>'; }
 
-function goVan(){ renderVan(); goScreen('van'); try{ startVanScene(); }catch(e){} }
+function goVan(){ renderVan(); goScreen('van'); try{ startVanScene(); }catch(e){} menuCue('van'); }
 
 /* ---------- title song: a galloping E minor riff, then a soaring twin lead ----------
    Rhythm guitars are the game's own string models through a real rig (double tracked left and right),
@@ -8369,22 +8369,22 @@ function cueNoise(C){ const s=ctx.createBufferSource(); s.buffer=noiseBuf; s.loo
 function cueLfo(C,f,depth,param){ const o=ctx.createOscillator(), g=G(depth); o.frequency.value=f; o.connect(g); g.connect(param); o.start(); C.amb.push(o); }
 function cueStart(def,screen){
   if(!ctx||!def) return; cueStop(true);
-  const bus=G(0.0001); bus.connect(musicBus); const L={};
+  const bus=G(0.0001), wall=def.lp?biq('lowpass',def.lp,0.7):null; if(wall){ bus.connect(wall); wall.connect(musicBus); } else bus.connect(musicBus); const L={};
   ['drums','bass','comp','lead','riff','amb'].forEach(k=>{ L[k]=G((def.mix&&def.mix[k])||1); L[k].connect(bus); });
-  if(def.room&&roomIn){ L.send=G(def.room); bus.connect(L.send); L.send.connect(roomIn); }
+  if(def.room&&roomIn){ L.send=G(def.room); bus.connect(L.send); L.send.connect(roomIn); } L.wall=wall;
   Object.assign(CUE,{on:true,def,screen,bus,L,rigs:{},amb:[],i:0,sx:60/def.bpm/4,bar:def.bar||16,riff:null,arp:0,
     chords:(def.ch||'E5').split(/\s+/).map(chordSym),lead:def.lead?cueLine(def.lead):null,lead2:def.lead2?cueLine(def.lead2):null,
     ambs:(def.amb||'').split(/\s+/).filter(Boolean)});
   CUE.ambs.forEach(k=>{ if(AMB_BED[k]) AMB_BED[k](CUE,L.amb); });
   const now=ctx.currentTime, lvl=def.gain||1; CUE.lvl=lvl;
-  bus.gain.setValueAtTime(0.0001,now); bus.gain.setTargetAtTime(lvl,now+(def.quiz?1.8:0.05),0.25);
+  bus.gain.setValueAtTime(0.0001,now); bus.gain.setTargetAtTime(lvl,now+(def.delay||(def.quiz?1.8:0.05)),0.25);
   CUE.t0=now+0.15; clearInterval(CUE.timer); CUE.timer=setInterval(cueTick,25); cueTick();
 }
 function cueStop(instant){
   if(!CUE.on) return; CUE.on=false; clearInterval(CUE.timer); CUE.timer=null; CUE.riff=null;
   const bus=CUE.bus, rigs=CUE.rigs, amb=CUE.amb, L=CUE.L;
   if(ctx&&bus){ const now=ctx.currentTime; bus.gain.cancelScheduledValues(now); bus.gain.setTargetAtTime(0,now,instant?0.03:0.15); }
-  setTimeout(()=>{ try{ bus.disconnect(); if(L.send) L.send.disconnect(); }catch(e){} amb.forEach(n=>{ try{ n.stop(); }catch(e){} });
+  setTimeout(()=>{ try{ bus.disconnect(); if(L.send) L.send.disconnect(); if(L.wall) L.wall.disconnect(); }catch(e){} amb.forEach(n=>{ try{ n.stop(); }catch(e){} });
     Object.values(rigs).forEach(r=>{ try{ r.setPedals([],true); r.pan.disconnect(); r.out.disconnect(); }catch(e){} }); },instant?400:900);
 }
 function cueDuck(sec){ if(!CUE.on||!ctx) return; const g=CUE.bus.gain, now=ctx.currentTime; g.cancelScheduledValues(now); g.setTargetAtTime(CUE.lvl*0.04,now,0.04); g.setTargetAtTime(CUE.lvl,now+sec,0.3); }
@@ -8524,8 +8524,39 @@ const ROAD_CUES={
     bass:['sub','1.......5.......',7],comp:['pad','x...............',16,52],lv:'bell',
     lead:'E5 - - - G5 - - - B5 - - - . . . . | C6 - - - B5 - G5 - E5 - - - . . . . | D5 - - - G5 - - - B5 - - - . . . . | A5 - - - F#5 - - - D5 - - - . . . .'}
 };
+
+/* the quiet screens get their own pieces too (v1.78) */
+const MENU_CUES={
+  van:{mix:{drums:0.79,bass:0.66,comp:0.18,lead:1.48},bpm:88,sw:0.56,ch:'G D Em C',drums:[['brush','g.o.g.o.g.o.g.o.'],['softkick','x.......x.......'],['rim','....x.......x...']],
+    bass:['upright','1...5...1...5.8.',3],comp:['twelve','x.x.u.x.u.x.u.x.',2,52],cfx:['glass'],clvl:0.28,lv:'whistle',
+    lead:'B4 - - - D5 - B4 - A4 - G4 - - - . . | A4 - - - F#4 - A4 - D5 - - - . . . . | G4 - - - B4 - E5 - D5 - B4 - G4 - - - | E4 - - - G4 - - - E4 - D4 - - - . .'},
+  backstage:{mix:{drums:0.81,bass:1.23,comp:0.89,lead:0.72},bpm:112,lp:460,amb:'crowd',ch:'E5 E5 G5 A5',drums:[['kick','x.......x.x.....'],['snare','....x.......x...'],['hat','x.x.x.x.x.x.x.x.']],
+    bass:['electric','1.1.1.1.5.5.8.8.',1],comp:['power','x.......x...x...',4,40],lv:'single',lfx:['ogre'],
+    lead:'E4 - G4 - A4 - B4 - - - A4 - G4 - E4 - | E4 - G4 - A4 - B4 - D5 - B4 - - - . . | G4 - B4 - D5 - - - B4 - D5 - E5 - - - | A4 - C5 - E5 - D5 - C5 - A4 - B4 - - -'},
+  roster:{mix:{drums:8,bass:1.24,comp:3.05,lead:7.0},bpm:78,sw:0.64,ch:'Em Em6 Am7 B7',drums:[['brush','ogggogggogggoggg'],['rim','....x.......x...']],
+    bass:['upright','1...5...8...5...',3],comp:['keys','..o.......o.....',3,55],lv:'bell',
+    lead:'G4 - - - B4 - - - E5 - - - D#5 - E5 - | C#5 - - - . . . . . . . . . . . . | C5 - - - E5 - - - A5 - - - G5 - E5 - | F#5 - - - D#5 - - - B4 - - - . . . .'},
+  ear:{mix:{drums:1.33,bass:1.06,comp:1.36,lead:5.5},bpm:72,ch:'Em7 Cmaj7 Am7 B7',drums:[['softkick','x.......x.......'],['shaker','g.g.g.g.g.g.g.g.']],
+    bass:['sub','1.......5.......',7],comp:['keys','x.......x.......',7,52],lv:'keys',
+    lead:'B4 - - - G4 - - - E5 - D5 - B4 - - - | G4 - - - - - - - . . . . . . . . | C5 - - - A4 - - - E5 - D5 - C5 - - - | B4 - - - - - A4 - F#4 - - - . . . .'},
+  green:{mix:{drums:2.02,bass:1.06,comp:1.15,lead:0.71},bpm:90,ch:'Em C D Em',drums:[['wood','x...o...o...o...']],bass:['upright','1.......5.......',6],comp:['pad','x...............',16,52],lv:'single',lfx:['glass'],
+    lead:'E4 . G4 . B4 . E5 . D5 . B4 . G4 . B4 . | C5 . G4 . E4 . G4 . C5 - - - . . . . | D5 . A4 . F#4 . A4 . D5 . F#5 . A5 - - - | G5 - E5 - B4 - G4 - E4 - - - . . . .'},
+  win:{mix:{drums:0.78,bass:1.19,comp:1.06,lead:0.37},bpm:120,delay:1.4,ch:'G D Em C',drums:[['kick','x...x...x...x...'],['snare','....x.......x...'],['hat','x.o.x.o.x.o.x.o.'],['tamb','....x.......x...']],
+    bass:['electric','1.1.5.5.1.1.8.8.',1],comp:['organ','x.......x.......',7,55],lv:'humbucker',lfx:['ogre','echo'],
+    lead:'D5 - - - B4 - D5 - G5 - - - F#5 - G5 - | A5 - - - F#5 - D5 - A4 - - - . . . . | B4 - - - E5 - G5 - B5 - - - A5 - G5 - | E5 - - - G5 - - - C5 - - - E5 - - -'},
+  lose:{mix:{drums:1.19,bass:1.01,comp:1.3,lead:0.59},bpm:70,delay:1.8,ch:'Em C G D',drums:[['softkick','x.......x.......'],['brush','g.g.g.g.g.g.g.g.']],
+    bass:['upright','1.......5.......',7],comp:['keys','x.......o.......',7,52],lv:'nylon',
+    lead:'B4 - - - - - A4 - G4 - - - E4 - - - | G4 - - - - - - - . . . . . . . . | B4 - - - - - D5 - G4 - - - F#4 - G4 - | A4 - - - - - - - . . . . . . . .'},
+  check:{mix:{drums:1.45,bass:2.95,lead:5.31},bpm:100,ch:'E5 E5 G5 A5',drums:[['kick','x...............x.x.............'],['snare','........x...............x.......'],['hat','x.x.x.x.x.x.x.x.']],
+    bass:['electric','1.....1.5...8...',2],lv:'glass',
+    lead:'E5 - - - - - - - B4 - - - - - - - | . . . . . . . . . . . . . . . . | G5 - - - - - - - D5 - - - - - - - | . . . . . . . . . . . . E5 - - -'},
+  shop:{mix:{drums:0.68,bass:2.63,comp:1.68,lead:6.31},bpm:104,ch:'Em7 A7 Em7 A7',drums:[['kick','x.....x...x.....'],['snare','....x.......x...'],['hat','xgxgxgxgxgxgxgxg']],
+    bass:['electric','1..1..8.....5.7.',1],comp:['chop','..x...x.xx..x...',1,55],lv:'keys',
+    lead:'. . . . B4 - D5 - E5 - - - . . . . | . . . . C#5 - E5 - G5 - E5 - . . . . | . . . . B4 - D5 - E5 - G5 - E5 - D5 - | E5 - - - C#5 - - - A4 - - - . . . .'}
+};
+function menuCue(k){ try{ if(ctx&&MENU_CUES[k]) cueStart(MENU_CUES[k],k==='win'||k==='lose'?'results':k); }catch(e){} }
 // checks for the test scripts: every bar of every line has the right number of steps, every voice exists
-function cueCheck(){ const bad=[], all=Object.assign({select:SEL_CUE},ROAD_CUES);
+function cueCheck(){ const bad=[], all=Object.assign({select:SEL_CUE},ROAD_CUES); Object.entries(MENU_CUES).forEach(([k,v])=>all['m:'+k]=v);
   Object.entries(all).forEach(([id,D])=>{ const B=D.bar||16;
     [['lead',D.lead],['lead2',D.lead2]].forEach(([k,s])=>{ if(!s) return; s.split('|').forEach((b,n)=>{ const c=b.trim().split(/\s+/).length; if(c!==B) bad.push(id+' '+k+' bar '+(n+1)+': '+c+' steps'); });
       s.replace(/\|/g,' ').trim().split(/\s+/).forEach(t=>{ if('-.x'.indexOf(t)>=0) return; t.replace(/[!]$/,'').replace(/^[\/^m_]+/,'').split('+').forEach(n=>{ if(noteNum(n)==null) bad.push(id+' '+k+': bad note '+t); }); }); });
@@ -8540,12 +8571,12 @@ function cueCheck(){ const bad=[], all=Object.assign({select:SEL_CUE},ROAD_CUES)
   return bad; }
 // offline level check: renders n bars of a cue through the master chain (and optionally a riff), returns dB and peak
 async function cueTest(id,n,riff,solo){
-  const D=id==='select'?SEL_CUE:ROAD_CUES[id], saved={ctx,master,musicBus,roomIn,noiseBuf,C:Object.assign({},CUE)}, sr=44100, sx=60/D.bpm/4, B=D.bar||16, steps=(n||4)*B, sec=steps*sx+1.5;
+  const D=id==='select'?SEL_CUE:id.startsWith('m:')?MENU_CUES[id.slice(2)]:ROAD_CUES[id], saved={ctx,master,musicBus,roomIn,noiseBuf,C:Object.assign({},CUE)}, sr=44100, sx=60/D.bpm/4, B=D.bar||16, steps=(n||4)*B, sec=steps*sx+1.5;
   try{ const off=new OfflineAudioContext(2,Math.floor(sr*sec),sr); ctx=off; master=G(volGain()); master.connect(buildMaster(off)); musicBus=G(musicGain()); musicBus.connect(master);
     noiseBuf=makeNoise(1); roomIn=G(0.5); roomIn.connect(master);
     CUE.on=false; cueStart(D,'test'); clearInterval(CUE.timer); CUE.t0=0.05; CUE.bus.gain.cancelScheduledValues(0); CUE.bus.gain.setValueAtTime(CUE.lvl,0);
     if(riff){ CUE.i=0; cueRiff(riff,0); }
-    if(solo) Object.keys(CUE.L).forEach(k=>{ if(k!==solo&&k!=='send') CUE.L[k].gain.value=0; });
+    if(solo) Object.keys(CUE.L).forEach(k=>{ if(k!==solo&&k!=='send'&&k!=='wall'&&CUE.L[k]) CUE.L[k].gain.value=0; });
     for(let i=0;i<steps;i++) cueStep(i,cueTime(i));
     const b=await off.startRendering(), Lc=b.getChannelData(0), Rc=b.getChannelData(1); let pk=0,ss=0,bad=0;
     for(let j=0;j<Lc.length;j++){ const v=Math.max(Math.abs(Lc[j]),Math.abs(Rc[j])); if(!isFinite(v)) bad++; pk=Math.max(pk,v); ss+=(Lc[j]*Lc[j]+Rc[j]*Rc[j])/2; }

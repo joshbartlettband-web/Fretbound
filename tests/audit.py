@@ -19,7 +19,7 @@ def run(w,h):
     res={}
     with sync_playwright() as p:
         b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
-        pg=b.new_page(viewport={"width":w,"height":h})
+        pg=b.new_page(viewport={"width":w,"height":h}); pg.add_init_script("window.__fbNoWarm=true")
         pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','test.html'))); pg.evaluate('window.__fbNoRecruit=true'); time.sleep(0.8); pg.evaluate("window.__fb.store.unlocks={an:true}")
         A=lambda k: res.__setitem__(k,pg.evaluate(AUDIT))
         A('title'); pg.click("#btnStart"); time.sleep(0.3)

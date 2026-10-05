@@ -7,7 +7,7 @@ bad=[]; errs=[]
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
     for w,h in SIZES:
-        pg=b.new_page(viewport={"width":w,"height":h}); pg.on("pageerror",lambda e: errs.append(str(e)[:200]))
+        pg=b.new_page(viewport={"width":w,"height":h}); pg.add_init_script("window.__fbNoWarm=true"); pg.on("pageerror",lambda e: errs.append(str(e)[:200]))
         pg.goto('file://'+os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)),'..','index.html'))); time.sleep(1.2)
         pg.evaluate("window.__fb.dev(1,0,true,'busker')"); time.sleep(0.5)
         pg.evaluate("(()=>{ const d=window.__fb.store.dex.callers; d.spur={faced:1,won:1,lost:0,best:0,band:[]}; })()")

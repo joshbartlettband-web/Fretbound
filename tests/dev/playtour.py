@@ -30,7 +30,7 @@ def answer(pg,wrong=False):
     return True
 rep={'errors':[],'nights':[]}
 with sync_playwright() as p:
-    b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); pg=b.new_page(viewport={"width":W,"height":H}); 
+    b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"]); pg=b.new_page(viewport={"width":W,"height":H}); pg.add_init_script("window.__fbNoWarm=true"); 
     pg.on("pageerror",lambda e: rep['errors'].append(str(e)[:300])); pg.on("console",lambda m: rep['errors'].append(m.text[:300]) if m.type=='error' else None)
     pg.goto('file://'+REPO+'/index.html'); time.sleep(1.5)
     T=ev(pg,"window.__fb.tours()"); k=0

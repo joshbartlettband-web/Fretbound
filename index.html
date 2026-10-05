@@ -856,6 +856,12 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
 @keyframes stShatter{0%{transform:none;opacity:1;filter:none}30%{transform:translateX(-3px) rotate(-4deg)}60%{transform:translateY(6px) rotate(8deg);scale:1.1;opacity:.6;filter:blur(1px)}100%{transform:translateY(16px) rotate(14deg);scale:.6;opacity:0;filter:blur(3px)}}
 @media (prefers-reduced-motion:reduce){ .streak-tag.grow,.streak-tag.shatter{animation:none} }
 #shopCash.bump{animation:stGrow .35s ease-out}
+.nm-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:6px 0}
+@media (orientation:portrait){ .nm-grid{grid-template-columns:repeat(4,1fr)} }
+.nm-cell{display:flex;flex-direction:column;align-items:center;padding:4px 2px;border:2px solid #140804;color:#FFF3DC;font-family:var(--ui)}
+.nm-cell b{font-size:20px;line-height:1}.nm-cell i{font-style:normal;font-size:12px;opacity:.8}.nm-cell span{font-family:var(--body);font-size:11px;opacity:.9}
+.namepick.hunt .np-q b{color:#FFF3DC}
+.namepick.hunt .np-q{flex:1 1 auto}.namepick.hunt .btn{flex:0 0 auto;padding-left:10px;padding-right:10px}
 .mhint{text-align:center;font-size:13px;margin:4px 0 0}
 .bs-door{background:none;border:0;padding:0;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;touch-action:manipulation;color:inherit}
 .bs-doorcv{width:88px;height:152px;image-rendering:pixelated;display:block;filter:drop-shadow(0 4px 0 rgba(0,0,0,.45))}
@@ -1045,7 +1051,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.72</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.73</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -2555,7 +2561,7 @@ function stageSnapshot(V){
   const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0);
   drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1});
   if(ART[V.id].vec){ drawRivalVec(cg,V.id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,V.id,1.3); }
-  drawCrowdFront(cg,0,V.hats);
+  drawCrowdFront(cg,0,V.hats,V.id);
   return c;
 }
 /* ---------- title screen, painted natively at 640x360 ---------- */
@@ -4653,6 +4659,24 @@ function askName(tok){ return new Promise(res=>{ const el=$('namePick'), m=state
   el.querySelectorAll('button').forEach(b=>b.onclick=()=>end(+b.dataset.pc));
   const to=setTimeout(()=>end(null),T);
   const chk=setInterval(()=>{ if(!alive(tok)){ clearInterval(chk); if(!done){ done=true; clearTimeout(to); el.className='namepick hidden'; el.innerHTML=''; res(null); } } else if(done) clearInterval(chk); },100); }); }
+
+// note hunt (v1.73): find every place a note name lives. Used for each night's warm-up (find tonight's note, +$1 each)
+// and for the Green Room's NOTE HUNT preset. Taps are checked in onFretTap while state.phase==='hunt'.
+let HUNT=null;
+function huntSpots(pc){ const out=[]; for(let s=0;s<NS;s++){ if(state.broken[s]) continue; for(let f=0;f<=Math.min(15,MAXF);f++) if(((OPEN[s]+f)%12+12)%12===pc) out.push(s+','+f); } return out; }
+function runHunt(pc,need,secs,label,tok){ return new Promise(res=>{ const el=$('namePick'), spots=huntSpots(pc); need=Math.min(need,spots.length); const T=secs*1000, prevPhase=state.phase;
+  HUNT={pc,need,found:new Set(),res,done:false}; state.phase='hunt';
+  const nm=NN[pc]+(NN[pc].length>1?' / '+NN_FLAT[pc]:'');
+  const draw=()=>{ el.className='namepick hunt'; el.innerHTML='<span class="np-q">'+label+' <b>'+nm+'</b>: '+HUNT.found.size+' / '+need+'</span><button class="btn small blue" id="huntSkip">SKIP</button><i class="np-bar" style="width:'+bw+'%"></i>'; $('huntSkip').onclick=()=>end(); };
+  let bw=100; draw(); requestAnimationFrame(()=>{ const b=el.querySelector('.np-bar'); if(b){ b.style.transitionDuration=T+'ms'; b.style.width='0%'; } });
+  const end=()=>{ if(!HUNT||HUNT.done) return; HUNT.done=true; clearTimeout(to); clearInterval(chk); const n=HUNT.found.size; el.className='namepick '+(n>=need?'ok':''); el.innerHTML='<span class="np-q">'+(n>=need?'ALL FOUND!':'FOUND '+n+' OF '+need)+'</span>';
+    setTimeout(()=>{ el.className='namepick hidden'; el.innerHTML=''; HUNT=null; if(state.phase==='hunt') state.phase=prevPhase; renderNeck(); res(n); },700); };
+  HUNT.end=end; HUNT.redraw=()=>{ const q=el.querySelector('.np-q'); if(q) q.innerHTML=label+' <b>'+nm+'</b>: '+HUNT.found.size+' / '+need; };
+  const to=setTimeout(end,T); const chk=setInterval(()=>{ if(tok!=null&&!alive(tok)){ clearInterval(chk); clearTimeout(to); if(HUNT&&!HUNT.done){ HUNT.done=true; el.className='namepick hidden'; el.innerHTML=''; HUNT=null; res(0); } } },100);
+  renderNeck(); }); }
+function huntTap(s,f){ const H=HUNT; if(!H||H.done) return; const key=s+','+f, ok=((OPEN[s]+f)%12+12)%12===H.pc;
+  if(ok&&!H.found.has(key)){ H.found.add(key); nameLog(H.pc,true); popAtCell(s,f,NN[H.pc],'#8ED36A'); blip(1100+H.found.size*90,0.05); H.redraw(); renderNeck(); if(H.found.size>=H.need) H.end(); }
+  else if(!ok){ thud(); popAtCell(s,f,NN[((OPEN[s]+f)%12+12)%12],'#FF5A3C'); } }
 function pickTonight(){ state.tonight=Math.floor(Math.random()*12); }
 function echoNote(midi){ if(store.settings.echo===false) return; state.echo={pc:((midi%12)+12)%12,until:perfNow()+0.75}; renderNeck(); clearTimeout(echoNote.t); echoNote.t=setTimeout(()=>{ state.echo=null; renderNeck(); },760); }
 /* ---------- reward animations (v1.70) ----------
@@ -4749,7 +4773,7 @@ function setTab(t){ document.querySelectorAll('#scr-results .tab').forEach(b=>b.
 
 function setPhase(){
   if(state.phase==='answer') state.ansT0=performance.now();
-  const labels={idle:'',listen:'LISTEN...',answer:'YOUR ANSWER',score:'SCORING',review:'REVIEW'};
+  const labels={idle:'',listen:'LISTEN...',answer:'YOUR ANSWER',score:'SCORING',review:'REVIEW',hunt:'HUNT'};
   const el=$('phaseLabel'); el.textContent=labels[state.phase]||''; el.classList.toggle('go',state.phase==='answer');
   const rev=state.phase==='review';
   $('reviewBtns').classList.toggle('hidden',!rev);
@@ -5011,6 +5035,7 @@ function mk(cls,s,f,txt){
 function markersHTML(){
   let h='';
   if(namesOn()){ const fade=!state.practice; for(let s=0;s<NS;s++){ if(state.broken[s]) continue; for(let c=0;c<state.win;c++){ const f=state.pos+c; if(f>MAXF) continue; if(fade&&cellLearned(s,f)) continue; h+=mk('nn',s,f,NN[(OPEN[s]+f)%12]); } } }
+  if(state.phase==='hunt'&&HUNT){ HUNT.found.forEach(k=>{ const [s,f]=k.split(',').map(Number); h+=mk('pick right named'+(NN[HUNT.pc].length>1?' two':''),s,f,NN[HUNT.pc]); }); return h; }
   const c=state.call;
   if(c){
     if(state.phase==='review'){
@@ -5304,10 +5329,13 @@ function crowdPick(i,kind,cheering,b){
   return ['crowd_a','crowd_b','crowd_c','crowd_d'][(i*5+((i*7)%3))%4]; }
 // v1.73: the crowd is CROWD_ROWS deep. The back row stands where the single row used to (so no one hides more of the players);
 // each nearer row is a little lower, so the canvas edge crops it, and darker, out of the stage light. Rows are offset so heads fill the gaps.
-let CROWD_ROWS=4; const CROWD_TINT={};
+let CROWD_ROWS=0; let CROWD_VID=null; const CROWD_TINT={};
+// how deep each room's crowd is: packed clubs and dance halls 4, mid-size rooms 3, quiet listening rooms 2, the Pole none
+const VENUE_ROWS={sebene:4,chicha:4,tokyo:4,milonga:4,rio:4,outback:4,spur:4,cave:4,tide:3,juke:3,paris:3,lanai:3,mess:3,frost:3,dunes:2,azmari:2,ghat:2,bali:2,grotto:2,aurora:2,pole:0,green:0};
+function crowdRows(){ if(CROWD_ROWS) return CROWD_ROWS; const r=VENUE_ROWS[CROWD_VID||(VEN()||{}).id]; return r==null?3:r; }
 function crowdTint(k,im,f){ const key=k+'|'+f; if(CROWD_TINT[key]) return CROWD_TINT[key]; const c=document.createElement('canvas'); c.width=im.width; c.height=im.height; const g=c.getContext('2d'); g.filter='brightness('+f+')'; g.drawImage(im,0,0); g.filter='none'; return CROWD_TINT[key]=c; }
 function drawCrowdPainted(g,t,kind){
-  if(CROWD_ROWS>1) return drawCrowdRows(g,t,kind);
+  if(crowdRows()>1) return drawCrowdRows(g,t,kind);
   const cheering=anim.cheerUntil>t; g.imageSmoothingEnabled=false;
   for(let i=0;i<15;i++){
     const hop=(kind==='penguins'&&anim.hopUntil&&t<anim.hopUntil)?Math.round(Math.abs(Math.sin(t*9+i*1.3))*5):0, x=6+i*22+((i*7)%5), b=(tr.on&&((Math.max(0,state.beat)+i)%2===0))?1:0, y=112+(i%3)-b-hop-(cheering&&i%2?2:0), im=CROWD_IMG[crowdPick(i,kind,cheering,b)];
@@ -5315,7 +5343,7 @@ function drawCrowdPainted(g,t,kind){
     g.drawImage(im,Math.round(x-im.width/2),Math.round(y+15-im.height)); }
   return true; }
 function drawCrowdRows(g,t,kind){
-  const cheering=anim.cheerUntil>t; g.imageSmoothingEnabled=false; const R=CROWD_ROWS;
+  const cheering=anim.cheerUntil>t; g.imageSmoothingEnabled=false; const R=crowdRows();
   for(let r=0;r<R;r++){ const dy=r*4, f=+(1-r*0.14).toFixed(2), off=((r%2)*11+r*4)%22, n=16;
     for(let i=0;i<n;i++){ const j=i*3+r*7, x=off-8+i*22+((j*7)%5), b=(tr.on&&((Math.max(0,state.beat)+i+r)%2===0))?1:0,
         hop=(kind==='penguins'&&anim.hopUntil&&t<anim.hopUntil)?Math.round(Math.abs(Math.sin(t*9+i*1.3+r))*5):0,
@@ -5323,7 +5351,7 @@ function drawCrowdRows(g,t,kind){
       if(!im) return false;
       g.drawImage(f<0.99?crowdTint(k,im,f):im,Math.round(x-im.width/2),Math.round(y+15-im.height)); } }
   return true; }
-function drawCrowdFront(g,t,kind){ const c=CROWD_CV.getContext('2d'); c.clearRect(0,0,320,120); c.save(); c.translate(0,CROWD_DROP); drawCrowd(c,t,kind); c.restore();
+function drawCrowdFront(g,t,kind,vid){ CROWD_VID=vid||null; const c=CROWD_CV.getContext('2d'); c.clearRect(0,0,320,120); c.save(); c.translate(0,CROWD_DROP); drawCrowd(c,t,kind); c.restore();
   const sm=g.imageSmoothingEnabled; g.imageSmoothingEnabled=false; g.drawImage(CROWD_CV,0,0,640,240); g.imageSmoothingEnabled=sm; }
 function drawCrowd(g,t,kind){
   if(kind==='none') return;
@@ -6275,7 +6303,7 @@ function drawStage(t,dt){
   sg.drawImage(bgCanvas,0,0); sg.drawImage(S2,0,0); stageLights(sg,t,V.id); drawBandStage(sg,t,'back'); try{ drawStreakAura(sg,t); }catch(e){}
   drawHero(sg,state.char||'bard',HERO_X,FIGHTER_Y+(BODY_IMG[state.char||'bard']?0:bob*2),{t,strum:t<anim.pStrumUntil?Math.floor(t*30):-1,blink:(t%3.7)<0.12});
   if(A.vec){ drawRivalVec(sg,V.id,RIVAL_X,FIGHTER_Y+(tr.on&&!CALLER_IMG[V.id]?(1-anim.bob)*2:0),{t,strum:t<anim.rStrumUntil?Math.floor(t*30):-1,blink:(t%4)<0.12}); drawRivalProp(sg,V.id,t); }
-  drawBandStage(sg,t,'front'); drawCrowdFront(sg,t,V.hats);
+  drawBandStage(sg,t,'front'); drawCrowdFront(sg,t,V.hats,V.id);
   if(A.motes) drawMotes2(sg,t);
   stageBlind(sg,V,t);
   drawFrontRow(t,V);
@@ -6287,14 +6315,20 @@ function frSprite(k){ if(FR_CACHE[k]) return FR_CACHE[k]; const im=CROWD_IMG[k];
   g.imageSmoothingEnabled=false; g.filter='brightness(0.55) saturate(0.8)'; g.drawImage(im,0,0,c.width,c.height); g.filter='none';
   g.globalCompositeOperation='source-atop'; const gr=g.createLinearGradient(0,0,0,c.height*0.4); gr.addColorStop(0,'rgba(255,190,120,.22)'); gr.addColorStop(1,'rgba(255,190,120,0)'); g.fillStyle=gr; g.fillRect(0,0,c.width,c.height);   // a little stage light on the tops of their heads
   return FR_CACHE[k]=c; }
+// the Pole has no audience: the strip under the stage is snow blowing across the ice, never an empty bar
+function drawQuietStrip(g,W,H,t,V){ const sky=g.createLinearGradient(0,0,0,H); sky.addColorStop(0,'#C8D8E8'); sky.addColorStop(1,'#E8F0F6'); g.fillStyle=sky; g.fillRect(0,0,W,H);
+  g.fillStyle='#F6FAFC'; for(let x=0;x<W;x++){ const y=Math.round(H*0.55+Math.sin(x*0.035+1)*H*0.12+Math.sin(x*0.11)*H*0.05); g.fillRect(x,y,1,H-y); }
+  g.fillStyle='#A8BCD0'; for(let x=0;x<W;x+=2){ const y=Math.round(H*0.55+Math.sin(x*0.035+1)*H*0.12+Math.sin(x*0.11)*H*0.05); g.fillRect(x,y,2,1); }
+  g.fillStyle='rgba(255,255,255,.9)'; for(let i=0;i<46;i++){ const x=((h2(i,3)*W+t*(40+h2(i,4)*50))%W), y=(h2(i,5)*H+Math.sin(t*2+i)*3)%H; g.fillRect(Math.round(x),Math.round(y),i%4?1:2,1); } }
 function drawFrontRow(t,V){ const cv=$('frontRow'), dl=$('dialog'); if(!cv||!dl) return; const hcss=dl.offsetHeight, wcss=cv.clientWidth||cv.parentNode.clientWidth; if(!hcss||!wcss) return;
   if(cv.style.height!==hcss+'px') cv.style.height=hcss+'px';
   const W=320, H=Math.max(8,Math.round(hcss*W/wcss)); if(cv.width!==W||cv.height!==H){ cv.width=W; cv.height=H; }
   const g=cv.getContext('2d'); g.imageSmoothingEnabled=false;
   const gr=g.createLinearGradient(0,0,0,H); gr.addColorStop(0,'#2A140C'); gr.addColorStop(1,'#0C0504'); g.fillStyle=gr; g.fillRect(0,0,W,H);
-  const kind=V.hats; if(kind==='none') return; const cheering=anim.cheerUntil>t;
-  for(let i=0;i<10;i++){ const k=crowdPick(i*3+1,kind,cheering,0), sp=frSprite(k); if(!sp) continue;
-    const b=(tr.on&&((Math.max(0,state.beat)+i)%2===1))?2:0, up=cheering&&i%2?3:0, x=Math.round(14+i*33+((i*11)%7)-sp.width/2), y=Math.round(H*0.18+(i%3)*2-b-up);
+  const kind=V.hats; if(kind==='none'||VENUE_ROWS[V.id]===0){ drawQuietStrip(g,W,H,t,V); return; } const cheering=anim.cheerUntil>t, rows=VENUE_ROWS[V.id]||3, nF=rows>=3?10:8;
+  if(rows<3){ const fl=g.createLinearGradient(0,H*0.45,0,H); fl.addColorStop(0,'rgba(90,50,24,.0)'); fl.addColorStop(1,'rgba(90,50,24,.55)'); g.fillStyle=fl; g.fillRect(0,0,W,H); }   // a quiet room: fewer people, the warm floor shows between them
+  for(let i=0;i<nF;i++){ const k=crowdPick(i*3+1,kind,cheering,0), sp=frSprite(k); if(!sp) continue;
+    const b=(tr.on&&((Math.max(0,state.beat)+i)%2===1))?2:0, up=cheering&&i%2?3:0, x=Math.round((nF<10?22+i*(300/nF):14+i*33)+((i*11)%7)-sp.width/2), y=Math.round(H*0.18+(i%3)*2-b-up);
     g.drawImage(sp,x,y); }
   if(state.lighterUntil&&perfNow()<state.lighterUntil&&!reduceMotion){ for(let i=0;i<10;i+=2){ const x=Math.round(14+i*33+((i*11)%7))+6, y=Math.round(H*0.18)-10-((i*3)%4), f=Math.sin(t*14+i)*1;   // lighters up for a perfect night
       g.fillStyle='#5A5A64'; g.fillRect(x,y,3,6); g.fillStyle='rgba(255,170,60,.35)'; g.fillRect(x-3,y-9+f,9,9); g.fillStyle='#FFB030'; g.fillRect(x,y-6+f,3,5); g.fillStyle='#FFF4C0'; g.fillRect(x+1,y-4+f,1,2); } }
@@ -7353,7 +7387,14 @@ function renderEar(root,opts){ opts=opts||{}; const S=earSummary();
   const lists='<div class="ear-lists"><div><h4>MOST MISSED NOTES</h4>'+earRows(S.missed,x=>'<div class="ear-row"><span>'+NN[x.pc]+'</span><b>'+Math.round(x.acc*100)+'%</b><em>'+x.n+'x</em></div>')+'</div>'+
     '<div><h4>SLOWEST NOTES</h4>'+earRows(S.slow,x=>'<div class="ear-row"><span>'+NN[x.pc]+'</span><b>'+(x.avg/1000).toFixed(1)+'s</b><em>'+x.n+'x</em></div>')+'</div>'+
     '<div><h4>WEAKEST CALLS</h4>'+earRows(S.weakHands,x=>'<div class="ear-row"><span>'+x.h.name+'</span><b>'+Math.round(x.acc*100)+'%</b><em>'+x.seen+'x</em></div>')+'</div></div>';
-  root.innerHTML='<div class="ear-mode"><button data-m="acc" class="'+(earMode==='acc'?'sel':'')+'">ACCURACY</button><button data-m="spd" class="'+(earMode==='spd'?'sel':'')+'">SPEED</button>'+(opts.compact?'<button id="earFull" class="full">FULL REPORT</button>':'')+'</div>'+
+  if(earMode==='names'){ const N=store.names||{}, cell=pc=>{ const r=N[pc]; const a=r&&r.n?r.ok/r.n:null, col=a==null?'#3A2A20':a>=0.8?'#3E8A4A':a>=0.55?'#B08A2A':'#A8402A';
+      return '<div class="nm-cell" style="background:'+col+'"><b>'+NN[pc]+'</b>'+(NN[pc].length>1?'<i>'+NN_FLAT[pc]+'</i>':'<i>&nbsp;</i>')+'<span>'+(a==null?'not yet':Math.round(a*100)+'% of '+r.n)+'</span></div>'; };
+    const tot=Object.values(N).reduce((t,r)=>t+r.n,0), ok=Object.values(N).reduce((t,r)=>t+r.ok,0), worst=Object.keys(N).map(Number).filter(pc=>N[pc].n>=2&&N[pc].ok/N[pc].n<0.9).sort((a,b)=>N[a].ok/N[a].n-N[b].ok/N[b].n)[0];
+    root.innerHTML='<div class="ear-mode"><button data-m="acc">ACCURACY</button><button data-m="spd">SPEED</button><button data-m="names" class="sel">NAMES</button>'+(opts.compact?'<button id="earFull" class="full">FULL REPORT</button>':'')+'</div>'+
+      '<div class="nm-grid">'+[...Array(12).keys()].map(cell).join('')+'</div><div class="ear-take">'+(tot?'You have named '+ok+' of '+tot+' notes right ('+Math.round(ok/tot*100)+'%).'+(worst!=null?' Your trickiest name is '+NN[worst]+(NN[worst].length>1?' / '+NN_FLAT[worst]:'')+'. Try the NOTE HUNT in the Green Room.':''):'Name the first note after a true call, or hunt notes in the Green Room, and your names show up here.')+'</div>';
+    root.querySelectorAll('.ear-mode button[data-m]').forEach(b=>b.onclick=()=>{ earMode=b.dataset.m; blip(700,0.04); renderEar(root,opts); });
+    if(opts.compact&&root.querySelector('#earFull')) root.querySelector('#earFull').onclick=()=>{ blip(880,0.06); goEar(); }; return; }
+  root.innerHTML='<div class="ear-mode"><button data-m="acc" class="'+(earMode==='acc'?'sel':'')+'">ACCURACY</button><button data-m="spd" class="'+(earMode==='spd'?'sel':'')+'">SPEED</button><button data-m="names">NAMES</button>'+(opts.compact?'<button id="earFull" class="full">FULL REPORT</button>':'')+'</div>'+
     '<div class="ear-mapbox"><canvas class="ear-map" aria-label="Fretboard heatmap of your accuracy and speed"></canvas></div>'+
     '<div class="ear-legend"><span>'+(earMode==='acc'?'MISSED':'FAST')+'</span><i class="ear-bar '+earMode+'"></i><span>'+(earMode==='acc'?'FOUND':'SLOW')+'</span></div>'+
     '<div class="ear-detail" id="earDetail">Tap a cell for details.</div><div class="ear-take">'+S.text+'</div>'+(opts.compact?'':lists);
@@ -7444,7 +7485,7 @@ const PRAC_VEN={id:'green',night:0,name:'THE GREEN ROOM',short:'GREEN ROOM',plac
 let PR=null, PRSETUP=null;
 const PR_FRETS={all:[0,15,'ALL'],a:[0,4,'0-4'],b:[5,8,'5-8'],c:[9,12,'9-12'],d:[12,15,'12-15']};
 const IV_NAMES={1:'m2',2:'M2',3:'m3',4:'M3',5:'P4',6:'TT',7:'P5',8:'m6',9:'M6',10:'m7',11:'M7',12:'8ve'};
-const PR_PRESETS=[['weak','MY WEAK SPOTS'],['intervals','INTERVALS'],['triads','TRIADS'],['runs','RUNS'],['all','ALL']];
+const PR_PRESETS=[['weak','MY WEAK SPOTS'],['intervals','INTERVALS'],['triads','TRIADS'],['runs','RUNS'],['all','ALL'],['hunt','NOTE HUNT']];
 function pracSizes(){ return [...new Set(HANDS.filter(h=>h.iv.length===2).map(h=>Math.abs(h.iv[1])))].filter(v=>IV_NAMES[v]).sort((a,b)=>a-b); }
 function pracHands(cfg){
   const one=HANDS.filter(h=>h.iv.length===2), sel=cfg.ivSel&&cfg.ivSel.length?cfg.ivSel:null;
@@ -7486,6 +7527,7 @@ function startPractice(cfg){
   applyVenue(PRAC_VEN); try{ heroWarm(state.char); rivalWarm('green'); }catch(e){}
   $('toneBox').textContent='0'; $('hypeBox').textContent='0'; setHand('READY?','',''); renderPracticeHud();
   goScreen('duel'); state.practice=true; $('scr-duel').classList.add('practice');
+  if(cfg.preset==='hunt'){ (async()=>{ say(RIVAL,'Note hunt. I name a note, you find every place it lives.'); await sleep(1800); if(!alive(tok)) return; huntLoop(tok); })(); return; }
   (async()=>{ say(RIVAL,PRAC_VEN.lines.intro[0]); await sleep(2200); if(!alive(tok)) return; say(RIVAL,PRAC_VEN.lines.intro[1]); await sleep(1900); if(!alive(tok)) return; startCall(tok); })();
 }
 // change the tempo: at once while you are answering or reviewing (the groove restarts on the new grid so the next replay is at the new speed), or at the next call if the tech is mid-phrase
@@ -7516,6 +7558,12 @@ async function finishPractice(tok){
   say('THE CALL WAS',c.hand.name+': '+names+'. '+c.hand.desc[0].toUpperCase()+c.hand.desc.slice(1)+'.'+(miss.length?' Your wrong notes: '+miss.join(', ')+'.':''),0,true);
   $('btnNext').textContent='NEXT CALL'; $('btnNext').disabled=false;
 }
+// the Green Room's NOTE HUNT: round after round, a name the Ear Report says you miss most often comes up more
+async function huntLoop(tok){ while(alive(tok)&&state.practice&&PR){ const w=Object.keys(store.names||{}).map(Number), pool=[]; for(let pc=0;pc<12;pc++){ const r=(store.names||{})[pc], miss=r?Math.max(0,r.n-r.ok)/Math.max(1,r.n):0.5; for(let k=0;k<1+Math.round(miss*4);k++) pool.push(pc); }
+    const pc=pool[Math.floor(Math.random()*pool.length)], need=Math.min(4,huntSpots(pc).length); say(RIVAL,'Find every '+NN[pc]+(NN[pc].length>1?' (or '+NN_FLAT[pc]+')':'')+' you can see.',0,true);
+    const n=await runHunt(pc,need,14,'FIND',tok); if(!alive(tok)||!state.practice||!PR) return;
+    PR.calls++; PR.notes+=need; PR.noteOk+=n; const ok=n>=need; PR.log.push({id:'hunt',ok}); if(ok){ PR.found++; PR.streak++; PR.best=Math.max(PR.best,PR.streak); if(PR.streak>=3) anim.cheerUntil=perfNow()+1.2; } else PR.streak=0;
+    renderPracticeHud(); await sleep(900); } }
 function finishPracticeSession(){
   if(!PR){ goBackstage(); return; }
   const tok=++state.runId; trStop(); hideDialog();
@@ -7543,7 +7591,7 @@ function renderGreen(){
     '<div><h4>STRINGS</h4><div class="gchips">'+[['all','ALL'],['high','HIGH'],['low','LOW']].map(([k,l])=>chip('strings',k,l,C.strings===k)).join('')+'</div></div></div>'+
     '<div class="gsec gcol"><div class="gtempo"><h4>TEMPO <span id="gBpm">'+C.bpm+' BPM</span></h4><input type="range" id="gTempo" min="40" max="140" step="4" value="'+C.bpm+'" aria-label="Tempo in beats per minute"></div>'+
     '<div><h4>AIDS</h4><div class="gchips">'+chip('names','1','NAMES '+(C.names?'ON':'OFF'),C.names)+chip('glow','1','GLOW '+(C.glow?'ON':'OFF'),C.glow)+'</div></div></div>'+
-    '<div class="gsum">Practising <b>'+pracHands(C).length+' call type'+(pracHands(C).length===1?'':'s')+'</b>, frets <b>'+PR_FRETS[C.frets][2]+'</b>, <b>'+({all:'all',high:'high',low:'low'}[C.strings])+'</b> strings, <b>'+C.bpm+' BPM</b>.</div>';
+    (C.preset==='hunt'?'<div class="gnote">The tech names a note and you find every place it lives on the neck. Names you miss come up more often.</div>':'')+'<div class="gsum">Practising <b>'+(C.preset==='hunt'?'note names':pracHands(C).length+' call type'+(pracHands(C).length===1?'':'s'))+'</b>, frets <b>'+PR_FRETS[C.frets][2]+'</b>, <b>'+({all:'all',high:'high',low:'low'}[C.strings])+'</b> strings, <b>'+C.bpm+' BPM</b>.</div>';
   const gt=$('gTempo'); if(gt){ gt.oninput=()=>{ $('gBpm').textContent=gt.value+' BPM'; }; gt.onchange=()=>{ C.bpm=+gt.value; blip(700,0.04); renderGreen(); }; }
   $('greenBody').querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{ const a=b.dataset.a, v=b.dataset.v; blip(700,0.04);
     if(a==='preset'){ C.preset=v; if(v==='weak'){ const w=earWeakSpots(); if(w.zone){ const z=Object.keys(PR_FRETS).find(k=>k!=='all'&&PR_FRETS[k][0]<=w.zone.lo&&PR_FRETS[k][1]>=w.zone.hi); C.frets=z||'all'; C.strings=w.zone.low?'low':'high'; } } }
@@ -8244,6 +8292,8 @@ async function startVenue(){
   await sleep(2400); if(!alive(tok)) return;
   say(RIVAL,LINES.intro[1]);
   await sleep(2200); if(!alive(tok)) return;
+  if(!window.__fbNoWarm&&state.tonight!=null){ hideDialog(); say('WARM UP','Find tonight\'s note, '+NN[state.tonight]+', three times anywhere on the neck. $1 for each.',0,true);
+    const n=await runHunt(state.tonight,3,12,'FIND',tok); if(!alive(tok)) return; hideDialog(); if(n){ RD.money(n); pop($('topCash'),'+$'+n,'#FFC857'); } await sleep(400); if(!alive(tok)) return; }
   startCall(tok);
 }
 async function startCall(tok){
@@ -8274,6 +8324,7 @@ function onFretTap(s,f,e){
   pluckOn('p',s,midi,ctx.currentTime,-0.35);
   anim.pStrumUntil=perfNow()+0.18; heroNote(f); try{ bandDouble(midi,s); }catch(e){} spawnNote(HERO_X/2-10,(FIGHTER_Y-40)/2,'#6DDAFF');
   pluckVisual(s,f);
+  if(state.phase==='hunt'){ huntTap(s,f); return; }
   if(state.phase!=='answer') return;
   const g=grooveOf(tapTime(e));
   state.answer.push({midi,s,f,g,t:performance.now()});
@@ -8524,7 +8575,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={crowdRows:n=>{ CROWD_ROWS=n; },fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={huntNow:(pc)=>{ runHunt(pc,3,12,'FIND',null); },noWarm:v=>{ window.__fbNoWarm=v; },vhats:()=>TOURS.flatMap(T=>T.venues).map(v=>[v.id,v.hats]),crowdRows:n=>{ CROWD_ROWS=n; },fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

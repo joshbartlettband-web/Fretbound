@@ -799,7 +799,8 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
   .modal-card:has(.dev-tabs) h3{grid-column:1/3;margin:0 0 2px}
   .modal-card:has(.dev-tabs) .dev-tabs{grid-column:1;margin:0 0 4px}
   .modal-card:has(.dev-tabs) .dev-list{grid-column:1;grid-row:3;margin:0}
-  .modal-card:has(.dev-tabs) .setrow{grid-column:2;margin:2px 0}
+  .modal-card:has(.dev-tabs) .dev-sets{grid-column:2;grid-row:2/4}
+  .modal-card:has(.dev-tabs) .setrow{margin:2px 0}
   .modal-card:has(.dev-tabs) .setrow .dim{display:none}
   .modal-card:has(.dev-tabs) .row-btns{grid-column:1/3;margin:4px 0 0}
   .modal-card:has(.setgrid){max-width:780px;padding:8px 16px}
@@ -1057,7 +1058,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.75</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.76</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -6477,7 +6478,8 @@ const MEMBERS={
 };
 META.met=META.met||{};
 function trueCallsAllTime(){ return Object.values(store.stats||{}).reduce((a,s)=>a+((s&&s.correct)||0),0); }
-function memberStatus(id){ const M=MEMBERS[id]; if(META.hired[id]) return META.lineup.indexOf(id)>=0?'seated':'hired';
+function devAll(){ return !!(store.settings&&store.settings.devUnlock); }   // developer menu: every member and caller shows as met (the save itself is untouched)
+function memberStatus(id){ const M=MEMBERS[id]; if(META.hired[id]) return META.lineup.indexOf(id)>=0?'seated':'hired'; if(devAll()) return 'buy';
   if(M.calls&&trueCallsAllTime()<M.calls) return 'locked'; if(M.tour&&!META.met[id]) return 'locked'; return 'buy'; }
 function lockText(id){ const M=MEMBERS[id]; if(M.calls) return 'Nail '+M.calls+' calls to meet them ('+Math.min(M.calls,trueCallsAllTime())+' so far).'; if(M.tour) return 'Meet them backstage on tour.'; return ''; }
 // effects
@@ -7311,7 +7313,7 @@ function stampCv(T,earned){ const c=document.createElement('canvas'); c.width=30
   R(g,3,3,24,24,earned?'#E8D8A8':'#1E120C'); g.strokeStyle=col; g.lineWidth=2; g.beginPath(); g.arc(15,15,9,0,Math.PI*2); g.stroke();
   if(earned){ g.fillStyle=col; [[9,15],[10,16],[11,17],[12,18],[13,17],[14,16],[15,15],[16,14],[17,13],[18,12],[19,11]].forEach(q=>g.fillRect(q[0],q[1],2,2)); } else { ['.XXX.','X...X','....X','..XX.','..X..','.....','..X..'].forEach((row,yy)=>[...row].forEach((ch,xx)=>{ if(ch==='X') px(g,10+xx*2,8+yy*2,'#6A5A4A',2,2); })); }
   return c; }
-function rosterCallerCard(v,T){ const d=dexC0(v.id), met=d.faced>0, cc=CONT_COL[T.id]||'#C8963A', img='<img class="rc-por'+(met?'':' lock')+'" alt="" src="'+(RIVAL_PORT[v.id]||'')+'" style="border-color:'+cc+'">';
+function rosterCallerCard(v,T){ const d=dexC0(v.id), met=d.faced>0||devAll(), cc=CONT_COL[T.id]||'#C8963A', img='<img class="rc-por'+(met?'':' lock')+'" alt="" src="'+(RIVAL_PORT[v.id]||'')+'" style="border-color:'+cc+'">';
   const kick='<div class="kicker">'+T.name+' &middot; Night '+v.night+'</div>';
   if(!met){ openModal('<div class="rc-top">'+img+'<div class="rc-meta">'+kick+'<h3>? ? ?</h3><div class="mem-l">Someone is waiting at <b>'+v.short+'</b>, '+v.place+'.</div></div></div><div class="mem-l mem-lock">Face them on tour to meet them.</div><div class="row-btns"><button class="btn blue" id="rcX">CLOSE</button></div>'); }
   else { const band=(d.band||[]).filter(id=>MEMBERS[id]).map(id=>(MEMBER_PORT[id]?'<img class="vb-por" alt="" src="'+MEMBER_PORT[id]+'">':'')+MEMBERS[id].name).join(' &middot; ');
@@ -7337,7 +7339,7 @@ function renderRoster(){
     body.appendChild(tabs);
     const head=document.createElement('div'); head.className='rhead'; head.innerHTML='<b>'+T.name+'</b><span>'+T.blurb+'</span>'; body.appendChild(head);
     const grid=document.createElement('div'); grid.className='rgrid'; grid.style.setProperty('--cc',cc);
-    T.venues.forEach(v=>{ const d=dexC0(v.id), met2=d.faced>0, b=document.createElement('button'); b.className='rtile'+(met2?'':' unmet')+(d.won?' beaten':''); b.style.setProperty('--cc',cc);
+    T.venues.forEach(v=>{ const d=dexC0(v.id), met2=d.faced>0||devAll(), b=document.createElement('button'); b.className='rtile'+(met2?'':' unmet')+(d.won?' beaten':''); b.style.setProperty('--cc',cc);
       b.innerHTML='<img class="rt-por'+(met2?'':' lock')+'" alt="" src="'+(RIVAL_PORT[v.id]||'')+'">'+(d.won?'<i class="rt-medal"></i>':'')+'<span class="rt-txt"><span class="rt-name">'+(met2?titleCase(v.rival):'? ? ?')+'</span><span class="rt-sub">'+(met2?v.rivalSub:'Waiting at '+v.short+', '+v.place)+'</span><span class="rt-rec">'+(met2?('Faced '+d.faced+' &middot; Beaten '+d.won+' &middot; Lost '+d.lost):'Not met yet')+'</span></span>';
       b.onclick=()=>{ blip(700,0.04); rosterCallerCard(v,T); }; grid.appendChild(b); });
     body.appendChild(grid);
@@ -8467,16 +8469,18 @@ function showDev(){
   const T=TOURS[DEV.tour], s=store.settings;
   openModal('<h3>Developer</h3><div class="dev-tabs">'+TOURS.map((t,i)=>'<button class="btn small '+(i===DEV.tour?'gold':'blue')+'" data-dt="'+i+'">'+t.short+'</button>').join('')+'</div>'+
     '<div class="dev-list">'+T.venues.map((v,i)=>'<button class="btn small" data-dv="'+i+'">'+v.night+'. '+v.short+'</button>').join('')+'</div>'+
-    '<div class="setrow"><span>Full band<br><span class="dim">Four musicians on your side.</span></span>'+knobBtn('dBand',DEV.band)+'</div>'+
+    '<div class="dev-sets"><div class="setrow"><span>Full band<br><span class="dim">Four musicians on your side.</span></span>'+knobBtn('dBand',DEV.band)+'</div>'+
+    '<div class="setrow"><span>Unlock everyone<br><span class="dim">Band, crew and callers. Save untouched.</span></span>'+knobBtn('dAll',!!s.devUnlock)+'</div>'+
     '<div class="setrow"><span>Scene preview<br><span class="dim">Every title scene.</span></span>'+knobBtn('dScene',!!s.previewScenes)+'</div>'+
-    '<div class="setrow"><span>Dev button in Settings<br><span class="dim">Skip a night mid-run.</span></span>'+knobBtn('dPause',!!s.dev)+'</div>'+
+    '<div class="setrow"><span>Dev button in Settings<br><span class="dim">Skip a night mid-run.</span></span>'+knobBtn('dPause',!!s.dev)+'</div></div>'+
     '<div class="row-btns"><button class="btn gold" id="dClose">CLOSE</button></div>');
-  setKnob('dBand',DEV.band); setKnob('dScene',!!s.previewScenes); setKnob('dPause',!!s.dev);
+  setKnob('dBand',DEV.band); setKnob('dAll',!!s.devUnlock); setKnob('dScene',!!s.previewScenes); setKnob('dPause',!!s.dev);
   document.querySelectorAll('[data-dt]').forEach(b=>b.onclick=()=>{ blip(660,0.04); DEV.tour=+b.dataset.dt; showDev(); });
   document.querySelectorAll('[data-dv]').forEach(b=>b.onclick=()=>{ blip(990,0.08); devStart(DEV.tour,+b.dataset.dv); });
   $('dBand').onclick=()=>{ DEV.band=!DEV.band; setKnob('dBand',DEV.band); blip(DEV.band?660:440,0.04); };
   $('dScene').onclick=()=>{ s.previewScenes=!s.previewScenes; save(); if(!themeUnlocked(s.titleTheme||'na')) setTitleTheme('na'); renderTitleScene(); setKnob('dScene',!!s.previewScenes); blip(660,0.04); };
   $('dPause').onclick=()=>{ s.dev=!s.dev; save(); setKnob('dPause',!!s.dev); blip(660,0.04); };
+  $('dAll').onclick=()=>{ s.devUnlock=!s.devUnlock; save(); setKnob('dAll',!!s.devUnlock); blip(s.devUnlock?660:440,0.04); };
   $('dClose').onclick=()=>{ blip(660,0.05); closeModal(); }; }
 (function(){ let n=0,t0=0; const f=document.querySelector('.title-foot'); if(f) f.addEventListener('click',()=>{ const now=Date.now(); if(now-t0>2500) n=0; t0=now; n++;
   if(n>=5){ n=0; initAudio(); blip(880,0.06); showDev(); } }); })();

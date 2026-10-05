@@ -4392,7 +4392,7 @@ function renderChars(){
   const o=$('charTiles'); o.innerHTML='';
   CHARS.forEach(C=>{ const b=document.createElement('button'); b.className='ctile'+(state.char===C.id?' sel':''); b.setAttribute('aria-label',C.name);
     b.appendChild(artPortrait(C.id,'tile')||heroPortrait(C.id,false)); const n=document.createElement('span'); n.textContent=C.name.replace(/^The /,''); b.appendChild(n);
-    b.onclick=()=>{ state.char=C.id; blip(700,0.05); renderChars(); }; o.appendChild(b); });
+    b.onclick=()=>{ state.char=C.id; if(CUE.on&&CUE.screen==='chars') cueRiff(C.id); else blip(700,0.05); renderChars(); }; o.appendChild(b); });
   const C=curChar(), gt=GUITAR_BY[C.guitar], S=GSTAT[gt.id], card=$('charCard');
   card.innerHTML='<div class="cc-top"><div class="cc-port"></div><div class="cc-info"><div class="cc-skill">'+C.skill+(C.liner?' <button class="cc-more" id="ccMore">LINER NOTES</button>':'')+'</div><h2>'+C.name+'</h2><div class="cc-epi">'+C.epithet+'</div>'+
     '<div class="cc-gift"><b>'+C.gift+'.</b> '+C.gtext+'</div></div></div>'+
@@ -4405,7 +4405,7 @@ function goChars(){
   state.runId++; hideDialog();
   if(!state.char) state.char=store.settings.char||'bard';
   renderChars(); goScreen('chars');
-  if(ctx) trStart('jam',ctx.currentTime+0.1);
+  if(ctx){ trStop(); cueStart(SEL_CUE,'chars'); cueRiff(state.char,16); cueWarm(); }
 }
 function renderGuitars(){
   const gt=curGuitar(), S=GSTAT[gt.id], o=$('guitars'); o.innerHTML='';
@@ -4627,13 +4627,14 @@ function goRoad(next,force){
   const box=$('roadChoices'); box.innerHTML=''; box.classList.remove('quiz');
   if(E.quiz) roadQuiz(E.quiz); else (E.ch()||[]).filter(Boolean).forEach(c=>{ const b=document.createElement('button'); b.className='btn small '+(c.dis?'':'gold'); b.textContent=c.l; b.disabled=!!c.dis;
     b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||''; roadDoneBtn(); }; box.appendChild(b); });
-  goScreen('road'); saveRun(); requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },140); });
+  goScreen('road'); saveRun(); try{ if(ctx&&ROAD_CUES[id]){ cueWarmDef(ROAD_CUES[id]); cueStart(ROAD_CUES[id],'road'); } }catch(e){}
+  requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },140); });
 }
 function roadDoneBtn(){ const b=$('roadGo'); b.classList.remove('hidden'); b.textContent='ON TO THE SHOW'; renderCash(); saveRun(); }
 function roadQuiz(Q){ let k=0, right=0; const box=$('roadChoices'); box.classList.add('quiz');
   const ask=()=>{ if(k>=Q.n){ RD.money(right*Q.pay); box.innerHTML=''; $('roadOut').textContent=right+' of '+Q.n+' right. +$'+(right*Q.pay)+'.'; roadDoneBtn(); return; }
     const [iv,name]=Q.set[Math.floor(Math.random()*Q.set.length)], root=45+Math.floor(Math.random()*8), wrong=shuffle(Q.set.filter(q=>q[1]!==name)).slice(0,2), opts=shuffle([[iv,name],...wrong]);
-    const play=()=>{ try{ initAudio(); const t=ctx.currentTime+0.08; pluckOn('r',3,root,t); pluckOn('r',2,root+iv,t+0.55); }catch(e){} };
+    const play=()=>{ try{ initAudio(); cueDuck(1.7); const t=ctx.currentTime+0.08; pluckOn('r',3,root,t); pluckOn('r',2,root+iv,t+0.55); }catch(e){} };
     box.innerHTML=''; const hd=document.createElement('div'); hd.className='road-q'; hd.textContent='Question '+(k+1)+' of '+Q.n; box.appendChild(hd);
     const hb=document.createElement('button'); hb.className='btn small blue'; hb.textContent='HEAR IT AGAIN'; hb.onclick=play; box.appendChild(hb);
     opts.forEach(o=>{ const b=document.createElement('button'); b.className='btn small gold'; b.textContent=o[1]; b.onclick=()=>{ const ok=o[1]===name; if(ok){ right++; blip(990,0.06); } else thud(); $('roadOut').textContent=(ok?'Right: ':'It was a ')+name+'.'; k++; setTimeout(ask,700); }; box.appendChild(b); });
@@ -8266,8 +8267,270 @@ async function songTest(from,n){
   } finally { ctx=saved.ctx; master=saved.master; musicBus=saved.musicBus; roomIn=saved.roomIn; noiseBuf=saved.noiseBuf; SONG.bus=saved.SB; SONG.ctx=saved.SC; }
 }
 
+/* ---------- cues (v1.77): music outside the shows ----------
+   The character-select theme, with each player's own riff on their own guitar over it, and a piece for every road encounter.
+   A cue is data. bpm, sw (swing, 0.5 straight), bar (16 steps, or 12 for 3/4), ch (one chord per bar), drums/bass/comp in the
+   venue-groove alphabet (x accent, o normal, g ghost; bass 1 3 5 7 8, v fifth below, b half step below, n leading into the next
+   bar; comp x o g full chord, u upstroke, 1 3 5 7 8 one chord tone, a arpeggio), and melody lines with one token per 16th:
+   E4 a note, E4+G4 a double stop, - hold, . rest, x a dead chuck; prefixes / slide up a whole step, ^ bend up a half step
+   (^^ a whole step), m palm mute, _ soft; suffix ! accent. Voices: the grooves' DRUM, BASS and COMPV, the lead voices in LEADV,
+   or a guitar id, which plays the real string model through pedals (lfx, cfx). Everything goes through musicBus.
+   amb adds a bed: rain, wind, sea, fire, night, crowd, metro, static. quiz cues stay out of the way of the ear questions. */
+const NPC={C:0,D:2,E:4,F:5,G:7,A:9,B:11};
+function noteNum(s){ const m=/^([A-G])([#b]?)(-?\d)$/.exec(s); return m?12*(+m[3]+1)+NPC[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0):null; }
+const CQ={'':[0,4,7],m:[0,3,7],'7':[0,4,7,10],m7:[0,3,7,10],maj7:[0,4,7,11],'5':[0,7,12],sus4:[0,5,7],dim:[0,3,6],'6':[0,4,7,9],m6:[0,3,7,9]};
+function chordSym(c){ const m=/^([A-G])([#b]?)(.*)$/.exec(c||'E5'); return {pc:(NPC[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0)+12)%12,iv:CQ[m[3]]||CQ['']}; }
+function cueLine(str){
+  const tk=str.replace(/\|/g,' ').trim().split(/\s+/), ev={}; let last=null;
+  tk.forEach((t,k)=>{ if(t==='-'){ if(last) last.len++; return; } if(t==='.'){ last=null; return; }
+    const e={len:1,vel:0.8,bend:0,slide:0,mute:false,dead:false,ms:[]};
+    if(t==='x'){ e.dead=true; ev[k]=e; last=null; return; }
+    if(t.endsWith('!')){ e.vel=1; t=t.slice(0,-1); }
+    while(/^[\/^m_]/.test(t)){ const c=t[0]; t=t.slice(1); if(c==='/') e.slide=2; else if(c==='^') e.bend++; else if(c==='m') e.mute=true; else e.vel=0.55; }
+    e.ms=t.split('+').map(noteNum).filter(m=>m!=null); if(e.ms.length){ ev[k]=e; last=e; } });
+  return {n:tk.length,ev};
+}
+const LEADV={
+  bell:(m,t,d,v,o)=>fmNote(mtof(m),t,Math.max(0.7,d*1.6),{ratio:3.5,index:1.4,idxDecay:0.5,vol:0.05*v,dest:o}),
+  whistle:(m,t,d,v,o)=>susNote(mtof(m),t,d,o,{type:'sine',vol:0.05*v,a:0.03,r:0.08}),
+  violin:(m,t,d,v,o)=>susNote(mtof(m),t,d,o,{type:'sawtooth',vol:0.026*v,a:0.07,r:0.14,lp:2800,detune:5}),
+  reed:(m,t,d,v,o)=>COMPV.reed([m],t,d,v*1.7,o),
+  keys:(m,t,d,v,o)=>COMPV.keys([m],t,d,v*1.5,o),
+  organ:(m,t,d,v,o)=>COMPV.organ([m],t,d,v*1.5,o),
+  glass:(m,t,d,v,o)=>COMPV.glass([m],t,d,v*1.3,o),
+  gamelan:(m,t,d,v,o)=>COMPV.gamelan([m],t,d,v,o)
+};
+const CUE={on:false,timer:null,rigs:{}};
+function cueTime(i){ const sw=CUE.def.sw||0.5, beat=CUE.sx*4, b=Math.floor(i/4); return CUE.t0+b*beat+beat*[0,sw/2,sw,(1+sw)/2][i%4]; }
+function cueStr(gt,m,used){ const op=(gt&&gt.tuning)||STD_OPEN; let best=-1,bf=99;
+  for(let s=0;s<6;s++){ if(used.has(s)) continue; const f=m-op[s]; if(f>=0&&f<=24&&f<bf){ bf=f; best=s; } }
+  if(best<0) for(let s=5;s>=0;s--) if(!used.has(s)){ best=s; break; }
+  used.add(best); return best; }
+function cuePluck(r,e,t,d,stag){ const used=new Set();
+  e.ms.forEach((m,k)=>{ const s=cueStr(r.guitar,m,used), old=r.gate, tt=t+k*(stag||0.004);
+    r.gate=e.mute?0.07:Math.max(0.06,d-0.02); r.pluck(m,s,tt,e.vel*(e.mute?0.85:1)); r.gate=old;
+    const b=e.bend||e.slide, v=b&&r.voices[s];
+    if(v) v.srcs.forEach(src=>{ const p=src.playbackRate, base=p.value; p.setValueAtTime(base*Math.pow(2,-b/12),tt); p.setTargetAtTime(base,tt+(e.slide?0.01:0.07),e.slide?0.03:0.06); }); }); }
+function cueRig(key,gid,fx,dest,lvl){ if(CUE.rigs[key]) return CUE.rigs[key];
+  const r=makeRig({pan:key.startsWith('comp')?-0.25:0.15,amp:true,room:0.1,dest,level:lvl||0.8}); r.setGuitar(GUITAR_BY[gid]); r.setPedals(fx||[]); return CUE.rigs[key]=r; }
+function cueNote(v,fx,e,t,d,dest,key,lvl){
+  if(GUITAR_BY[v]){ const r=cueRig(key,v,fx,dest,lvl);
+    if(e.dead){ const old=r.gate; r.gate=0.025; r.pluck(55,2,t,0.4); r.gate=old; } else cuePluck(r,e,t,d); return; }
+  if(LEADV[v]&&!e.dead) e.ms.forEach(m=>LEADV[v](m,t,d,e.vel,dest)); }
+function cueVoicing(ch,base){ const r=base+(((ch.pc-base)%12)+12)%12, ms=ch.iv.slice(0,4).map(x=>r+x); if(ms.length<4&&ms[ms.length-1]-r<12) ms.push(r+12); return ms; }
+function cueComp(v,c,ch,t,d,base){
+  const ms=cueVoicing(ch,base), full='xoug'.indexOf(c)>=0, vel=c==='u'?0.55:(c==='g'?0.6:(VEL[c]||0.8)); let pick=ms;
+  if(!full){ if(c==='a'){ CUE.arp=(CUE.arp||0)+1; pick=[ms[CUE.arp%ms.length]]; } else { const k={'1':0,'3':1,'5':2,'7':3}[c]; pick=[c==='8'?ms[0]+12:(ms[k]!=null?ms[k]:ms[0])]; } }
+  if(GUITAR_BY[v]) cuePluck(cueRig('comp',v,CUE.def.cfx,CUE.L.comp,CUE.def.clvl||0.6),{ms:c==='u'?pick.slice().reverse():pick,vel,bend:0,slide:0,mute:c==='g'},t,d,c==='u'?0.006:0.009);
+  else if(COMPV[v]) COMPV[v](pick,t,d,vel,CUE.L.comp); }
+function cueBass(c,ch,nx){ const r=28+((ch.pc-4+12)%12), iv=ch.iv;
+  let m={'1':r,'3':r+iv[1],'5':r+(iv[2]!=null&&iv[2]<12?iv[2]:7),'7':r+(iv[3]!=null?iv[3]:10),'8':r+12,v:r-5,b:r-1,n:28+((nx.pc-4+12)%12)-1}[c];
+  if(m==null) m=r; while(m<28) m+=12; return m; }
+const AMB_BED={
+  rain:(C,g)=>{ const s=cueNoise(C); chain(s,biq('highpass',500,0.5),biq('lowpass',2400,0.5),G(0.09),g); },
+  wind:(C,g)=>{ const s=cueNoise(C), f=biq('bandpass',420,0.8), a=G(0.07); chain(s,f,a,g); cueLfo(C,0.11,240,f.frequency); cueLfo(C,0.07,0.05,a.gain); },
+  sea:(C,g)=>{ const s=cueNoise(C), a=G(0.06); chain(s,biq('lowpass',650,0.6),a,g); cueLfo(C,0.09,0.05,a.gain); },
+  fire:(C,g)=>{ const s=cueNoise(C); chain(s,biq('lowpass',300,0.6),G(0.05),g); },
+  crowd:(C,g)=>{ const s=cueNoise(C), a=G(0.035); chain(s,biq('bandpass',700,0.6),biq('lowpass',1500,0.5),a,g); cueLfo(C,0.23,0.012,a.gain); },
+  metro:(C,g)=>{ const s=cueNoise(C), a=G(0.06); chain(s,biq('lowpass',160,0.7),a,g); cueLfo(C,0.05,0.04,a.gain); },
+  static:(C,g)=>{ const s=cueNoise(C); chain(s,biq('highpass',2500,0.5),G(0.012),g); }
+};
+const AMB_STEP={   // little events on the grid: crackles, drips, crickets, radio pops
+  fire:(t,j,g)=>{ if(Math.random()<0.22) noiseHit(t+Math.random()*0.05,{type:'highpass',freq:2200+Math.random()*2500,dur:0.012,v:0.02+Math.random()*0.04,dest:g}); },
+  rain:(t,j,g)=>{ if(Math.random()<0.06) DRUM.drip&&DRUM.drip(t,0.4,g,j,64); },
+  night:(t,j,g)=>{ if(j%8<3&&Math.random()<0.7) [0,0.035,0.07].forEach(o=>ton(t+o,g,4300,4300,0.022,0.005,'sine')); },
+  static:(t,j,g)=>{ if(Math.random()<0.05) noiseHit(t,{type:'bandpass',freq:1800,q:2,dur:0.02,v:0.03,dest:g}); }
+};
+function cueNoise(C){ const s=ctx.createBufferSource(); s.buffer=noiseBuf; s.loop=true; s.start(); C.amb.push(s); return s; }
+function cueLfo(C,f,depth,param){ const o=ctx.createOscillator(), g=G(depth); o.frequency.value=f; o.connect(g); g.connect(param); o.start(); C.amb.push(o); }
+function cueStart(def,screen){
+  if(!ctx||!def) return; cueStop(true);
+  const bus=G(0.0001); bus.connect(musicBus); const L={};
+  ['drums','bass','comp','lead','riff','amb'].forEach(k=>{ L[k]=G((def.mix&&def.mix[k])||1); L[k].connect(bus); });
+  if(def.room&&roomIn){ L.send=G(def.room); bus.connect(L.send); L.send.connect(roomIn); }
+  Object.assign(CUE,{on:true,def,screen,bus,L,rigs:{},amb:[],i:0,sx:60/def.bpm/4,bar:def.bar||16,riff:null,arp:0,
+    chords:(def.ch||'E5').split(/\s+/).map(chordSym),lead:def.lead?cueLine(def.lead):null,lead2:def.lead2?cueLine(def.lead2):null,
+    ambs:(def.amb||'').split(/\s+/).filter(Boolean)});
+  CUE.ambs.forEach(k=>{ if(AMB_BED[k]) AMB_BED[k](CUE,L.amb); });
+  const now=ctx.currentTime, lvl=def.gain||1; CUE.lvl=lvl;
+  bus.gain.setValueAtTime(0.0001,now); bus.gain.setTargetAtTime(lvl,now+(def.quiz?1.8:0.05),0.25);
+  CUE.t0=now+0.15; clearInterval(CUE.timer); CUE.timer=setInterval(cueTick,25); cueTick();
+}
+function cueStop(instant){
+  if(!CUE.on) return; CUE.on=false; clearInterval(CUE.timer); CUE.timer=null; CUE.riff=null;
+  const bus=CUE.bus, rigs=CUE.rigs, amb=CUE.amb, L=CUE.L;
+  if(ctx&&bus){ const now=ctx.currentTime; bus.gain.cancelScheduledValues(now); bus.gain.setTargetAtTime(0,now,instant?0.03:0.15); }
+  setTimeout(()=>{ try{ bus.disconnect(); if(L.send) L.send.disconnect(); }catch(e){} amb.forEach(n=>{ try{ n.stop(); }catch(e){} });
+    Object.values(rigs).forEach(r=>{ try{ r.setPedals([],true); r.pan.disconnect(); r.out.disconnect(); }catch(e){} }); },instant?400:900);
+}
+function cueDuck(sec){ if(!CUE.on||!ctx) return; const g=CUE.bus.gain, now=ctx.currentTime; g.cancelScheduledValues(now); g.setTargetAtTime(CUE.lvl*0.04,now,0.04); g.setTargetAtTime(CUE.lvl,now+sec,0.3); }
+function cueTick(){ if(!CUE.on||!ctx) return;
+  for(let n=0;n<64;n++){ const t=cueTime(CUE.i); if(t>=ctx.currentTime+0.15) break; if(t>=ctx.currentTime-0.03) try{ cueStep(CUE.i,t); }catch(e){} CUE.i++; } }
+function cueStep(i,t){
+  const D=CUE.def, L=CUE.L, B=CUE.bar, nb=CUE.chords.length, bi=Math.floor(i/B), j=i%B, ch=CUE.chords[bi%nb], nx=CUE.chords[(bi+1)%nb], sx=CUE.sx, rE=40+((ch.pc-4+12)%12);
+  (D.drums||[]).forEach(([v,p])=>{ const c=p[i%p.length]; if(c!=='.'&&DRUM[v]) DRUM[v](t,VEL[c]||1,L.drums,j%16,rE); });
+  if(D.bass){ const [v,p,len]=D.bass, c=p[i%p.length]; if(c!=='.') BASS[v](cueBass(c,ch,nx),t,(len||2)*sx,L.bass); }
+  if(D.comp){ const [v,p,len,base]=D.comp, c=p[i%p.length]; if(c!=='.') cueComp(v,c,ch,t,(len||2)*sx,base||52); }
+  const R=CUE.riff, k=R?i-R.start:-1, riffing=R&&k>=0&&k<R.line.n;
+  if(!(riffing&&D.yield)) [[CUE.lead,D.lv,'lead'],[CUE.lead2,D.lv2||D.lv,'lead2']].forEach(([ln,v,key])=>{ if(!ln) return; const e=ln.ev[i%ln.n]; if(e) cueNote(v,D.lfx,e,t,e.len*sx,L.lead,key,D.llvl); });
+  if(riffing){ const e=R.line.ev[k]; if(e) cueNote(R.g,R.fx,e,t,e.len*sx,L.riff,'riff:'+R.id,R.lvl);
+    (R.drums||[]).forEach(([v,p])=>{ const c=p[k%p.length]; if(c!=='.'&&DRUM[v]) DRUM[v](t,VEL[c]||1,L.riff,j%16,rE); }); }
+  if(R&&k===R.line.n){ L.comp.gain.setTargetAtTime((D.mix&&D.mix.comp)||1,t,0.3); CUE.riff=null; }
+  CUE.ambs.forEach(a=>{ if(AMB_STEP[a]) AMB_STEP[a](t,j,L.amb); });
+}
+// a player's riff over the select theme, from the next beat (or from step `from`), on their own guitar
+function cueRiff(id,from){
+  const S=CHAR_RIFF[id], C=CHAR_BY[id]; if(!CUE.on||!ctx||!S||!C) return;
+  let i=Math.max(CUE.i+1,from||0); while(i%4) i++;
+  const t=cueTime(i), old=CUE.riff, lvl=S.lvl||0.85;
+  if(old&&old.id!==id){ const key='riff:'+old.id, r=CUE.rigs[key]; if(r){ r.out.gain.cancelScheduledValues(ctx.currentTime); r.out.gain.setTargetAtTime(0,ctx.currentTime,0.03);
+    setTimeout(()=>{ if(CUE.rigs[key]!==r||(CUE.riff&&CUE.riff.id===old.id)) return; delete CUE.rigs[key]; try{ r.setPedals([],true); r.pan.disconnect(); r.out.disconnect(); }catch(e){} },1500); } }   // free the last player's rig once it has faded
+  else if(old){ const r=CUE.rigs['riff:'+id]; if(r){ r.out.gain.cancelScheduledValues(ctx.currentTime); r.out.gain.setTargetAtTime(0,ctx.currentTime,0.03); } }
+  const r=cueRig('riff:'+id,C.guitar,S.fx,CUE.L.riff,lvl); r.out.gain.setValueAtTime(lvl,Math.max(t-0.01,ctx.currentTime+0.06));
+  CUE.riff={id,g:C.guitar,fx:S.fx,lvl,line:cueLine(S.n),drums:S.drums,start:i};
+  CUE.L.comp.gain.setTargetAtTime(0.45*((CUE.def.mix&&CUE.def.mix.comp)||1),t,0.1);
+}
+// render the riff notes ahead of time, a few per frame, so the first click does not stutter
+function cueWarm(){ const list=[];
+  CHARS.forEach(C=>{ const S=CHAR_RIFF[C.id], gt=GUITAR_BY[C.guitar]; if(!S||!gt) return; const ln=cueLine(S.n); Object.values(ln.ev).forEach(e=>e.ms.forEach(m=>{ list.push([gt,m,0],[gt,m,1]); })); });
+  let k=0; const step=()=>{ for(let n=0;n<4&&k<list.length;n++,k++) try{ renderString(list[k][0],list[k][1],list[k][2]); }catch(e){} if(k<list.length) setTimeout(step,0); }; step(); }
+function cueWarmDef(D){ const need=[]; [[D.lead,D.lv],[D.lead2,D.lv2||D.lv]].forEach(([s,v])=>{ if(s&&GUITAR_BY[v]) Object.values(cueLine(s).ev).forEach(e=>e.ms.forEach(m=>need.push([GUITAR_BY[v],m]))); });
+  need.slice(0,24).forEach(([g,m])=>{ try{ renderString(g,m,0); renderString(g,m,1); }catch(e){} }); }
+
+/* the character-select theme: a warm, unhurried groove in E minor that leaves room for the riffs */
+const SEL_CUE={mix:{drums:0.99,bass:1.33,comp:1.6,lead:4.62},bpm:96,gain:0.95,ch:'Em C G D',yield:true,
+  drums:[['softkick','x.......x.x.....'],['rim','....x.......x...'],['shaker','g.o.g.o.g.o.g.o.']],
+  bass:['upright','1.....5.8.....5.',3],comp:['keys','x.......o..o....',6,55],lv:'bell',
+  lead:'B5 - - - . . . . A5 - G5 - E5 - - - | . . . . . . . . . . . . . . . . | G5 - - - . . . . F#5 - E5 - D5 - - - | . . . . . . . . . . . . D5 - E5 -'};
+/* every player's intro riff, two bars on their own guitar (E minor pentatonic mostly, so it sits over any chord of the theme) */
+const CHAR_RIFF={
+  bard:{lvl:1.13,fx:['glass','echo'],n:'B4 . D5 . E5 . D5 B4 A4 . B4 . G4 . E4 . | D4 . E4 . G4 . A4 . B4 - - - E5 - - -'},
+  monk:{lvl:0.71,fx:['iron'],n:'E3 . B3 . E4 . B3 . E3 . B3 . E4 . G4 . | E3 . B3 . E4 . B3 . D4 . B3 . E4 - - -',drums:[['wood','x...x...x...x...']]},
+  hermit:{lvl:1.02,fx:['cathedral'],n:'E3 . . . B3 . G4 . . . F#4 . E4 - - - | C3 . . . G3 . E4 . . . D4 . B3 - - -',},
+  busker:{lvl:0.94,fx:['slap'],n:'/E4 - - . G4 . /A4 - . G4 E4 . D4 . E4 . | /B3 - . . D4 . E4 . G4 . E4 . /E4 - - -'},
+  luthier:{lvl:1.21,fx:['glass'],n:'E3 . B3 . E4 . G4 . B4 . G4 . E4 . B3 . | D3 . A3 . D4 . F#4 . A4 - - - D5 - - -'},
+  smith:{lvl:0.51,fx:['dragon','gate'],n:'mE2 mE2 . mE2 mE2 . E2+B2 - - . mE2 mE2 D2+A2 - - - | mE2 mE2 . mE2 mE2 . G2+D3 - - . A2+E3 - B2+F#3 - - -'},
+  wizard:{lvl:0.93,fx:['glass','echo'],n:'E4 B4 E5 G5 E5 B4 A4 E4 B4 E5 G5 E5 B4 A4 D4 A4 | D5 F#5 D5 A4 G4 D4 A4 D5 F#5 D5 A4 G4 E5 - - -'},
+  herald:{lvl:0.55,fx:['ogre','springtank'],n:'^G4 - E4 . G4 A4 ^B4 - A4 G4 E4 . D4 E4 . . | E4+G4 . E4+G4 . ^A4 - G4 E4 D4 . B3 . E4 - - -'},
+  journey:{lvl:0.82,fx:['iron','slap'],n:'E4 x G4 A4 x B4 A4 G4 E4 x D4 E4 x G4 E4 D4 | B3 . D4 . E4+G4 . E4+G4 . /A4 - G4 E4 D4 . E4 .'},
+  carto:{lvl:0.66,fx:['echo','halo'],n:'E3 F#3 G3 A3 B3 C4 D4 E4 F#4 G4 A4 B4 C5 D5 E5 . | . D5 B4 . G4 . E4 . B3 . G3 . E3 - - -'}
+};
+
+/* a piece for every road encounter: the shared ones by mood, the continent ones in the style of the place */
+const GONG64='x'+'.'.repeat(63);
+const ROAD_CUES={
+  flat:{mix:{drums:1.86,bass:2.0,comp:2.75,lead:6.24},bpm:92,sw:0.6,ch:'Em Em Am B7',drums:[['brush','o.g.o.g.o.g.o.g.'],['softkick','x.......x.......'],['rim','....x.......x...']],
+    bass:['tuba','1...5...1...v...',3],comp:['keys','..x...x...x...x.',2,55],lv:'reed',
+    lead:'E4 - G4 - B4 - - - Bb4 - A4 - - - . . | G4 - E4 - D4 - E4 - - - - - . . . . | A4 - C5 - E5 - - - Eb5 - D5 - - - . . | B4 - A4 - F#4 - D#4 - E4 - - - . . . .'},
+  friend:{mix:{drums:1.06,bass:0.92,comp:0.23,lead:0.53},bpm:100,ch:'G D Em C',drums:[['softkick','x.......x.......'],['brush','g.o.g.o.g.o.g.o.'],['rim','....x.......x...']],
+    bass:['upright','1...5...1.....8.',3],comp:['twelve','x.x.u.x.x.u.x.u.',2,52],cfx:['glass'],lv:'resonator',lfx:['slap'],
+    lead:'D5 - B4 - G4 - A4 B4 - - D5 - - - . . | A4 - F#4 - D4 - E4 F#4 - - A4 - - - . . | G4 - E4 - B3 - D4 E4 - - G4 - B4 - - - | A4 - G4 - E4 - D4 - E4 - - - . . . .'},
+  pawn:{mix:{drums:2.09,bass:1.97,comp:4.79,lead:8},bpm:76,sw:0.64,ch:'Em7 Am7 Em7 B7',drums:[['brush','ogggogggogggoggg'],['softkick','x.......x.......'],['rim','....x.......x...']],
+    bass:['upright','1...3...5...7...',3],comp:['keys','..o...g...o...g.',2,55],lv:'bell',
+    lead:'B4 - - G4 - - E4 - D4 - E4 - - - . . | . . . . C5 - B4 - A4 - G4 - E4 - - - | B4 - - G4 - - E4 - D4 - E4 - G4 - A4 - | F#4 - - - A4 - - - D#4 - - - . . . .'},
+  radio:{mix:{drums:0.86,bass:2.29,comp:1.91,lead:7.33},bpm:120,quiz:true,gain:0.6,ch:'G C D G',drums:[['kick','x.......x.......'],['clap','....x.......x...'],['hat','o.o.o.o.o.o.o.o.']],
+    bass:['electric','1...1...5...8...',2],comp:['keys','..x...x...x...x.',2,60],lv:'bell',
+    lead:'G5 - D5 - B4 - D5 - G5 - - - . . . . | E5 - - - G5 - - - C5 - - - . . . . | F#5 - - - A5 - - - D5 - - - . . . . | B5 - A5 - G5 - - - . . . . . . . .'},
+  motel:{mix:{drums:4.57,bass:1.51,comp:2.4,lead:1.06},bpm:64,amb:'rain',ch:'Em Cmaj7 Am7 B7',bass:['sub','1.......5.......',7],comp:['keys','x.......o.......',7,52],lv:'single',lfx:['tremor','echo'],
+    lead:'B4 - - - G4 - E4 - - - - - . . . . | . . . . . . G4 - B4 - D5 - - - B4 - | C5 - - - B4 - A4 - - - E4 - - - . . | F#4 - - - - - D#4 - - - - - . . . .'},
+  fan:{mix:{drums:0.54,bass:0.76,comp:0.22,lead:0.49},bpm:168,ch:'E5 C5 G5 D5',drums:[['kick','x.x...x.x.x...x.'],['snare','....x.......x...'],['hat','x.x.x.x.x.x.x.x.']],
+    bass:['grit','1.1.1.1.1.1.1.1.',1],comp:['humbucker','g.g.g.g.g.g.g.x.',2,40],cfx:['ogre'],clvl:0.5,lv:'single',lfx:['ogre'],llvl:0.6,
+    lead:'B4 - - - B4 - A4 - G4 - - - E4 - - - | E4 - - - G4 - - - E4 - D4 - E4 - - - | D5 - - - D5 - B4 - A4 - - - G4 - - - | F#4 - - - G4 - - - A4 - - - B4 - - -'},
+  // North America
+  jukebox:{mix:{drums:1.32,bass:1.29,comp:1.57,lead:0.49},bpm:112,sw:0.6,ch:'G C D G',drums:[['softkick','x.......x.......'],['snare','....x.......x...'],['brush','o.o.o.o.o.o.o.o.']],
+    bass:['upright','1...5...1...5...',3],comp:['keys','..x...x...x...x.',2,55],lv:'single',lfx:['twang','slap'],
+    lead:'B4 - D5 - B4 - A4 - G4 - - - D4 - - - | E4 - G4 - A4 - B4 - C5 - - - . . . . | A4 - - - F#4 - A4 - D5 - C5 - A4 - - - | B4 - A4 - G4 - - - . . D4 E4 G4 - - -'},
+  session:{mix:{drums:0.95,bass:0.84,comp:0.2,lead:0.58},bpm:120,ch:'G D C G',drums:[['brush','xgogxgogxgogxgog'],['softkick','x.......x.......']],
+    bass:['upright','1...5...1...5...',3],comp:['twelve','1.x.5.x.1.x.5.x.',2,48],lv:'single',lfx:['iron','slap'],
+    lead:'D5 - - - B4 - D5 - G5 - - - . . . . | F#5 - - - E5 - D5 - A4 - - - . . . . | E5 - - - C5 - E5 - G5 - E5 - D5 - C5 - | B4 - - - G4 - - - . . . . . . . .'},
+  moonbet:{mix:{drums:1.48,bass:1.29,comp:1.23,lead:0.5},bpm:70,sw:0.66,amb:'night',ch:'Em7 Am7 Em7 B7',drums:[['stomp','x.......x.......'],['clap','........x.......']],
+    bass:['upright','1...5...8...5...',3],comp:['organ','x.......x.......',7,52],lv:'resonator',lfx:['echo'],
+    lead:'/E4 - - - G4 - /A4 - - - G4 - E4 - - - | . . . . D4 - E4 - G4 - E4 - D4 - B3 - | /E4 - - - G4 - /A4 - - - C5 - B4 - - - | /B3 - - - D#4 - F#4 - A4 - - - . . . .'},
+  // Africa
+  tea:{mix:{drums:0.92,bass:1.16,comp:1.33,lead:0.37},bpm:104,sw:0.6,amb:'fire',ch:'Em Em D Em',drums:[['calabash','x.....x...x.....'],['clap','....x.......x..o'],['shaker','o.g.o.g.o.g.o.g.']],
+    bass:['electric','1.....1...5.....',3],comp:['chop','......x.......x.',1,52],lv:'single',lfx:['ogre','echo'],
+    lead:'E4 . G4 E4 . D4 E4 . G4 . A4 G4 E4 . D4 . | E4 - - - . . B3 D4 E4 - - - . . . . | B4 . A4 G4 . E4 G4 . A4 . G4 E4 D4 . E4 . | D4 - B3 - D4 - E4 - - - - - . . . .'},
+  tailor:{mix:{drums:0.81,bass:1.72,comp:1.95,lead:0.84},bpm:128,ch:'E A B7 E',drums:[['kick','x...x...x...x...'],['hat','xgogxgogxgogxgog'],['snare','....x..g....x...'],['cowbell','o...o...o...o...']],
+    bass:['electric','1..1..5.8..5..1.',2],comp:['chop','..x...x...x...x.',1,56],lv:'single',lfx:['glass'],llvl:0.6,
+    lead:'B5 G#5 E5 B4 G#5 E5 B4 G#4 B5 G#5 E5 B4 G#5 E5 B4 G#4 | C#6 A5 E5 C#5 A5 E5 C#5 A4 C#6 A5 E5 C#5 A5 E5 C#5 A4 | D#6 B5 F#5 D#5 A5 F#5 D#5 B4 D#6 B5 F#5 D#5 A5 F#5 D#5 B4 | E6 B5 G#5 E5 B5 G#5 E5 B4 E5 - - - . . . .'},
+  coffee:{mix:{drums:1.6,bass:3.13,comp:1.12,lead:6.17},bpm:92,sw:0.66,amb:'fire',ch:'Em Em Em Em',drums:[['kebero','x.....x...x.....'],['kslap','....x..o....x..o'],['shaker','o.g.o.g.o.g.o.g.']],
+    bass:['electric','1.......1...5...',3],comp:['drone','x...............',16,52],lv:'reed',
+    lead:'B4 - - - C5 - B4 - G4 - - - F#4 - G4 - | E4 - - - - - - - . . . . . . . . | G4 - B4 - C5 - - - B4 - G4 - F#4 - - - | E4 - F#4 - G4 - F#4 - E4 - - - . . . .'},
+  // South America
+  samba:{mix:{drums:1.01,bass:2.63,comp:4.52,lead:3.67},bpm:100,ch:'Em7 A7 Dmaj7 B7',drums:[['softkick','x.......x.......'],['kick','....x.......x...'],['rim','gogxgogxgogxgogx'],['tamb','x.x..x.x.x.x..x.'],['cowbell','x..x..x...x..x..'],['shaker','gogogogogogogogo']],
+    bass:['electric','1...5.8.1...5.8.',2],comp:['uke','x.xx.x.xx.xx.x.x',1,60],lv:'whistle',
+    lead:'B4 - E5 - D5 - B4 - G4 - A4 - B4 - - - | A4 - C#5 - E5 - - - G5 - F#5 - E5 - - - | F#5 - - - A5 - F#5 - D5 - C#5 - A4 - - - | B4 - D#5 - F#5 - A5 - G5 - F#5 - D#5 - - -'},
+  practica:{mix:{bass:1.97,comp:2.02,lead:7.59},bpm:62,ch:'Em B7 Em B7 Am Em B7 Em',bass:['upright','1...1...5...1...',3],comp:['reed','x...x...x...x...',3,52],lv:'violin',
+    lead:'B4 - - - - - C5 B4 A#4 - B4 - G4 - - - | A4 - - - - - B4 A4 F#4 - D#4 - F#4 - - - | G4 - - - B4 - E5 - - - D5 C5 B4 - - - | A4 - - - F#4 - D#4 - B3 - - - . . . . | C5 - - - - - D5 C5 B4 - A4 - E4 - - - | G4 - - - - - A4 G4 F#4 - E4 - B3 - - - | D#4 - F#4 - A4 - C5 - B4 - A4 - F#4 - - - | E4 - - - - - - - . . . . . . . .'},
+  mercado:{mix:{drums:1.15,bass:1.97,comp:1.93,lead:0.72},bpm:96,ch:'Em D Em B7',drums:[['guiro','x.xxx.xxx.xxx.xx'],['conga','..o.x..o..o.x..o'],['kick','x.......x.......'],['cowbell','....x.......x...']],
+    bass:['electric','1.....5.1.....5.',2],comp:['organ','..x...x...x...x.',1,55],lv:'single',lfx:['phantom','echo'],
+    lead:'E5 - B4 - G4 - B4 - E5 - F#5 - G5 - - - | F#5 - E5 - D5 - A4 - D5 - - - . . . . | E5 - B4 - G4 - B4 - E5 - G5 - B5 - - - | A5 - F#5 - D#5 - B4 - F#5 - - - . . . .'},
+  // Europe
+  metro:{mix:{drums:8,bass:2.11,comp:2.21,lead:3.89},bpm:138,bar:12,room:0.5,amb:'metro',ch:'Em B7 Em B7 Am Em B7 Em',drums:[['brush','x...o...o...']],
+    bass:['upright','1...........',4],comp:['keys','....x...x...',2,55],lv:'reed',
+    lead:'B4 - - - G4 - E4 - G4 - B4 - | A4 - - - - - F#4 - - - D#4 - | E4 - G4 - B4 - E5 - - - D5 - | C5 - B4 - A4 - F#4 - - - . . | A4 - C5 - E5 - - - D5 - C5 - | B4 - - - G4 - E4 - - - . . | F#4 - A4 - C5 - B4 - A4 - F#4 - | E4 - - - - - . . . . . .'},
+  pena:{mix:{drums:0.84,bass:0.84,comp:0.21,lead:0.46},bpm:104,ch:'Am G F E',drums:[['palmas','x.ox.ox.x.ox.ox.'],['cajon','x.....x...x.....'],['cslap','....x.......x...']],
+    comp:['nylon','x.xux.xux.xux.xu',1,52],clvl:0.5,lv:'nylon',
+    lead:'E5 F5 E5 D5 C5 B4 C5 D5 E5 - - - A4 - - - | D5 E5 D5 C5 B4 A4 B4 C5 D5 - - - G4 - - - | C5 D5 C5 B4 A4 G4 A4 B4 C5 - - - F4 - - - | B4 C5 B4 A4 G#4 F4 G#4 A4 B4 - - - E4 - - -'},
+  ferry:{mix:{drums:8,bass:1.6,comp:1.14,lead:7.85},bpm:72,bar:12,amb:'wind sea',ch:'Em Em D Em',drums:[['knock','x...........']],bass:['sub','1...........',12],comp:['drone','x...........',12,52],lv:'violin',
+    lead:'E5 - F#5 - G5 - - - F#5 - E5 - | B4 - - - - - D5 - E5 - - - | D5 - E5 - F#5 - - - E5 - D5 - | A4 - B4 - - - - - . . . .'},
+  // Asia
+  karaoke:{mix:{drums:0.58,bass:2.19,comp:2.4,lead:6.1},bpm:128,quiz:true,gain:0.6,ch:'Cmaj7 D7 Bm7 Em7',drums:[['kick','x...x...x...x...'],['clap','....x.......x...'],['hat','..o...o...o...o.']],
+    bass:['synth','1.1.1.1.1.1.8.1.',1],comp:['glass','x.....x.....x...',3,60],lv:'bell',
+    lead:'E5 - - - G5 - - - B5 - A5 - G5 - E5 - | F#5 - - - - - D5 - A5 - - - F#5 - - - | D5 - - - F#5 - - - A5 - B5 - A5 - F#5 - | G5 - - - - - E5 - B4 - - - . . . .'},
+  chai:{mix:{drums:1.64,comp:1.4,lead:6.03},bpm:66,amb:'crowd',ch:'E5 E5 E5 E5',drums:[['bayan','x.......x...o...'],['dayan','..o.x.o...o.x.o.']],comp:['drone','x...............',16,52],lv:'reed',
+    lead:'E4 - - - - - - - F#4 - G4 - - - - - | F#4 - E4 - - - - - . . . . . . . . | B3 - - - D4 - E4 - F#4 - G4 - A4 - G4 - | F#4 - - - E4 - - - - - - - . . . .'},
+  gamelan:{gain:1.45,mix:{drums:1.51,bass:2.24,lead:8},bpm:80,ch:'E5 E5 E5 E5',drums:[['kempli','x...x...x...x...'],['kendang','x..o.xo..x.o.xo.'],['cengceng','.o.o.o.o.o.o.o.o'],['gong',GONG64]],
+    bass:['gongbass','1.......1.......',8],lv:'gamelan',
+    lead:'E5 . G5 . F5 . E5 . C5 . E5 . F5 . G5 . | B5 . G5 . F5 . G5 . E5 . F5 . G5 . E5 . | E5 . G5 . F5 . E5 . C5 . E5 . F5 . G5 . | B5 . C6 . B5 . G5 . F5 . E5 . C5 . E5 .',
+    lead2:'. F5 . B5 . G5 . F5 . E5 . G5 . B5 . C6 | . C6 . B5 . C6 . G5 . G5 . B5 . G5 . F5 | . F5 . B5 . G5 . F5 . E5 . G5 . B5 . C6 | . C6 . E6 . C6 . B5 . G5 . F5 . E5 . F5'},
+  // Oceania
+  bonfire:{mix:{drums:1.74,bass:1.38,comp:0.32,lead:0.8},bpm:84,sw:0.56,amb:'sea fire',ch:'G C D G',drums:[['shaker','o.g.o.g.o.g.o.g.']],comp:['twelve','1...5...8...5...',3,43],clvl:0.55,lv:'twelve',
+    lead:'B4 - D5 - - - B4 - A4 - G4 - - - . . | E5 - - - D5 - C5 - E5 - G5 - - - . . | F#5 - - - E5 - D5 - A4 - B4 - D5 - - - | B4 - A4 - G4 - - - - - - - . . . .'},
+  trivia:{mix:{drums:1.08,bass:1.35,comp:1.88,lead:5.96},bpm:116,sw:0.62,quiz:true,gain:0.6,amb:'crowd',ch:'Em C D B7',drums:[['softkick','x.......x.......'],['snare','....x.......x...'],['ride','x.o.x.o.x.o.x.o.']],
+    bass:['upright','1...5...1...5...',3],comp:['keys','..x...x...x...x.',2,55],lv:'keys',
+    lead:'E5 - G5 - E5 - B4 - - - E5 - - - . . | C5 - E5 - G5 - - - E5 - - - . . . . | D5 - F#5 - A5 - - - F#5 - D5 - - - . . | D#5 - F#5 - B5 - A5 - F#5 - - - . . . .'},
+  party:{mix:{drums:0.69,bass:0.86,comp:0.27,lead:0.71},bpm:140,ch:'E D A E',drums:[['kick','x...x...x...x...'],['snare','....x.......x...'],['hat','x.x.x.x.x.x.x.x.']],
+    bass:['grit','1.1.1.1.1.1.1.1.',1],comp:['twelve','x.x.x.x.x.x.x.x.',1,52],cfx:['glass','ogre'],clvl:0.45,lv:'single',lfx:['glass','echo'],llvl:0.6,
+    lead:'B4 - B4 - G#4 - B4 - E5 - - - B4 - - - | A4 - A4 - F#4 - A4 - D5 - - - A4 - - - | C#5 - C#5 - A4 - C#5 - E5 - - - C#5 - - - | B4 - - - G#4 - - - E4 - - - - - - -'},
+  // Antarctica
+  supply:{gain:1.35,mix:{drums:1.72,bass:1.62,comp:2.09,lead:8},bpm:70,amb:'wind',ch:'Em C Em D',drums:[['heart','x..x............']],bass:['sub','1...............',15],comp:['pad','x...............',16,52],lv:'glass',
+    lead:'. . . . B4 - - - E5 - - - D5 - B4 - | C5 - - - - - - - . . . . . . . . | . . . . B4 - - - E5 - - - G5 - F#5 - | D5 - - - - - - - . . . . . . . .'},
+  station:{mix:{drums:1.4,bass:1.12,comp:1.41,lead:7.41},bpm:76,quiz:true,gain:0.6,amb:'static',ch:'Em C G D',drums:[['softkick','x.......x.......'],['rim','....x.......x...']],
+    bass:['sub','1.......5.......',7],comp:['pad','x...............',16,52],lv:'bell',
+    lead:'E5 - - - G5 - - - B5 - - - . . . . | C6 - - - B5 - G5 - E5 - - - . . . . | D5 - - - G5 - - - B5 - - - . . . . | A5 - - - F#5 - - - D5 - - - . . . .'}
+};
+// checks for the test scripts: every bar of every line has the right number of steps, every voice exists
+function cueCheck(){ const bad=[], all=Object.assign({select:SEL_CUE},ROAD_CUES);
+  Object.entries(all).forEach(([id,D])=>{ const B=D.bar||16;
+    [['lead',D.lead],['lead2',D.lead2]].forEach(([k,s])=>{ if(!s) return; s.split('|').forEach((b,n)=>{ const c=b.trim().split(/\s+/).length; if(c!==B) bad.push(id+' '+k+' bar '+(n+1)+': '+c+' steps'); });
+      s.replace(/\|/g,' ').trim().split(/\s+/).forEach(t=>{ if('-.x'.indexOf(t)>=0) return; t.replace(/[!]$/,'').replace(/^[\/^m_]+/,'').split('+').forEach(n=>{ if(noteNum(n)==null) bad.push(id+' '+k+': bad note '+t); }); }); });
+    (D.drums||[]).forEach(([v,p])=>{ if(!DRUM[v]) bad.push(id+': no drum '+v); if(p.length%B) bad.push(id+': drum '+v+' length '+p.length); });
+    if(D.bass&&!BASS[D.bass[0]]) bad.push(id+': no bass '+D.bass[0]); if(D.comp&&!COMPV[D.comp[0]]&&!GUITAR_BY[D.comp[0]]) bad.push(id+': no comp '+D.comp[0]);
+    [D.lv,D.lv2].forEach(v=>{ if(v&&!LEADV[v]&&!GUITAR_BY[v]) bad.push(id+': no lead voice '+v); });
+    [...(D.lfx||[]),...(D.cfx||[])].forEach(p=>{ if(!PEDAL_AUDIO[p]) bad.push(id+': no pedal '+p); });
+    (D.ch||'').split(/\s+/).forEach(c=>{ if(!/^([A-G])([#b]?)(.*)$/.test(c)||CQ[c.replace(/^[A-G][#b]?/,'')]==null) bad.push(id+': chord '+c); }); });
+  Object.entries(CHAR_RIFF).forEach(([id,S])=>{ S.n.split('|').forEach((b,n)=>{ const c=b.trim().split(/\s+/).length; if(c!==16) bad.push('riff '+id+' bar '+(n+1)+': '+c); }); (S.fx||[]).forEach(p=>{ if(!PEDAL_AUDIO[p]) bad.push('riff '+id+': no pedal '+p); }); (S.drums||[]).forEach(([v])=>{ if(!DRUM[v]) bad.push('riff '+id+': no drum '+v); }); });
+  CHARS.forEach(C=>{ if(!CHAR_RIFF[C.id]) bad.push('no riff for '+C.id); });
+  Object.keys(ROAD).forEach(id=>{ if(!ROAD_CUES[id]) bad.push('no cue for encounter '+id); });
+  return bad; }
+// offline level check: renders n bars of a cue through the master chain (and optionally a riff), returns dB and peak
+async function cueTest(id,n,riff,solo){
+  const D=id==='select'?SEL_CUE:ROAD_CUES[id], saved={ctx,master,musicBus,roomIn,noiseBuf,C:Object.assign({},CUE)}, sr=44100, sx=60/D.bpm/4, B=D.bar||16, steps=(n||4)*B, sec=steps*sx+1.5;
+  try{ const off=new OfflineAudioContext(2,Math.floor(sr*sec),sr); ctx=off; master=G(volGain()); master.connect(buildMaster(off)); musicBus=G(musicGain()); musicBus.connect(master);
+    noiseBuf=makeNoise(1); roomIn=G(0.5); roomIn.connect(master);
+    CUE.on=false; cueStart(D,'test'); clearInterval(CUE.timer); CUE.t0=0.05; CUE.bus.gain.cancelScheduledValues(0); CUE.bus.gain.setValueAtTime(CUE.lvl,0);
+    if(riff){ CUE.i=0; cueRiff(riff,0); }
+    if(solo) Object.keys(CUE.L).forEach(k=>{ if(k!==solo&&k!=='send') CUE.L[k].gain.value=0; });
+    for(let i=0;i<steps;i++) cueStep(i,cueTime(i));
+    const b=await off.startRendering(), Lc=b.getChannelData(0), Rc=b.getChannelData(1); let pk=0,ss=0,bad=0;
+    for(let j=0;j<Lc.length;j++){ const v=Math.max(Math.abs(Lc[j]),Math.abs(Rc[j])); if(!isFinite(v)) bad++; pk=Math.max(pk,v); ss+=(Lc[j]*Lc[j]+Rc[j]*Rc[j])/2; }
+    return {rmsDb:+(10*Math.log10(ss/Lc.length+1e-12)).toFixed(1),peak:+pk.toFixed(3),bad};
+  } finally { CUE.on=false; clearInterval(CUE.timer); Object.assign(CUE,saved.C,{on:false,timer:null}); ctx=saved.ctx; master=saved.master; musicBus=saved.musicBus; roomIn=saved.roomIn; noiseBuf=saved.noiseBuf; }
+}
 function goScreen(n){
   if(n!=='duel'&&state.practice) leavePractice();
+  try{ if(CUE.on&&CUE.screen!==n) cueStop(); }catch(e){}
   try{ if(n==='title'){ if(ctx&&ctx.state==='running') startTitleSong(); } else stopTitleSong(); }catch(e){}
   try{ if(n==='duel'&&(VEN().rowdy||rivalHas('brass'))) startRowdy(); else stopRowdy(); }catch(e){}
   try{ updateBackdrop(n); }catch(e){}
@@ -8601,7 +8864,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={huntNow:(pc)=>{ runHunt(pc,3,12,'FIND',null); },noWarm:v=>{ window.__fbNoWarm=v; },vhats:()=>TOURS.flatMap(T=>T.venues).map(v=>[v.id,v.hats]),crowdRows:n=>{ CROWD_ROWS=n; },fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),giftEval:(ch,sf,ci)=>{ const oc=state.char, oi=state.callIdx; state.char=ch; applyTuning(); const c=makeCall(1); c.notes=sf.map(([s,f])=>({midi:OPEN[s]+f,s,f})); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); if(ci!=null) state.callIdx=ci; const r=evaluate(); state.char=oc; state.callIdx=oi; applyTuning(); return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={huntNow:(pc)=>{ runHunt(pc,3,12,'FIND',null); },noWarm:v=>{ window.__fbNoWarm=v; },vhats:()=>TOURS.flatMap(T=>T.venues).map(v=>[v.id,v.hats]),crowdRows:n=>{ CROWD_ROWS=n; },fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),cueCheck:()=>cueCheck(),cueTest:(id,n,r,so)=>cueTest(id,n,r,so),songTest:(a,n)=>songTest(a,n),cueState:()=>({on:CUE.on,screen:CUE.screen,riff:CUE.riff&&CUE.riff.id,i:CUE.i}),giftEval:(ch,sf,ci)=>{ const oc=state.char, oi=state.callIdx; state.char=ch; applyTuning(); const c=makeCall(1); c.notes=sf.map(([s,f])=>({midi:OPEN[s]+f,s,f})); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); if(ci!=null) state.callIdx=ci; const r=evaluate(); state.char=oc; state.callIdx=oi; applyTuning(); return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

@@ -444,10 +444,10 @@
 "graded": "a32431f23dbff7c9d2966549e22c93275ea374a7"
 },
 "PORTRAIT_ART/bard_card": {
-"graded": "92a61d7c608fc414f2e3a53bb7ee66126d77dbe2"
+"graded": "207fd365d8a90bc5152eb29d93aae158002ff36d"
 },
 "PORTRAIT_ART/bard_tile": {
-"graded": "bf0e4189796dacaf19fd8ad150cd6fdf2c1a6d99"
+"graded": "d901e00fef20af9dfbc3f95983cf520897829d10"
 },
 "PORTRAIT_ART/monk_card": {
 "graded": "66d0a256d6eccfe3746f10eacb3ec0f35fa95f91"
@@ -677,15 +677,6 @@
 "PORTRAIT_ART/wizard_tile": {
 "graded": "4de472a71fc3c972fbd48af0bc3b996b9410bead"
 },
-"PORTRAIT_ART/king_card": {
-"graded": "b175c67a4873cfb232e9551d28dbcdd1f7df1e61"
-},
-"PORTRAIT_ART/king_tile": {
-"graded": "54430dec977034021136f4fef3019cdcd82583ae"
-},
-"POSE_SRC/king": {
-"graded": "69e06a490369afafa224ef5a4afa93a4917579b5"
-},
 "POSE_SRC/smith": {
 "graded": "de2e48102ac400a58dd97db13270301c4bc13c80"
 },
@@ -698,7 +689,28 @@
 "HANG_SRC/wizard": {
 "graded": "c6b88b2411921f1abdf9aa59dbdad32f17ed1091"
 },
-"HANG_SRC/king": {
-"graded": "ddf372a220fec0023d07577b07bf08ab23d802c3"
+"PORTRAIT_ART/herald_card": {
+"graded": "9d89ac85e26ac04c1ee696cd62147c47d971f2e5"
+},
+"PORTRAIT_ART/herald_tile": {
+"graded": "9c2c13739951438788466e7fa052d072a43722da"
+},
+"PORTRAIT_ART/journey_card": {
+"graded": "9fd2ebb6abdb81e754f6e3584137bef7f2bbc204"
+},
+"PORTRAIT_ART/journey_tile": {
+"graded": "8d2d5be24614fab636d5df668756d373426f8e34"
+},
+"POSE_SRC/herald": {
+"graded": "7de0aa01fc7e51583272bc6f138b53f46b6040ce"
+},
+"POSE_SRC/journey": {
+"graded": "d945e036def9bdc2c382fdcd274a59d9963850b4"
+},
+"HANG_SRC/herald": {
+"graded": "cab273c4c40c9a09fe719b8ad5b3b936b6a0ff72"
+},
+"HANG_SRC/journey": {
+"graded": "23f0f25649bbfd3b7574a9b3b628a031a4401e0b"
 }
 }

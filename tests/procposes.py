@@ -93,9 +93,14 @@ def build(cid,HEIGHT,an=1,bn=1,K=None):
     FX=int(left)+3; FY=ch-4; atlas=Image.new('RGBA',(cw*8,ch*2),(0,0,0,0)); hts=[]
     for i,(r,fx) in enumerate(sc):
         ox=(i%8)*cw+FX-int(round(fx)); oy=(i//8)*ch+FY-r.height+dys[i]; atlas.alpha_composite(r,(ox,oy)); hts.append(r.height)
-    # one palette for the whole atlas
+    # one palette for the whole atlas (the Journeyman is built with POSE_NEAREST=1 so his grey beard does not pick up his green capo)
     arr=np.asarray(atlas).copy(); al=arr[:,:,3]>140
-    q=Image.fromarray(arr[:,:,:3]).quantize(colors=48,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
+    src=Image.fromarray(arr[:,:,:3]); q=src.quantize(colors=int(os.environ.get('POSE_COLORS',48)),method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE)
+    if os.environ.get('POSE_NEAREST'): q=src.quantize(palette=q,dither=Image.Dither.NONE)   # remap every pixel to its NEAREST palette colour (median cut alone can file grey stubble under a green trim)
+    q=q.convert('RGB')
+    if os.environ.get('POSE_NEAREST'):   # a near-grey source pixel that came out strongly coloured keeps its own (warm) grey, rounded to 16 levels
+        sa=arr[:,:,:3].astype(int); qa=np.asarray(q).copy(); sch=sa.max(axis=2)-sa.min(axis=2); qch=qa.astype(int).max(axis=2)-qa.astype(int).min(axis=2)
+        bad=(sch<40)&(qch>sch+20); qa[bad]=((sa//16)*16+8).clip(0,255).astype(np.uint8)[bad]; q=Image.fromarray(qa)
     out=Image.fromarray(np.dstack([np.asarray(q),al*255]).astype(np.uint8))
     import outlinefix; oa=np.asarray(out).copy()                                  # the same one-pixel outline on every pose (tests/outlinefix.py)
     for i in range(16): y0,x0=(i//8)*ch,(i%8)*cw; oa[y0:y0+ch,x0:x0+cw]=outlinefix.fix_cell(oa[y0:y0+ch,x0:x0+cw])

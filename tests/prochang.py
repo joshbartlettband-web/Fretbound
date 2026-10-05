@@ -7,7 +7,7 @@ import numpy as np
 from PIL import Image
 import procposes as PP
 import gen_sheet as GS
-IDS='bard monk hermit busker luthier carto smith wizard king lou rosa dee jo hale tam brass brassb brassc'.split()
+IDS='bard monk hermit busker luthier carto smith wizard herald journey lou rosa dee jo hale tam brass brassb brassc'.split()
 MASTER='art/gemini_test/hang_master'
 def build(cid,n=1):
     im,fg,masks=PP.split(f'art/gemini_test/sheets/out/hang_{cid}_{n}.png')
@@ -23,7 +23,11 @@ def build(cid,n=1):
     for i,(s,fx) in enumerate(sc):
         arr=np.asarray(s).copy(); arr[:,:,3]=(arr[:,:,3]>150)*255; out.paste(Image.fromarray(arr),(i*cw+fx0-int(round(fx)),ch-2-s.height))
     arr=np.asarray(out); al=arr[:,:,3]>0
-    q=Image.fromarray(arr[:,:,:3]).quantize(colors=64,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB'); o=np.dstack([np.asarray(q),(al*255).astype(np.uint8)])
+    q=Image.fromarray(arr[:,:,:3]).quantize(colors=64,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
+    if os.environ.get('POSE_NEAREST'):   # as in procposes: a near-grey pixel that came out strongly coloured keeps its own grey (the Journeyman's beard)
+        sa=arr[:,:,:3].astype(int); qa=np.asarray(q).copy(); sch=sa.max(axis=2)-sa.min(axis=2); bad=(sch<40)&((qa.astype(int).max(axis=2)-qa.astype(int).min(axis=2))>sch+20)
+        qa[bad]=((sa//16)*16+8).clip(0,255).astype(np.uint8)[bad]; q=Image.fromarray(qa)
+    o=np.dstack([np.asarray(q),(al*255).astype(np.uint8)])
     return Image.fromarray(o),dict(cw=cw,ch=ch,fx=fx0,fy=ch-2,n=8,h=H)
 def embed(path='index.html'):
     src={}; meta={}

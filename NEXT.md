@@ -10,7 +10,7 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 - The phone may save a downloaded APK as `.zip`; rename it to `.apk` instead of extracting.
 
 ## 2. Questions for Josh
-0. **New players (v1.74).** Are the Blacksmith, Wizard and King balanced against the others? The Wizard was toned down once in testing. Is the King's look right (a fantasy monarch, not a likeness of anyone)?
+0. **New players (v1.74, v1.75).** Are the Blacksmith, Wizard, Herald and Journeyman balanced? The Wizard and the Journeyman were each toned down once in testing. Read the Herald's liner notes. The Herald and the Journeyman show the stock humbucker and single-coil icons on their cards, not their own white and butterscotch guitars; worth painting?
 1. **Clouds over the painted title skies.** The code-drawn grey clouds drift over every painted sky and look heavy on the bright ones (Africa). Drop them on painted skies, or lighten them?
 2. **How it runs on his phone:** a full-band duel, the title screen, the Hollow Pine lights-out, the castle approach on the Europe title (portrait), the Luthier's and Hermit's guitars, whether the light pools read as light, and whether any painted roadside object looks too big or small (sizes are in `tests/procroadside.py`).
 3. **Crowded stages** (mess hall, Ghat) now show at most four band members a side (v1.47). Does that read better?

@@ -1058,7 +1058,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.79</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.80</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4334,7 +4334,24 @@ function hfrac(k){ let h=2166136261; for(let i=0;i<k.length;i++){ h^=k.charCodeA
 function poseShadow(g,x,y,w){ const rx=Math.max(8,Math.min(22,Math.round(w*0.3))); g.fillStyle='rgba(18,8,4,.22)';
   for(let r=-2;r<=2;r++){ const k=Math.sqrt(1-(r*r)/(3.2*3.2)), hw=Math.round(rx*k); if(hw>0) g.fillRect(x-hw,y+r-1,hw*2,1); }
   g.fillStyle='rgba(18,8,4,.2)'; for(let r=-1;r<=1;r++){ const hw=Math.round(rx*0.6*Math.sqrt(1-(r*r)/(2.2*2.2))); if(hw>0) g.fillRect(x-hw,y+r-1,hw*2,1); } }
-function drawPose(g,cid,x,y,q,t,left,forced,sk){ const M=POSE_META[cid], im=left?POSE_IMG_L[cid]:POSE_IMG[cid]; if(!im) return false;
+/* depth on the stage floor: one horizon for every venue (DEPTH_H, a row above the stage), so a figure whose feet stand on row y is
+   (y-DEPTH_H)/(FIGHTER_Y-DEPTH_H) the height of one standing at the fighters' row. The band's art is painted about 15% smaller than the players
+   (BAND_ART), so the band draws its art at depthScale(y)/BAND_ART, never above 1 (no upscaling: a band member at the front stays 1:1). */
+const DEPTH_H=59, BAND_ART=0.865;
+function depthScale(y){ return Math.max(0.6,Math.min(1,(y-DEPTH_H)/(FIGHTER_Y-DEPTH_H))); }
+function bandArtScale(y){ return Math.min(1,depthScale(y)/BAND_ART); }
+// a pose atlas shrunk to one rung (3% steps): smooth downscale once, then hard alpha with the colours un-premultiplied, like the title's sprite ladder
+const POSE_SC={};
+function poseAtlasAt(cid,left,k){ const src=left?POSE_IMG_L[cid]:POSE_IMG[cid], M=POSE_META[cid]; if(!src||!M) return null; if(k<=0) return src;
+  const key=cid+(left?'L':'R')+k; if(POSE_SC[key]) return POSE_SC[key]; const f=Math.pow(0.97,k), cw=Math.round(M.cw*f), ch=Math.round(M.ch*f), nx=Math.round(src.width/M.cw), ny=Math.round(src.height/M.ch), W=cw*nx, H=ch*ny;
+  const c=document.createElement('canvas'); c.width=W; c.height=H; const g=c.getContext('2d',{willReadFrequently:true}); g.imageSmoothingEnabled=true; g.imageSmoothingQuality='high';
+  for(let j=0;j<ny;j++) for(let i=0;i<nx;i++) g.drawImage(src,i*M.cw,j*M.ch,M.cw,M.ch,i*cw,j*ch,cw,ch);   // cell by cell, so no pose bleeds into its neighbour
+  c.__cw=cw; c.__ch=ch;
+  const id=g.getImageData(0,0,W,H), d=id.data; for(let i=3;i<d.length;i+=4){ if(d[i]>=110){ const a=d[i]/255; d[i-3]=Math.min(255,d[i-3]/a); d[i-2]=Math.min(255,d[i-2]/a); d[i-1]=Math.min(255,d[i-1]/a); d[i]=255; } else d[i]=0; }
+  g.putImageData(id,0,0); return POSE_SC[key]=c; }
+function drawPose(g,cid,x,y,q,t,left,forced,sk,sc){ const M0=POSE_META[cid]; if(!M0) return false;
+  const k=sc&&sc<0.985?Math.round(Math.log(sc)/Math.log(0.97)):0, im=poseAtlasAt(cid,left,k); if(!im) return false;
+  const f=Math.pow(0.97,k), M=k?{cw:im.__cw,ch:im.__ch,fx:M0.fx*im.__cw/M0.cw,fy:M0.fy*im.__ch/M0.ch}:M0;
   const key=sk||cid, st=PSTATE[key]||(PSTATE[key]={cur:0,prev:0,t0:-9,hf:hfrac(key+(left?'L':'R'))}); if(t<st.t0-1){ st.cur=0; st.prev=0; st.t0=-9; }                      // time ran backwards (a new night): start again
   const playing=state.phase==='answer'||state.phase==='listen'&&!!q.strum||(t-(left?RA.noteAt:HA.noteAt))<1.2; let want=forced!=null?forced:posePick(q,t,playing,st);
   // breathing is each figure's own slow clock (a period of 3.5 to 5 seconds, its own phase), not the shared beat
@@ -4343,9 +4360,9 @@ function drawPose(g,cid,x,y,q,t,left,forced,sk){ const M=POSE_META[cid], im=left
   const dwell=0.2+0.18*st.hf;
   if(want!==st.cur&&(POSE_NOW[want]||t-st.t0>=dwell)){ st.prev=st.cur; st.cur=want; st.t0=t; }
   const cell=i=>({sx:left?(7-i%8)*M.cw:(i%8)*M.cw,sy:Math.floor(i/8)*M.ch}), fx=left?M.cw-M.fx:M.fx, X=Math.round(x-fx), Y=Math.round(y-M.fy);
-  const slow=st.cur<=1&&st.prev<=1, f=slow?1:Math.min(1,(t-st.t0)/0.12); g.imageSmoothingEnabled=false;   // idle and breath differ by a pixel or two: swap outright, a crossfade would show two outlines
+  const slow=st.cur<=1&&st.prev<=1, fa=slow?1:Math.min(1,(t-st.t0)/0.12); g.imageSmoothingEnabled=false;   // idle and breath differ by a pixel or two: swap outright, a crossfade would show two outlines
   poseShadow(g,Math.round(x),Math.round(y),M.cw*0.6);
-  if(f<1&&st.prev!==st.cur){ const c0=cell(st.prev); g.drawImage(im,c0.sx,c0.sy,M.cw,M.ch,X,Y,M.cw,M.ch); g.globalAlpha=f; }
+  if(fa<1&&st.prev!==st.cur){ const c0=cell(st.prev); g.drawImage(im,c0.sx,c0.sy,M.cw,M.ch,X,Y,M.cw,M.ch); g.globalAlpha=fa; }
   const c1=cell(st.cur); g.drawImage(im,c1.sx,c1.sy,M.cw,M.ch,X,Y,M.cw,M.ch); g.globalAlpha=1;
   if(window.__poseLog) window.__poseLog.push([+t.toFixed(3),cid,st.cur]); return true; }
 const SPR_IMG={};
@@ -6947,11 +6964,21 @@ function bandExtent(id,one){ const ck=id+(one?'1':''); if(bandExtCache[ck]) retu
 // place one side's band: try every floor spot, keep the legal ones (on the floor, on screen, off the props, not inside anyone), take the best by role
 function bandPlaces(ids,mirror,vid){ ids=ids.filter(id=>BANDP[id]); const S=STAGE3D[vid]||{yb:190,props:[]}, yb=Math.min(S.yb,FIGHTER_Y-1);
   const drum=ids.filter(id=>BANDP[id].inst==='drums'), rest=ids.filter(id=>BANDP[id].inst!=='drums'); rest.sort((a,b)=>(b==='brass')-(a==='brass'));
-  const order=[...drum.slice(0,1),...rest.slice(0,3)], fighters=stageFighters(), taken=[], out=[];
-  // preferred feet x (left side; the caller's band mirrors it) and row: the drummer at the back by the player's shoulder, the rest flanking
-  const PREF={drum:[150,yb+7],r0:[262,yb+8],r1:[70,yb+14],r2:[300,yb+4]};
-  order.forEach((id,k)=>{ const e0=bandExtent(id), e=mirror?{l:-e0.r,r:-e0.l,L:-e0.R,R:-e0.L}:e0;
-    const role=BANDP[id].inst==='drums'?'drum':'r'+(k-(drum.length?1:0)), pr=PREF[role]||PREF.r2, px=mirror?640-pr[0]:pr[0], py=Math.max(yb+2,Math.min(STAGE_FRONT,pr[1]));
+  const order=[...drum.slice(0,1),...rest.slice(0,3)], fighters=stageFighters();
+  // preferred feet x (left side; the caller's band mirrors it) and row: the drummer at the back by the player's shoulder, the rest flanking.
+  // The others are tried in every order on the slots r0..r2 (a keyboard does not fit where a bassist does), and the arrangement that costs least
+  // and is least cramped wins: two members at about the same depth closer than 44 px pay for it, so nobody ends up stacked in front of the drums.
+  const PREF={drum:[150,yb+7],r0:[262,yb+8],r1:[70,yb+14],r2:[104,yb+2]};
+  const others=order.slice(drum.length?1:0), perms=others.length<2?[others]:others.length===2?[others,[others[1],others[0]]]:[[0,1,2],[0,2,1],[1,0,2],[1,2,0],[2,0,1],[2,1,0]].map(p=>p.map(i=>others[i]));
+  let bestArr=null;
+  for(const relax of [false,true]){ if(bestArr&&bestArr.out.length===order.length) break;   // only when someone has nowhere to stand may the band use the front of the middle
+  for(const pm of perms){ const seq=[...(drum.length?[order[0]]:[]),...pm], r=placeSeq(seq,drum.length?1:0,relax); if(!r) continue;
+    let cost=r.cost; for(let i=0;i<r.out.length;i++) for(let j=i+1;j<r.out.length;j++){ const A=r.out[i][1], B=r.out[j][1]; if(Math.abs(A[1]-B[1])<14) cost+=Math.max(0,44-Math.abs(A[0]-B[0]))*3; else cost+=Math.max(0,24-Math.abs(A[0]-B[0]))*4; }
+    cost+=(seq.length-r.out.length)*1000; if(!bestArr||cost<bestArr.cost) bestArr={cost,out:r.out}; } }
+  return (bestArr?bestArr.out:[]).sort((a,b)=>a[1][1]-b[1][1]);   // back to front
+  function placeSeq(seq,nd,relax){ const taken=[], out=[]; let cost=0;
+  seq.forEach((id,k)=>{ const e0=bandExtent(id), e=mirror?{l:-e0.r,r:-e0.l,L:-e0.R,R:-e0.L}:e0;
+    const role=BANDP[id].inst==='drums'?'drum':'r'+(k-nd), pr=PREF[role]||PREF.r2, px=mirror?640-pr[0]:pr[0], py=Math.max(yb+2,Math.min(STAGE_FRONT,pr[1]));
     let best=null;
     for(let y=yb+2;y<=STAGE_FRONT;y++) for(let x=mirror?324:4;x<=(mirror?636:316);x+=2){
       if(x+e.L<2||x+e.R>638) continue; const a=x+e.l, b=x+e.r;
@@ -6963,11 +6990,11 @@ function bandPlaces(ids,mirror,vid){ ids=ids.filter(id=>BANDP[id]); const S=STAG
       for(const o of taken){ const ov=Math.min(b,o.b)-Math.max(a,o.a); if(ov<=0) continue; const dz=Math.abs(y-o.y), nar=Math.min(b-a,o.b-o.a);
         if(dz<8?ov>4:ov>nar*0.5){ bad=true; break; } pen+=ov*(dz<8?6:1.5); }
       if(bad) continue;
-      if(b>296&&a<344) pen+=160;                                    // keep the middle of the stage open
+      if(b>300&&a<340){ if(y>yb+6&&!relax) continue; pen+=y>yb+6?200:60; }              // the front of the middle is the duel's; the back row there is allowed (a drummer often sits centre-back)
       const sc=Math.abs(x-px)+Math.abs(y-py)*3+pen; if(!best||sc<best.sc) best={x,y,sc}; }
     if(!best) return;                                                // no room: leave them off this stage rather than in a wall
-    taken.push({a:best.x+e.l,b:best.x+e.r,y:best.y}); out.push([id,[best.x,best.y]]); });
-  return out.sort((a,b)=>a[1][1]-b[1][1]); }   // back to front
+    cost+=best.sc; taken.push({a:best.x+e.l,b:best.x+e.r,y:best.y}); out.push([id,[best.x,best.y]]); });
+  return {out,cost}; } }
 const bandPlaceCache=new Map();
 function bandPlacesCached(ids,mirror,vid){ const key=vid+'|'+(mirror?1:0)+'|'+ids.join(',')+'|'+Object.keys(bandExtCache).length; let r=bandPlaceCache.get(key);
   if(!r){ r=bandPlaces(ids,mirror,vid); bandPlaceCache.set(key,r); if(bandPlaceCache.size>60) bandPlaceCache.delete(bandPlaceCache.keys().next().value); } return r; }
@@ -6988,8 +7015,8 @@ function drawBandSide(g,t,ids,mirror,vid,layer){
   if(BAND_MAX[vid]) ids=ids.slice(0,BAND_MAX[vid]);
   bandPlacesCached(ids,mirror,vid).forEach(([id,s],i)=>{ const x=s[0], y=s[1]; if((layer==='front')!==(y>FIGHTER_Y)) return;
     for(const [sub,dx,dy,lag] of (BAND_GROUP[id]&&BANDART_IMG[id]?BAND_GROUP[id]:[[id,0,0,0]])){
-      const q=bandPose(id,t-(lag||0)*0.06,i,sub), xx=x+(mirror?-dx:dx), yy=y+dy;
-      if(POSE_META[sub]&&POSE_IMG[sub]&&drawPose(g,sub,xx,yy,q,t,mirror,bandPoseIdx(sub,q,t,sub+(mirror?'L':'R')+i),sub+(mirror?'L':'R')+i)) continue;
+      const ks=bandArtScale(y), q=bandPose(id,t-(lag||0)*0.06,i,sub), xx=x+Math.round((mirror?-dx:dx)*ks), yy=y+Math.round(dy*ks);
+      if(POSE_META[sub]&&POSE_IMG[sub]&&drawPose(g,sub,xx,yy,q,t,mirror,bandPoseIdx(sub,q,t,sub+(mirror?'L':'R')+i),sub+(mirror?'L':'R')+i,bandArtScale(yy))) continue;
       const f=bandPaintedFrame(sub,q,mirror);
       if(f) g.drawImage(f.c,Math.round(xx-f.ax),Math.round(yy-f.ay));
       else if(sub===id) g.drawImage(bandFrame0(id,q,mirror),Math.round(xx-(mirror?BS.W-BS.ox:BS.ox)),Math.round(yy-BS.oy)); } }); }
@@ -8933,7 +8960,7 @@ window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={h
       for(let r=0;r<runs;r++){ state.used={}; state.streak=0; for(let c=0;c<V.setLen;c++){ state.replays=2; state.replaysAtCall=2; const call=makeCall(V.tiers[c]); state.call=call;
         state.answer=call.notes.map(n=>({midi:n.midi,s:n.s,f:n.f,g:Math.random()<0.55?(Math.random()<0.4?'pocket':'groove'):null})); tot+=evaluate().score; } }
       out[id]={avg:Math.round(tot/runs),target:venueTarget(V)}; });
-    Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); stageLights(cg,t,id); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1}); if(ART[id].vec){ drawRivalVec(cg,id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,id,t); } drawBandStage(cg,t,'front',id); drawCrowdFront(cg,t,V.hats); stageBlind(cg,V,t); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid,bl)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1,blink:!!bl}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q,true),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
+    Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); stageLights(cg,t,id); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1}); if(ART[id].vec){ drawRivalVec(cg,id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,id,t); } drawBandStage(cg,t,'front',id); drawCrowdFront(cg,t,V.hats); stageBlind(cg,V,t); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),depthInfo:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,y:xy[1],s:+bandArtScale(xy[1]).toFixed(3)})),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid,bl)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1,blink:!!bl}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q,true),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
 })();
 </script>
 </body>

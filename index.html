@@ -813,8 +813,8 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
   .modal-card:has(.setgrid){max-width:780px;padding:8px 16px}
   .modal-card:has(.setgrid) h3{margin:0 0 2px}
   .dev-tabs{display:flex;flex-wrap:wrap;gap:4px;justify-content:center;margin:2px 0 6px}.dev-tabs .btn{padding:4px 7px;font-size:11px}.dev-list{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin:4px 0 8px}.dev-list .btn{padding:6px 4px;font-size:12px;text-align:left}
-.setgrid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(3,auto);grid-template-columns:1fr 1fr;column-gap:30px}
-  .setgrid .setrow{margin:4px 0}
+.setgrid{display:grid;grid-auto-flow:column;grid-template-rows:repeat(4,auto);grid-template-columns:1fr 1fr;column-gap:30px}
+  .setgrid .setrow{margin:1px 0}
   .setgrid .setrow .dim{display:block;line-height:1.25;font-size:8px}
   .setgrid .stepper .btn,.setgrid .knob{transform:scale(.92)}
   .setbtns{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:4px 10px;margin-top:2px}
@@ -1065,7 +1065,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.82</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.83</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -1606,7 +1606,7 @@ const STORE_KEY='fretbound.v1';
 let store={};
 try{ store=JSON.parse(localStorage.getItem(STORE_KEY)||'{}')||{}; }catch(e){ store={}; }
 store.stats=store.stats||{};
-store.settings=Object.assign({crt:true,names:false,latency:20,wood:'rosewood',vol:0.6,music:0.7,band:0.7},store.settings||{});
+store.settings=Object.assign({crt:true,names:false,latency:20,wood:'rosewood',vol:0.6,music:0.7,band:0.7,voices:0.7},store.settings||{});
 function save(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(store)); }catch(e){} }
 
 /* ---------- state ---------- */
@@ -3812,7 +3812,7 @@ function bandPreview(){ if(!ctx||(tr.on&&state.screen==='duel')) return; try{ co
 function showPause(){
   const s=store.settings;
   openModal('<h3>Settings</h3><div class="setgrid">'+
-    sliderRow('sVol','Volume',s.vol)+sliderRow('sMus','Music',s.music)+sliderRow('sBand','Backing band',s.band==null?0.7:s.band)+
+    sliderRow('sVol','Volume',s.vol)+sliderRow('sMus','Music',s.music)+sliderRow('sBand','Backing band',s.band==null?0.7:s.band)+sliderRow('sVoice','Voices',s.voices==null?0.7:s.voices)+
     '<div class="setrow"><span>CRT scanlines</span>'+knobBtn('sCrt',s.crt)+'</div>'+
     '<div class="setrow"><span>Note names<br><span class="dim">Training wheels. Each label fades once you know that spot; notes on labels score half Tone.</span></span>'+knobBtn('sNames',s.names)+'</div>'+
     '<div class="setrow"><span>Octave echo<br><span class="dim">A right note glows everywhere else it lives.</span></span>'+knobBtn('sEcho',s.echo!==false)+'</div>'+
@@ -3821,8 +3821,8 @@ function showPause(){
     '<div class="row-btns"><button class="btn small blue" id="pReset">RESET EAR STATS</button></div></div>');
   setKnob('sCrt',s.crt); setKnob('sNames',s.names); setKnob('sEcho',s.echo!==false);
   if($('pDev')) $('pDev').onclick=()=>{ blip(660,0.05); showDev(); }; if($('pWin')) $('pWin').onclick=()=>{ blip(990,0.08); devWinNight(); };
-  const vol=(id,key)=>{ $(id).oninput=e=>{ s[key]=e.target.value/100; $(id+'V').textContent=e.target.value; applyVolume(); }; $(id).onchange=()=>{ save(); if(key==='vol') blip(660,0.06); if(key==='band') bandPreview(); }; };
-  vol('sVol','vol'); vol('sMus','music'); vol('sBand','band');
+  const vol=(id,key)=>{ $(id).oninput=e=>{ s[key]=e.target.value/100; $(id+'V').textContent=e.target.value; applyVolume(); }; $(id).onchange=()=>{ save(); if(key==='vol') blip(660,0.06); if(key==='band') bandPreview(); if(key==='voices') try{ mumble(voiceIdFor(RIVAL)||'green','Like this? I can talk a little quieter.'); }catch(e){} }; };
+  vol('sVol','vol'); vol('sMus','music'); vol('sBand','band'); vol('sVoice','voices');
   $('sCrt').onclick=()=>{ s.crt=!s.crt; save(); applySettings(); setKnob('sCrt',s.crt); blip(s.crt?660:440,0.04); };
   $('sEcho').onclick=()=>{ s.echo=s.echo===false; save(); setKnob('sEcho',s.echo!==false); blip(s.echo!==false?660:440,0.04); };
   $('sNames').onclick=()=>{ s.names=!s.names; save(); applySettings(); setKnob('sNames',s.names); blip(s.names?660:440,0.04); };
@@ -4642,6 +4642,8 @@ function roadPick(){ const cid=(TOURS[state.tour]||{}).id, seen=new Set(state.ro
   const pool=Object.keys(ROAD).filter(k=>ROAD[k].story&&(!ROAD[k].c||ROAD[k].c===cid)&&!seen.has(k)&&(!ROAD[k].req||ROAD[k].req()));
   const local=pool.filter(k=>ROAD[k].c===cid), pick=(local.length&&Math.random()<0.6)?local:pool; return pick.length?pick[Math.floor(Math.random()*pick.length)]:null; }
 let roadState=null;
+// who speaks the quotes in a road scene: the caller in it, or a voice for the encounter's own stranger
+function roadVoice(){ const c=roadState&&roadState.cast.find(q=>q.side); return c?c.id:'road_'+(roadState?roadState.id:''); }
 function goRoad(next,force){
   const id=(force&&(!ROAD[force].req||ROAD[force].req()))?force:roadPick(); if(!id){ next(); return; }
   try{ closeModal(); trStop(); hideDialog(); }catch(e){} ++state.runId;
@@ -4650,8 +4652,8 @@ function goRoad(next,force){
   $('roadTitle').textContent=E.t; $('roadStory').textContent=typeof E.story==='function'?E.story():E.story; $('roadOut').textContent=''; $('roadGo').classList.add('hidden');
   const box=$('roadChoices'); box.innerHTML=''; box.classList.remove('quiz');
   if(E.quiz) roadQuiz(E.quiz); else (E.ch()||[]).filter(Boolean).forEach(c=>{ const b=document.createElement('button'); b.className='btn small '+(c.dis?'':'gold'); b.textContent=c.l; b.disabled=!!c.dis;
-    b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||''; roadDoneBtn(); }; box.appendChild(b); });
-  goScreen('road'); saveRun(); try{ if(ctx&&ROAD_CUES[id]){ cueWarmDef(ROAD_CUES[id]); cueStart(ROAD_CUES[id],'road'); } }catch(e){}
+    b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||''; roadDoneBtn(); try{ mumbleQuotes(roadVoice(),out); }catch(e){} }; box.appendChild(b); });
+  goScreen('road'); saveRun(); try{ setTimeout(()=>{ if(state.screen==='road'&&roadState&&roadState.id===id) mumbleQuotes(roadVoice(),$('roadStory').textContent); },350); }catch(e){} try{ if(ctx&&ROAD_CUES[id]){ cueWarmDef(ROAD_CUES[id]); cueStart(ROAD_CUES[id],'road'); } }catch(e){}
   requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },40); });
 }
 function roadDoneBtn(){ const b=$('roadGo'); b.classList.remove('hidden'); b.textContent='ON TO THE SHOW'; renderCash(); saveRun(); }
@@ -5259,7 +5261,7 @@ function renderAll(){
 /* dialog */
 let dlgTimer=null, typeTimer=null;
 function say(who,text,ms,noType){
-  const d=$('dialog'); clearTimeout(dlgTimer); clearInterval(typeTimer);
+  const d=$('dialog'); clearTimeout(dlgTimer); clearInterval(typeTimer); try{ mumbleStop(); }catch(e){}
   d.classList.add('show'); d.style.fontSize=''; d.style.height=''; d.innerHTML='<b></b><span></span>'; d.querySelector('b').textContent=who;
   const sp=d.querySelector('span');
   // the strip is two lines tall and must never grow (the layout below would jump): a long line is set a little smaller until it fits
@@ -5267,8 +5269,97 @@ function say(who,text,ms,noType){
   if(noType||reduceMotion) sp.textContent=text;
   else { let i=0; typeTimer=setInterval(()=>{ i+=2; sp.textContent=text.slice(0,i); if(i>=text.length) clearInterval(typeTimer); },22); }
   if(ms>0) dlgTimer=setTimeout(hideDialog,ms);
+  if(!noType){ const vid=voiceIdFor(who); if(vid) try{ mumble(vid,text); }catch(e){} }   // the caller mumbles the line as it types
 }
-function hideDialog(){ clearInterval(typeTimer); $('dialog').classList.remove('show'); }
+function hideDialog(){ clearInterval(typeTimer); $('dialog').classList.remove('show'); try{ mumbleStop(); }catch(e){} }
+/* ---------- mumble voices (v1.83): the callers "talk" in a synthesised mumble while their lines type out, no recordings.
+   One sawtooth or pulse per line runs through two band-pass formants that follow the vowels (the trick behind Animalese-style voices).
+   Each vowel group is a syllable; its pitch comes from a hash of the word (the same word always sounds the same) plus a contour over the
+   sentence (falls at a full stop, rises on a question, jumps on "!"), snapped to a pentatonic over the music's root so it sits in key.
+   VOICE fields: b base midi, w wave, st seconds per syllable, fs formant scale (higher = smaller creature), q formant sharpness,
+   br breath noise 0..1, wob vibrato in semitones, gl glide across a syllable in semitones, ech echo 0..1, sp pitch spread in scale steps, v level */
+const VOICE={
+  spur:{b:50,w:'square',st:0.10,fs:1.08,q:11,gl:-1.6,sp:2,v:1.07},          // the Twang Knight: nasal and drawled
+  tide:{b:69,w:'triangle',st:0.085,fs:1.2,q:6,gl:1,ech:0.6,wob:0.4,sp:3,v:0.38}, // the Reverb Siren: sung from under water
+  juke:{b:41,w:'triangle',st:0.105,fs:0.82,q:5,br:0.55,sp:2,v:0.89},         // Mister Midnight: low and breathy
+  dunes:{b:52,w:'sawtooth',st:0.08,fs:1,q:7,wob:0.5,sp:2,v:1.17},
+  sebene:{b:62,w:'square',st:0.062,fs:1.18,q:8,sp:3,v:0.92},
+  azmari:{b:55,w:'sawtooth',st:0.088,fs:0.96,q:7,wob:0.7,gl:0.8,sp:2,v:1.16},
+  rio:{b:47,w:'triangle',st:0.092,fs:0.9,q:5,br:0.3,sp:1,v:0.67},             // the Velvet Jaguar never raises his voice
+  milonga:{b:45,w:'sawtooth',st:0.09,fs:0.9,q:8,gl:-0.6,sp:2,v:1.26},
+  chicha:{b:64,w:'square',st:0.056,fs:1.15,q:9,sp:4,v:0.75},
+  paris:{b:39,w:'sawtooth',st:0.098,fs:0.78,q:6,br:0.4,sp:2,v:1.18},         // the Gargoyle: gravel
+  cave:{b:58,w:'sawtooth',st:0.066,fs:1.05,q:7,wob:1.1,sp:3,v:1.17},
+  frost:{b:38,w:'sawtooth',st:0.115,fs:0.8,q:6,br:0.5,ech:0.45,sp:1,v:1.28},
+  tokyo:{b:67,w:'triangle',st:0.058,fs:1.25,q:8,gl:0.8,sp:3,v:0.42},
+  ghat:{b:46,w:'sawtooth',st:0.088,fs:0.88,q:6,gl:1.4,sp:2,v:1.11},          // the Tiger: slides into every syllable
+  bali:{b:50,w:'triangle',st:0.10,fs:1,q:12,ech:0.5,sp:2,v:0.89},
+  lanai:{b:48,w:'triangle',st:0.115,fs:0.92,q:6,gl:-0.8,sp:1,v:0.85},        // the Honu: slow
+  outback:{b:53,w:'square',st:0.06,fs:1.05,q:7,sp:4,v:1.15},
+  grotto:{b:72,w:'sine',st:0.072,fs:1.3,q:7,ech:0.55,sp:3,v:0.25},
+  mess:{b:74,w:'square',st:0.05,fs:1.35,q:9,sp:3,v:0.61},                    // the Emperor: short chirps
+  aurora:{b:66,w:'sine',st:0.10,fs:1.15,q:7,wob:0.6,ech:0.6,gl:1,sp:3,v:0.30},
+  pole:{b:60,w:'sine',st:0.12,fs:1,q:5,br:0.75,ech:0.4,sp:1,v:0.29},        // the Silence: barely there
+  green:{b:52,w:'triangle',st:0.085,fs:1,q:6,sp:2,v:0.85}                    // the Guitar Tech
+};
+const VOWEL_F={a:[730,1090],e:[530,1840],i:[300,2240],o:[570,840],u:[350,870],y:[300,2240]};
+const MUM={line:null,out:null,log:[]};   // log: the last few lines spoken and cut, for the tests
+function voiceHash(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+// a voice for anyone: the table above, or one built from the id so nobody is silent
+function voiceOf(id){ if(VOICE[id]) return VOICE[id]; const h=voiceHash(String(id||'?'));
+  return {b:44+h%26,w:['triangle','sawtooth','square'][(h>>>5)%3],st:0.06+((h>>>8)%6)*0.01,fs:0.85+((h>>>11)%8)*0.06,q:6+(h>>>14)%5,sp:1+(h>>>17)%3,v:1}; }
+// the speaker of a dialog line: a caller's display name maps to their venue id
+function voiceIdFor(who){ if(!who) return null; const all=TOURS.flatMap(T=>T.venues).concat([PRAC_VEN]); const v=all.find(x=>x.rival===who); return v?v.id:null; }
+function voiceLevel(){ const v=store.settings.voices==null?0.7:store.settings.voices; return v*v; }
+// syllables from the text: one per vowel group (at most three a word), with pauses at commas and sentence ends
+function mumbleSyllables(text){ const out=[]; const words=String(text).replace(/\([^)]*\)/g,'').match(/[A-Za-z']+[^A-Za-z']*/g)||[];
+  words.forEach((wd,wi)=>{ const w=wd.match(/[A-Za-z']+/)[0].toLowerCase(), tail=wd.slice(w.length), g=w.match(/[aeiouy]+/g)||['a'];
+    const n=Math.min(3,g.length); for(let k=0;k<n;k++) out.push({v:g[k][0],h:voiceHash(w+'#'+k),end:null,first:false});
+    const p=/[?]/.test(tail)?'?':/[!]/.test(tail)?'!':/[.;:]/.test(tail)?'.':/[,]/.test(tail)?',':null; if(p) out[out.length-1].end=p; });
+  for(let i=0;i<out.length;i++) out[i].first=i===0||!!(out[i-1].end&&out[i-1].end!==',');
+  return out; }
+function mumbleScale(){ // pitch classes (relative pc set) and a root: the duel's root, a road cue's first chord, or E minor on the title
+  let root=40, set=[0,2,5,7,10];
+  try{ if(CUE.on&&CUE.def&&CUE.def.ch){ const m=/^([A-G])([#b]?)(m(?!aj))?/.exec(CUE.def.ch.trim()); if(m){ root=48+({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0); set=m[3]?[0,3,5,7,10]:[0,2,4,7,9]; } } else if(state.screen==='duel'&&state.inVenue) root=tr.root; else if(state.screen==='title') set=[0,2,3,7,10]; }catch(e){}
+  return {root,set}; }
+function mumbleStop(at){ const L=MUM.line; if(!L||!ctx) return; const t=Math.max(ctx.currentTime,at||0);
+  try{ L.env.gain.cancelScheduledValues(t); L.env.gain.setTargetAtTime(0,t,0.012); L.srcs.forEach(o=>{ try{ o.stop(t+0.12); }catch(e){} }); }catch(e){}
+  if(at) MUM.log.push({cut:+t.toFixed(2)}); if(!at||at<=ctx.currentTime) MUM.line=null; }
+// speak a line as `id` (a VOICE key or any id). maxSec caps the length; returns the length in seconds
+function mumble(id,text,opt){
+  opt=opt||{}; if(!ctx||(ctx.state!=='running'&&!opt.force)||!text) return 0; if(voiceLevel()<=0.0001) return 0;
+  mumbleStop(); const V=voiceOf(id), syl=mumbleSyllables(text); if(!syl.length) return 0;
+  if(!MUM.out||MUM.out.context!==ctx){ MUM.out=G(1); MUM.out.connect(master); }
+  MUM.out.gain.setTargetAtTime(voiceLevel(),ctx.currentTime,0.02);
+  const t0=ctx.currentTime+0.03, st=V.st, maxSec=opt.maxSec||Math.max(1.2,Math.min(2.6,text.length*0.028));
+  // the graph: one source (plus breath) into two formants and a little dry body, one envelope, an optional echo
+  const env=G(0), src=ctx.createOscillator(); src.type=V.w; const pre=G(V.w==='sine'?1.6:V.w==='triangle'?1.2:0.55);
+  const f1=biq('bandpass',600,V.q), f2=biq('bandpass',1500,V.q*1.1), body=biq('lowpass',900*V.fs,0.7);
+  const g1=G(1.6), g2=G(1.1), gb=G(0.35); src.connect(pre); [ [f1,g1],[f2,g2],[body,gb] ].forEach(([f,g])=>{ pre.connect(f); f.connect(g); g.connect(env); });
+  const srcs=[src];
+  if(V.br){ const n=ctx.createBufferSource(); n.buffer=noiseBuf; n.loop=true; const ng=G(V.br*0.9); n.connect(ng); ng.connect(f1); ng.connect(f2); n.start(t0); srcs.push(n); }
+  if(V.wob){ const l=ctx.createOscillator(), lg=G(0); l.frequency.value=5.5; l.connect(lg); lg.connect(src.detune); lg.gain.value=V.wob*100; l.start(t0); srcs.push(l); }
+  const lvl=G(0.62*(V.v||1)); env.connect(lvl); lvl.connect(MUM.out);   // the table's v levels every voice to about the same loudness (measured with voiceTest), plus a little character
+  if(V.ech){ const d=ctx.createDelay(1), fb=G(0.38), wet=G(V.ech*0.7), lp=biq('lowpass',2400,0.7); lvl.connect(d); d.delayTime.value=0.17; d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(wet); wet.connect(MUM.out); }
+  const {root,set}=mumbleScale(), notes=[]; for(let m=24;m<=100;m++) if(set.indexOf(((m-root)%12+12)%12)>=0) notes.push(m);
+  let i0=0; notes.forEach((m,i)=>{ if(Math.abs(m-V.b)<Math.abs(notes[i0]-V.b)) i0=i; });
+  let t=t0, j=0, lastF=null, loud=1; const sp=V.sp||2;
+  for(let k=0;k<syl.length;k++){ const S=syl[k]; if(t-t0>maxSec) break;
+    if(S.first){ loud=1; for(let q=k;q<syl.length;q++){ if(syl[q].end==='!'){ loud=1.2; break; } if(syl[q].end&&syl[q].end!==',') break; } }
+    let deg=(S.h%(2*sp+1))-sp; const nx=syl[k].end, nx1=k+1<syl.length?syl[k+1].end:null;
+    if(nx==='.') deg-=2; else if(nx1==='.') deg-=1; if(nx==='?') deg+=3; else if(nx1==='?') deg+=1; if(S.first&&loud>1) deg+=2;
+    const f=440*Math.pow(2,(notes[Math.max(0,Math.min(notes.length-1,i0+deg))]-69)/12);
+    const d=st*(0.82+(S.h>>>9)%5*0.05)*(nx==='?'||nx==='.'?1.35:1), F=VOWEL_F[S.v]||VOWEL_F.a, a=Math.min(0.012,d*0.2);
+    if(lastF==null) src.frequency.setValueAtTime(f,t); else { src.frequency.setValueAtTime(lastF,t); src.frequency.exponentialRampToValueAtTime(f,t+Math.min(0.025,d*0.3)); }
+    const fe=f*Math.pow(2,(V.gl||0)/12); src.frequency.exponentialRampToValueAtTime(fe,t+d); lastF=fe;
+    f1.frequency.setTargetAtTime(F[0]*V.fs,t,0.012); f2.frequency.setTargetAtTime(F[1]*V.fs,t,0.012);
+    env.gain.setValueAtTime(0,t); env.gain.linearRampToValueAtTime(loud,t+a); env.gain.linearRampToValueAtTime(loud*0.7,t+d*0.7); env.gain.linearRampToValueAtTime(0,t+d);
+    t+=d+st*0.12+(nx===','?st*1.6:nx&&nx!==','?st*2.6:0); j++; }
+  src.start(t0); srcs.forEach(o=>{ try{ o.stop(t+0.05); }catch(e){} });
+  const L={env,srcs,end:t}; MUM.line=L; MUM.log.push({id,at:+t0.toFixed(2),end:+t.toFixed(2)}); if(MUM.log.length>30) MUM.log.shift(); setTimeout(()=>{ if(MUM.line===L) MUM.line=null; },(t-ctx.currentTime)*1000+400);
+  return t-t0; }
+// the quoted words in a road story or outcome, spoken by whoever is in the scene
+function mumbleQuotes(id,text){ const q=(String(text||'').match(/"[^"]+"/g)||[]).map(x=>x.slice(1,-1)).join(' '); if(q) mumble(id,q); }
 function countUp(el,a,b,ms){ const t0=performance.now(); const f=now=>{ const k=Math.min(1,(now-t0)/ms); el.textContent=Math.round(a+(b-a)*k); if(k<1) requestAnimationFrame(f); }; requestAnimationFrame(f); }
 
 /* ---------- pixel art ---------- */
@@ -8629,7 +8720,19 @@ async function cueTest(id,n,riff,solo){
     return {rmsDb:+(10*Math.log10(ss/Lc.length+1e-12)).toFixed(1),peak:+pk.toFixed(3),bad};
   } finally { CUE.on=false; clearInterval(CUE.timer); Object.assign(CUE,saved.C,{on:false,timer:null}); ctx=saved.ctx; master=saved.master; musicBus=saved.musicBus; roomIn=saved.roomIn; noiseBuf=saved.noiseBuf; }
 }
+// offline check of a voice: renders one line through the master chain; returns its length, loudness while speaking (dB), peak, and the samples if asked
+async function voiceTest(id,text,raw){
+  const saved={ctx,master,noiseBuf,out:MUM.out,line:MUM.line}, sr=44100;
+  try{ const off=new OfflineAudioContext(2,sr*6,sr); ctx=off; master=G(volGain()); master.connect(buildMaster(off)); noiseBuf=makeNoise(1); MUM.out=null; MUM.line=null;
+    const len=mumble(id,text,{force:true,maxSec:4}); const b=await off.startRendering(), Lc=b.getChannelData(0), Rc=b.getChannelData(1);
+    let pk=0,ss=0,n=0,bad=0,last=0; for(let j=0;j<Lc.length;j++){ const v=Math.max(Math.abs(Lc[j]),Math.abs(Rc[j])); if(!isFinite(v)) bad++; pk=Math.max(pk,v); if(v>0.003){ ss+=(Lc[j]*Lc[j]+Rc[j]*Rc[j])/2; n++; last=j; } }
+    const r={len:+len.toFixed(2),heard:+(last/sr).toFixed(2),rmsDb:+(10*Math.log10(ss/Math.max(1,n)+1e-12)).toFixed(1),peak:+pk.toFixed(3),bad};
+    if(raw) r.pcm=Array.from(Lc.subarray(0,Math.min(Lc.length,last+sr*0.2)),v=>Math.round(Math.max(-1,Math.min(1,v))*32767));
+    return r;
+  } finally { ctx=saved.ctx; master=saved.master; noiseBuf=saved.noiseBuf; MUM.out=saved.out; MUM.line=saved.line; }
+}
 function goScreen(n){
+  try{ if(n!==state.screen) mumbleStop(); }catch(e){}
   if(n!=='duel'&&state.practice) leavePractice();
   try{ if(CUE.on&&CUE.screen!==n) cueStop(); }catch(e){}
   try{ if(n==='title'){ if(ctx&&ctx.state==='running') startTitleSong(); } else stopTitleSong(); }catch(e){}
@@ -8696,10 +8799,10 @@ async function startCall(tok){
   $('toneBox').textContent='0'; $('hypeBox').textContent='0';
   const rf=c.notes[0].f; state.pos=state.win<=6?rf-1:rf-Math.floor(state.win/2); clampPos();
   renderAll();
+  tr.root=c.root;   // before the taunt, so the caller's mumble is in the call's key
   say(RIVAL,LINES.taunt[(state.callIdx-1)%LINES.taunt.length]);
-  tr.root=c.root;
   const t0=ctx.currentTime+0.12; trStart('duel',t0);
-  const tc=t0+BAR; scheduleCall(c,tc); try{ bandKeysHint(c,t0); }catch(e){}
+  const tc=t0+BAR; scheduleCall(c,tc); try{ mumbleStop(tc-0.08); }catch(e){}   // never talk over the call try{ bandKeysHint(c,t0); }catch(e){}
   await waitCtx(tc+(c.notes.length-1)*BEAT+0.3,tok); if(!alive(tok)) return;
   if(state.phase==='listen'){ state.phase='answer'; setPhase(); grooveMix('answer'); hideDialog(); renderNeck(); }
 }
@@ -8980,7 +9083,8 @@ window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={h
       for(let r=0;r<runs;r++){ state.used={}; state.streak=0; for(let c=0;c<V.setLen;c++){ state.replays=2; state.replaysAtCall=2; const call=makeCall(V.tiers[c]); state.call=call;
         state.answer=call.notes.map(n=>({midi:n.midi,s:n.s,f:n.f,g:Math.random()<0.55?(Math.random()<0.4?'pocket':'groove'):null})); tot+=evaluate().score; } }
       out[id]={avg:Math.round(tot/runs),target:venueTarget(V)}; });
-    Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); stageLights(cg,t,id); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1}); if(ART[id].vec){ drawRivalVec(cg,id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,id,t); } drawBandStage(cg,t,'front',id); drawCrowdFront(cg,t,V.hats); stageBlind(cg,V,t); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),askNameTest:()=>{ if(!state.call) state.call={notes:[{midi:57}]}; askName(state.runId); },depthInfo:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,y:xy[1],s:+bandArtScale(xy[1]).toFixed(3)})),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid,bl)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1,blink:!!bl}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q,true),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
+    Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); stageLights(cg,t,id); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1}); if(ART[id].vec){ drawRivalVec(cg,id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,id,t); } drawBandStage(cg,t,'front',id); drawCrowdFront(cg,t,V.hats); stageBlind(cg,V,t); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),mumble:(id,t,o)=>mumble(id,t,o), voiceTest:(id,t,raw)=>voiceTest(id,t,raw), voices:()=>Object.keys(VOICE), voiceTable:()=>VOICE, mumLog:()=>MUM.log.slice(), syl:t=>mumbleSyllables(t),
+  askNameTest:()=>{ if(!state.call) state.call={notes:[{midi:57}]}; askName(state.runId); },depthInfo:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,y:xy[1],s:+bandArtScale(xy[1]).toFixed(3)})),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid,bl)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1,blink:!!bl}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q,true),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
 })();
 </script>
 </body>

@@ -4,7 +4,7 @@ OPEN=[64,59,55,50,45,40]
 ev=lambda pg,js: pg.evaluate(js)
 with sync_playwright() as p:
     b=p.chromium.launch(args=["--autoplay-policy=no-user-gesture-required"])
-    pg=b.new_page(viewport={"width":390,"height":760})
+    pg=b.new_page(viewport={"width":390,"height":760}); pg.add_init_script("window.__fbNoWarm=true")
     errs=[]; pg.on("pageerror",lambda e: errs.append(str(e)))
     pg.goto('file://'+__import__('os').path.abspath(__import__('os').path.join(__import__('os').path.dirname(__import__('os').path.abspath(__file__)),'..','index.html'))); time.sleep(0.4)
     pg.click("#btnStart"); time.sleep(0.3); pg.click("#btnCharGo"); time.sleep(0.3)

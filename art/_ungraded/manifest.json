@@ -93,82 +93,82 @@
 "graded": "d88434b34e076ec5357dd854937f2da77ba5db9f"
 },
 "BODY_SRC/monk": {
-"graded": "e08910761a607aafb6cdff5b17deed7b1ac976d0"
+"graded": "8953b9a47b9e6e648d4587206d6dc1bb8488df10"
 },
 "BODY_SRC/busker": {
-"graded": "7395e0b061e2f31fb780812b30c43290ca471d8b"
+"graded": "77f1d8c8ff1ec8ac743f930913da1b63ff07810e"
 },
 "BODY_SRC/hermit": {
-"graded": "413559b4a2cb48e06878c2e93dc32e1867dd215a"
+"graded": "76da5be3093023d39ac4b4636a6b00aa563ad254"
 },
 "BODY_SRC/luthier": {
-"graded": "abe4716f4a5b809f9a69aac24230556d7fa94d5c"
+"graded": "cbc48d9ef20742201cfd1c70aacb7eddc2aeedf4"
 },
 "BODY_SRC/carto": {
-"graded": "b002ab4aa5dc8be79de6327b7e349712a2b7495b"
+"graded": "aefc79a103bdd6634305046f9232f9bede6e7d32"
 },
 "CALLER_SRC/aurora": {
-"graded": "8c68ca2d02da5629c000a61153d23c4b7161d4d9"
+"graded": "298521855065f90bfa76d521aec7223d39a497ad"
 },
 "CALLER_SRC/azmari": {
-"graded": "8f03990e67b64b0c843491aade9e09c233a19f1e"
+"graded": "9079431f021694a0c067216dd4e3e526ad43ba48"
 },
 "CALLER_SRC/bali": {
-"graded": "2cf112356bcad43610dc941c84fe1cb15e08ba17"
+"graded": "4260fa03ea9259d71e3e2a7c2cfbd93c59d8ec62"
 },
 "CALLER_SRC/cave": {
-"graded": "75f4470251c63101ba11b8a5ca7ad80349bec967"
+"graded": "c40683f4ad4bcb29482fee8533b304a315892554"
 },
 "CALLER_SRC/chicha": {
-"graded": "5e7618895d65d6a725652773d4a95ff475bd2d98"
+"graded": "5452e7289421bf57eaad566cf07d1443b609a8ea"
 },
 "CALLER_SRC/dunes": {
-"graded": "f2b19f0d5f50610cbaee27a246c9817f7303b47e"
+"graded": "90dfcc827b3542435a4081314f53b961672f38e1"
 },
 "CALLER_SRC/frost": {
-"graded": "300a3fe6755973d8ceb7ded636b736aba4d09239"
+"graded": "a031be4dd0918c5c7e92bb5e55e33ccec8729201"
 },
 "CALLER_SRC/ghat": {
-"graded": "62640b077c959ccc3b5c8a30c9383bfeae266b84"
+"graded": "ef1645de7c85f66b11d5c6eadf9c9d13ef76758b"
 },
 "CALLER_SRC/grotto": {
-"graded": "1591bb4d0a1fc32cf52b98e69627647d03a9e046"
+"graded": "2ab35fb25bf9e752467063e8fdab5b98e4e13699"
 },
 "CALLER_SRC/juke": {
-"graded": "d73e991a12e0b2d34ae33a3fce62fd8d021bab85"
+"graded": "1f468b58be719fd7d3f33d759c69f1869da6ab7a"
 },
 "CALLER_SRC/lanai": {
-"graded": "12f7dd6bf9d101d83fa05326bdaf227e341c975b"
+"graded": "c837259a44820ba6a98c0280442c4907717c0ed2"
 },
 "CALLER_SRC/mess": {
 "graded": "b83679221c59348fdf465bccc3f5ad201910f68c"
 },
 "CALLER_SRC/milonga": {
-"graded": "f6c1049240b5187b2f2e9420138a87507d4e935f"
+"graded": "07f9e35a70b90dd689ac52b7ea9482b927dfc3a3"
 },
 "CALLER_SRC/outback": {
-"graded": "d6039ffd6f7745a57808ff0a9f1e9e0abf003aa0"
+"graded": "6b6714b28a6b5ee25d6be341e85e1deb7bb7481c"
 },
 "CALLER_SRC/paris": {
-"graded": "2c34b84ca27d4e0e96d982bd686c75c0180cfc9e"
+"graded": "800176178f63e7037b8457ac90767864fb66c1a4"
 },
 "CALLER_SRC/pole": {
-"graded": "6fb6e14f18451446e286944668b18ca5f6b771db"
+"graded": "f8692fb3fd4d6dfb81ea3c39776a99f821fd8893"
 },
 "CALLER_SRC/rio": {
-"graded": "8de669ed179db6736408c645675ab5efa3ea025b"
+"graded": "2c81a3b25fdf60fd238b030a9feb80255a991b9f"
 },
 "CALLER_SRC/sebene": {
-"graded": "c64a7f1c07e904235c6d6daba8c0b537bf84331f"
+"graded": "7e23adf14c8af1aed17a6b5f495fa988168dc7ac"
 },
 "CALLER_SRC/spur": {
-"graded": "9b035d8a3cb75b626391055d851bc62cb2bbd3cb"
+"graded": "c5d4c49fc3abc50b3a3029d502ccc0126cf701e4"
 },
 "CALLER_SRC/tide": {
-"graded": "c4276f21691c3245a99168bf0daba409f938af37"
+"graded": "a87de134ff711758e57a8a531acad52a343af692"
 },
 "CALLER_SRC/tokyo": {
-"graded": "0a727dace8e8488b2404225383c7b48b7e06e888"
+"graded": "f6adc5be96e96fb2b73013e5e25f473b4a258693"
 },
 "BANDART_SRC/lou": {
 "graded": "b356248f6741b7370b2e18447dab7c469fcb3d05"
@@ -186,7 +186,7 @@
 "graded": "70cb64520981d01dea753dd0726dab500d4af835"
 },
 "BANDART_SRC/tam": {
-"graded": "39074f86f5213107ebb0782764c5638380b16dc7"
+"graded": "0c12db978aa279b34e4a4f955f3a05079f134901"
 },
 "BANDART_SRC/brass": {
 "graded": "43e0d04a0ee0c3d87f12b6c59acf9de0baf11b18"
@@ -291,7 +291,7 @@
 "graded": "29661695ae5493974f9acf46de6a856482ed44fc"
 },
 "TITLE_PLATES/eu": {
-"graded": "8d1b01ff03aac0091948195706af8cd316883e19"
+"graded": "cd5a9a50a9d830d56c1969a6c7279c04e5e9f997"
 },
 "TITLE_PLATES/as": {
 "graded": "a89ed37a63fc6954a252e6f17affe7eef9bd669c"
@@ -351,7 +351,7 @@
 "graded": "2d21d45ba8cc48ade585f413300e7644500a0d2e"
 },
 "RIVAL_PORT/juke": {
-"graded": "bc4bbb1ff900c532820719a45076ce6f0d70dcf9"
+"graded": "dd00aaac4e17330a5a7d1095fbb2982f71e68587"
 },
 "RIVAL_PORT/lanai": {
 "graded": "c6696c1b878fe2c0dd33dad8e4edabbd53eb9517"
@@ -444,15 +444,273 @@
 "graded": "a32431f23dbff7c9d2966549e22c93275ea374a7"
 },
 "PORTRAIT_ART/bard_card": {
-"graded": "92a61d7c608fc414f2e3a53bb7ee66126d77dbe2"
+"graded": "207fd365d8a90bc5152eb29d93aae158002ff36d"
 },
 "PORTRAIT_ART/bard_tile": {
-"graded": "bf0e4189796dacaf19fd8ad150cd6fdf2c1a6d99"
+"graded": "d901e00fef20af9dfbc3f95983cf520897829d10"
 },
 "PORTRAIT_ART/monk_card": {
-"graded": "94a67e2f41cb0c5bd54473184f3deee925911d4e"
+"graded": "66d0a256d6eccfe3746f10eacb3ec0f35fa95f91"
 },
 "PORTRAIT_ART/monk_tile": {
-"graded": "932fc28b40138dbd7eea25c27290b5a20224c677"
+"graded": "1e0d004742d4543eca64bb061ca52e9893f478e7"
+},
+"POSE_SRC/bard": {
+"graded": "db4f37f9cc10e51314185daccad5d6e7a0de676f"
+},
+"POSE_SRC/ghat": {
+"graded": "739ee5a8a7dc705aa815812047fbe129af5830d8"
+},
+"POSE_SRC/azmari": {
+"graded": "4be1a2829034322c3a0ed5189d360608145898ae"
+},
+"POSE_SRC/busker": {
+"graded": "920cbf2a0a7507291aa698514ac62a5b7259e40e"
+},
+"POSE_SRC/carto": {
+"graded": "cc331a4168b5f9c958108103efac2beb2e375c48"
+},
+"POSE_SRC/dunes": {
+"graded": "acf139ecacf2d4c089c59f97f7e420734a51ec78"
+},
+"POSE_SRC/hermit": {
+"graded": "e5d1d91491fa2187c62739d47fcb05890131560d"
+},
+"POSE_SRC/juke": {
+"graded": "9885fe3878a557eb9df0372654fe1a8dfe867a33"
+},
+"POSE_SRC/lou": {
+"graded": "b073844b2b2247b0e77c0619ab40e19be61e5c15"
+},
+"POSE_SRC/luthier": {
+"graded": "7055a615e7f84681b3af3041cc82c5ee24aa73f0"
+},
+"POSE_SRC/monk": {
+"graded": "4237a95e586ed6b2407e0b776ca967c2c4044a3d"
+},
+"POSE_SRC/sebene": {
+"graded": "569dc6db07555be46be3295382376d4afde6d4cb"
+},
+"POSE_SRC/spur": {
+"graded": "b8d7557b02224b252d5db933f010a499723872c8"
+},
+"POSE_SRC/tide": {
+"graded": "b56283e5a053cdcd9e46947658422bc9f9cc35c1"
+},
+"POSE_SRC/aurora": {
+"graded": "2f7a96996708dc87cc8d59e1fb9a495b1bb16c84"
+},
+"POSE_SRC/bali": {
+"graded": "066d8e268b65e5777b950d6f3e1ce8df047471d0"
+},
+"POSE_SRC/brass": {
+"graded": "cd58c0f42b5b3a0b2bc4db59dee62ec120950b08"
+},
+"POSE_SRC/brassb": {
+"graded": "1661519830d68be1f0c187cd8ddf84b4fd46484c"
+},
+"POSE_SRC/cave": {
+"graded": "c44cb4cf355755c3cf83615cd390d398b4ac338e"
+},
+"POSE_SRC/chicha": {
+"graded": "975182e661cf772ab3c61eb9fca1b7b2308551d3"
+},
+"POSE_SRC/dee": {
+"graded": "2b194df434e539538e885f7a19921635b38f4792"
+},
+"POSE_SRC/frost": {
+"graded": "44f2d7e5e60f48a61af9025dfe6468f908750c32"
+},
+"POSE_SRC/grotto": {
+"graded": "9d9b1ef7d2ae56d726c9b40f9e25390611dece59"
+},
+"POSE_SRC/hale": {
+"graded": "43d6db83286ec9f3f2ce557216a7d71464049f8a"
+},
+"POSE_SRC/jo": {
+"graded": "40426b42408d5611d1133fdeee30050cdd432da7"
+},
+"POSE_SRC/lanai": {
+"graded": "75a646cfdac5b4ef0ffc198c24f614b5c42fb6b2"
+},
+"POSE_SRC/mess": {
+"graded": "7fa088fc301e096b0a68faffaeef7efaa728ec1c"
+},
+"POSE_SRC/milonga": {
+"graded": "6b8911cf0479b19b2cdce300421a5a04ebf8e851"
+},
+"POSE_SRC/outback": {
+"graded": "86585729ca8cdbf3a23c5ffce8fd48683ae0bac6"
+},
+"POSE_SRC/paris": {
+"graded": "7fb1c2d72b10db318006b5ecb5114d91c4f90277"
+},
+"POSE_SRC/pole": {
+"graded": "68d454a159227683ef62b5529dc3850a9c3cb783"
+},
+"POSE_SRC/rio": {
+"graded": "3195fe9834c695787ee09bc0d1c4423465ac23d2"
+},
+"POSE_SRC/rosa": {
+"graded": "81ce73ba204a7f6ad7eebc63f3f42f163a7c3c1c"
+},
+"POSE_SRC/tam": {
+"graded": "7395c6acc2eb73cd00ef5467c3e0e1307b5bb571"
+},
+"POSE_SRC/tokyo": {
+"graded": "9b4d3a44116b9e5f61f76ea0dd314ab844d7da73"
+},
+"POSE_SRC/brassc": {
+"graded": "3191fe378db80f6c45158009ccf6b7d7d05f6521"
+},
+"PEDAL_SRC/harpy": {
+"graded": "b57ceadb1911d4e6849a6bdd791e69f28868ac19"
+},
+"PEDAL_SRC/fairy": {
+"graded": "c199203ff43d5f461796504449407ca58eb66d71"
+},
+"PEDAL_SRC/pixie": {
+"graded": "72bd7e3748eec4d84622f0480d4eb8fc39bc6b45"
+},
+"PEDAL_SRC/centaur": {
+"graded": "18db606eccf40f87e4db4b54feaf331eb0b36a0c"
+},
+"PEDAL_SRC/mermaid": {
+"graded": "711c0361d769f395e36e5816d41212e108a35b8a"
+},
+"PEDAL_SRC/leprechaun": {
+"graded": "4233f89a4402df2f449588bfb0954e97d28f06c8"
+},
+"PEDAL_SRC/wizard": {
+"graded": "16e2a666c30c71c0bf326697623733c5234cb38b"
+},
+"PEDAL_SRC/hydra": {
+"graded": "198c95d11803aa2b912f08063640449a1e06a1f0"
+},
+"PEDAL_SRC/phoenix": {
+"graded": "cb9a10ebefc966b560f85e268debcbe77a2692a9"
+},
+"PEDAL_SRC/gnome": {
+"graded": "3e28757fbea34846e94ba3e493a29400e1ddabf9"
+},
+"PEDAL_SRC/kraken": {
+"graded": "4ab3ffbf3353ab3f37c3a8326ef3990032f39e84"
+},
+"PEDAL_SRC/gremlin": {
+"graded": "be84270820b5421514d1303623bd6b228a71c679"
+},
+"HANG_SRC/bard": {
+"graded": "78d3cb232a19e67a3b77adf448e85e37f2033811"
+},
+"HANG_SRC/monk": {
+"graded": "d92de662b792bcb855d5f593005ecc8421666e86"
+},
+"HANG_SRC/hermit": {
+"graded": "9882dd2e8d36f92811ea180bc53eacc37a86df82"
+},
+"HANG_SRC/busker": {
+"graded": "ff43e12f926d7186ea83ecb4107fba03eea572c1"
+},
+"HANG_SRC/luthier": {
+"graded": "028ffa3f7563ed4f1bc7f895b9ba83e151b58a5e"
+},
+"HANG_SRC/carto": {
+"graded": "0c063b5acd2eb4acf2061279f086f32addfe8160"
+},
+"HANG_SRC/lou": {
+"graded": "a804713ee95d5e4be9fe612fccf528b8669b1a5d"
+},
+"HANG_SRC/rosa": {
+"graded": "a5026f8f7dffd8231d6d38e50874de6159fc3305"
+},
+"HANG_SRC/dee": {
+"graded": "68b7313c56cc2733ef8a372802d2ff68b2309752"
+},
+"HANG_SRC/jo": {
+"graded": "8cbf4d06cbb9b61415975e99a560aaeffaae9d40"
+},
+"HANG_SRC/hale": {
+"graded": "8c3e9fe27886759651914b8b8eea9dcfddc62a02"
+},
+"HANG_SRC/tam": {
+"graded": "0edf4ac531b58f2c5518ba81475007e76e2db8cd"
+},
+"HANG_SRC/brass": {
+"graded": "8bdd652f114be856a565582b49c0fae5500d98b0"
+},
+"HANG_SRC/brassb": {
+"graded": "ab043e4e9f81ec2b4ce69bc89956c4a86b1234b4"
+},
+"HANG_SRC/brassc": {
+"graded": "f2d423843b187d7c812ab19e9f40b3167ded0632"
+},
+"POSE_SRC/green": {
+"graded": "e363cbb272c394d52931e754e3a2fa91b0a838e3"
+},
+"ROOM_SRC/door_ear": {
+"graded": "cf14e951b0d9f6d5ef79f73b0c67f61adb12bedb"
+},
+"ROOM_SRC/door_green": {
+"graded": "f26d73d3802266ce157b24c7779c5e0f63279319"
+},
+"ROOM_SRC/door_roster": {
+"graded": "82488ac5dd1e4b10fdb0986d86c49f7a120cb7e7"
+},
+"ROOM_SRC/merch": {
+"graded": "04d8bbfff47617d279c0290b7dafa67f542f193c"
+},
+"ROOM_SRC/wall": {
+"graded": "f1c528cfc0ec9969c9ef3da23946b37a49fd3594"
+},
+"STAGE_PLATE_SRC/green": {
+"graded": "11c29252c9dfb53045ee4dc822a101ec95509375"
+},
+"PORTRAIT_ART/smith_card": {
+"graded": "be0e5dd0fedb31fb509c55abbd59c200437834a1"
+},
+"PORTRAIT_ART/smith_tile": {
+"graded": "95806de941f7c44cbc9f417a8ea67f16fd607359"
+},
+"PORTRAIT_ART/wizard_card": {
+"graded": "3c78865488fed5d53bb0f7f6ecc0cbb927deb5fc"
+},
+"PORTRAIT_ART/wizard_tile": {
+"graded": "4de472a71fc3c972fbd48af0bc3b996b9410bead"
+},
+"POSE_SRC/smith": {
+"graded": "de2e48102ac400a58dd97db13270301c4bc13c80"
+},
+"POSE_SRC/wizard": {
+"graded": "164b5546ea8fa5d0e7d7cea17301e2c30c4f2fdc"
+},
+"HANG_SRC/smith": {
+"graded": "ce7afaca63487a84b9b33361ec09a92242c80894"
+},
+"HANG_SRC/wizard": {
+"graded": "c6b88b2411921f1abdf9aa59dbdad32f17ed1091"
+},
+"PORTRAIT_ART/herald_card": {
+"graded": "9d89ac85e26ac04c1ee696cd62147c47d971f2e5"
+},
+"PORTRAIT_ART/herald_tile": {
+"graded": "9c2c13739951438788466e7fa052d072a43722da"
+},
+"PORTRAIT_ART/journey_card": {
+"graded": "9fd2ebb6abdb81e754f6e3584137bef7f2bbc204"
+},
+"PORTRAIT_ART/journey_tile": {
+"graded": "8d2d5be24614fab636d5df668756d373426f8e34"
+},
+"POSE_SRC/herald": {
+"graded": "7de0aa01fc7e51583272bc6f138b53f46b6040ce"
+},
+"POSE_SRC/journey": {
+"graded": "d945e036def9bdc2c382fdcd274a59d9963850b4"
+},
+"HANG_SRC/herald": {
+"graded": "cab273c4c40c9a09fe719b8ad5b3b936b6a0ff72"
+},
+"HANG_SRC/journey": {
+"graded": "23f0f25649bbfd3b7574a9b3b628a031a4401e0b"
 }
 }

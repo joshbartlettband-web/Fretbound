@@ -5,7 +5,7 @@ URL='file://'+REPO+'/index.html'
 import time,json
 from playwright.sync_api import sync_playwright
 with sync_playwright() as p:
-    b=p.chromium.launch(); pg=b.new_page(); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e)[:300]))
+    b=p.chromium.launch(); pg=b.new_page(); pg.add_init_script("window.__fbNoWarm=true"); errs=[]; pg.on("pageerror",lambda e: errs.append(str(e)[:300]))
     pg.goto(URL); time.sleep(2.5)
     r=pg.evaluate("""()=>{ const out=[], fb=window.__fb;
       for(const p of fb.PEDALS){ for(const o of [{},{compact:true},{lit:true}]){ try{ fb.face(p.id,o); }catch(e){ out.push('face '+p.id+' '+e.message); } } try{ fb.pcard(p.id); }catch(e){ out.push('pcard '+p.id+' '+e.message); } }

@@ -8,6 +8,7 @@ prompt=("Edit this pixel-art game picture. Keep everything else exactly the same
 body=json.dumps({"contents":[{"parts":[{"text":prompt},{"inlineData":{"mimeType":"image/png","data":src}}]}],"generationConfig":{"responseModalities":["IMAGE"],"imageConfig":{"aspectRatio":asp}}})
 req="/tmp/req_edit_"+os.path.basename(out)+".json"; open(req,"w").write(body)
 for _ in range(3):
+    open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'spend.log'),'a').write(__import__('time').strftime('%Y-%m-%d %H:%M')+'\t'+model+'\t'+('%.3f'%{'gemini-2.5-flash-image':0.039,'gemini-3-pro-image':0.134}.get(model,0))+'\t'+os.path.basename(out)+'\n')   # cost log
     r=subprocess.run(["curl","-sS","-X","POST",f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent","-H","Content-Type: application/json","-d","@"+req],capture_output=True,text=True)
     try: d=json.loads(r.stdout)
     except Exception: print('bad',r.stdout[:200]); continue

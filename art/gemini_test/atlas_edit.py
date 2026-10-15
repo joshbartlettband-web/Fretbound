@@ -4,7 +4,7 @@
 import json,base64,subprocess,sys,io,os,time
 import numpy as np
 from PIL import Image
-PRICE={'gemini-2.5-flash-image':0.039,'gemini-3-pro-image':0.134}
+PRICE={'gemini-2.5-flash-image':0.039,'gemini-3-pro-image':0.134,'gemini-3-pro-image-preview':0.134}
 def log_spend(model,what):
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'spend.log'),'a') as f: f.write(f"{time.strftime('%Y-%m-%d %H:%M')}\t{model}\t{PRICE.get(model,0):.3f}\t{what}\n")
 def edit(img,prompt,model,aspect,tag):
@@ -13,18 +13,17 @@ def edit(img,prompt,model,aspect,tag):
     req=f"/tmp/req_atlas_{tag}.json"; open(req,"w").write(body)
     for _ in range(3):
         r=subprocess.run(["curl","-sS","-X","POST",f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent","-H","Content-Type: application/json","-d","@"+req],capture_output=True,text=True)
-        log_spend(model,tag)
         try: d=json.loads(r.stdout)
         except Exception: continue
         for p in d.get('candidates',[{}])[0].get('content',{}).get('parts',[]):
-            if 'inlineData' in p: return Image.open(io.BytesIO(base64.b64decode(p['inlineData']['data']))).convert('RGB')
+            if 'inlineData' in p: log_spend(model,tag); return Image.open(io.BytesIO(base64.b64decode(p['inlineData']['data']))).convert('RGB')   # only a delivered image is billed and logged
         print('retry',tag,str(d)[:200])
     return None
 if __name__=='__main__':
     cid,out,ins=sys.argv[1],sys.argv[2],sys.argv[3]; model=sys.argv[4] if len(sys.argv)>4 else 'gemini-2.5-flash-image'
     os.makedirs(out,exist_ok=True)
     A=Image.open(f'poses_master/{cid}_atlas.png').convert('RGBA'); M=json.load(open(f'../poses/{cid}_meta.json')); cw,ch=M['cw'],M['ch']
-    S=5; W,H=1664,936; MAG=(0,255,0)   # green, not magenta: purple and pink guitars would key out
+    W,H=1664,936; S=min(5,W//(cw*4),H//ch); MAG=(0,255,0)   # S fits four cells on the canvas (cells differ in size per character); green, not magenta: purple and pink guitars would key out
     prompt=("Edit this pixel-art sprite sheet of four poses of the same character on a flat bright green background. Keep everything else exactly the same: "
             "the same four poses, positions, sizes, body, clothes, face, hands, colours, pixel style and the flat green background. "+ins+" Change it the same way in all four poses. Do not add anything else.")
     res=np.asarray(A).copy()

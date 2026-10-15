@@ -3,7 +3,21 @@
 Updated 2026-10-02 after v1.55 (painted pose sets for 34 of 35 characters: painted pose sets for the Bard and the Tiger) (developer menu: five taps on the version text). v1.43 is merged to main; v1.44 to v1.55 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
 Read this first, then the START HERE section of `HANDOFF.md`.
 
-**New (2026-10-11): `PLAYTEST.md` has notes from five bot playthroughs of v1.79 (bugs, perspective, economy, onboarding, sound levels) with a suggested order.**
+## 0. Next build (Josh, 2026-10-15): mumble speech for the characters
+Josh wants characters to "talk" in a mumble voice when their lines appear, like Animal Crossing's Animalese or the UnitOfTime video "I Gave My NPCs Voices Without Recording Anything" (YouTube; its thumbnail shows a pitch contour drawn over the line "Ah greetings young one!"). No recordings: every syllable is synthesised.
+Where it hooks in: `say(who,text,ms,noType)` types the dialog strip two characters every 22 ms (`typeTimer`). Speak one blip per syllable-ish chunk as the text appears, so voice and typing stay in sync; stop it in `hideDialog` and whenever `say` is called again.
+A sketch to start from (all in the Web Audio graph the game already has, through the music or SFX bus so the volume sliders apply):
+- **One voice per speaker.** A table keyed by caller id, band member and player: base pitch, waveform or formant pair, speed, and a wobble. Examples: the Twang Knight a nasal square with a drawl (slow, low), the Reverb Siren a sine with a long echo send, Mister Midnight low and breathy (filtered noise plus a soft triangle), the Penguin short high chirps, the Brass Tacks a muted-trumpet buzz. Fall back to a voice built from the character's id so nobody is silent.
+- **Syllables from the text.** Split on vowel groups; each syllable is a 50 to 90 ms blip with a quick attack and release. Pick its pitch from the letters (a hash of the vowel, so the same word always sounds the same), plus a contour over the line: a gentle fall at a full stop, a rise on "?", a jump on "!", a pause at commas.
+- **Two formants instead of a plain beep** read as speech: a source (saw or pulse) through two band-pass filters whose frequencies follow the vowel (a, e, i, o, u each have a pair). That is the cheap trick behind Animalese-style voices.
+- **Stay in key.** Snap syllable pitches to the night's key, or to E minor on the title (`snapEm`), so the voices sit inside the music. Keep them short and under the band; duck the band a little (there is `cueDuck` for cues) only while a line is spoken.
+- **Settings and accessibility.** A "Voices" slider (or on/off) in settings; respect reduced motion for the typewriter as today. Do not voice the rule text or the long liner notes, only spoken lines (`say` callers, road encounters, recruits).
+- **Test** with an offline render like `cueTest` (an OfflineAudioContext): check the loudness is about the same for every voice and that a line of 60 characters lasts about as long as it takes to type.
+
+
+**`PLAYTEST.md`** has notes from five bot playthroughs of v1.79 with a suggested order. Done so far: band depth and layout (v1.80), reward banners and confetti (v1.81). Next on that list after the mumble voices: a late-game money sink, a real Tour Complete screen, a brighter neck while answering plus colour-blind-safe pocket/groove marks, even music levels, then onboarding. Re-run the bots after gameplay changes: `OUT=/tmp/run python3 tests/dev/botrun.py pro bard greedy` (profiles pro, casual, novice; greedy or thrifty).
+
+**Test page:** the game is over 16 MB, so build the artifact with `python3 tests/dev/artifact_split.py OUTDIR` and publish `OUTDIR/index.html` with its two `art_*.js` side files.
 
 ## 1. The APK
 - v1.43 to v1.55 APKs were built in cloud sessions with a throwaway key (`FRETBOUND_KEYSTORE_B64` in the environment settings was a 24-character placeholder, not a keystore). Josh's phone has the throwaway-key build; later builds from the same container install over it, a fresh container makes a new key and needs one uninstall.
@@ -16,7 +30,7 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 1. **Clouds over the painted title skies.** The code-drawn grey clouds drift over every painted sky and look heavy on the bright ones (Africa). Drop them on painted skies, or lighten them?
 2. **How it runs on his phone:** a full-band duel, the title screen, the Hollow Pine lights-out, the castle approach on the Europe title (portrait), the Luthier's and Hermit's guitars, whether the light pools read as light, and whether any painted roadside object looks too big or small (sizes are in `tests/procroadside.py`).
 3. **Crowded stages** (mess hall, Ghat) now show at most four band members a side (v1.47). Does that read better?
-4. **Depth scaling for the band.** Musicians further back could be drawn a little smaller on deep stages. Held off because scaling pixel art blurs it.
+4. **Depth scaling for the band.** Done in v1.80 (pre-shrunk pose atlases keep it crisp). Does it read right on the phone?
 5. **The Monk critical error** (strings, pedals and player vanished) was never reproduced. Ask for the device, browser, which night, and whether it was a resumed save. Resolved for now (2026-10-03): Josh never reproduced it; safeguards stay in place.
 6. **A real signing key** so builds update over each other (section 1).
 

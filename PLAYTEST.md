@@ -27,8 +27,8 @@ No crashes or page errors in any run. The only errors logged were the bot's own 
 - **Title screen:** no errors found. The roadside objects sit on the ground plane and grow correctly, and the castle is steady.
 
 ## Things that look broken
-1. **Reward banners collide with other UI.** The HEADLINER DOWN banner overlaps the results tabs on the Tour Complete screen, and in landscape it's clipped at the stage panel ("EADLINER DOW"). The passport stamp lands on top of the "Book your next leg" text. A clipped banner fragment ("CT" / "ry call t") showed over the call caption in portrait.
-2. **Confetti follows you to the next screen.** A perfect night's confetti keeps falling over the road encounter that comes after it (seen at the karaoke box and the station radio).
+1. **Done in v1.81.** **Reward banners collide with other UI.** The HEADLINER DOWN banner overlaps the results tabs on the Tour Complete screen, and in landscape it's clipped at the stage panel ("EADLINER DOW"). The passport stamp lands on top of the "Book your next leg" text. A clipped banner fragment ("CT" / "ry call t") showed over the call caption in portrait.
+2. **Done in v1.81.** **Confetti follows you to the next screen.** A perfect night's confetti keeps falling over the road encounter that comes after it (seen at the karaoke box and the station radio).
 3. **Finishing the whole world is an anticlimax.** The Tour Complete screen is the same layout as a loss, led by "Your weakest calls from this leg", with a headliner banner on top. The biggest moment in the game deserves its own screen: the passport full of stamps, the world map lit, the band.
 
 ## Design notes (taste)

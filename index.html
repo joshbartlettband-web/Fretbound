@@ -1058,7 +1058,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.80</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.81</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4748,11 +4748,17 @@ function echoNote(midi){ if(store.settings.echo===false) return; state.echo={pc:
    a perfect night (pick confetti and lighters in the front row), beating a headliner (banner and fireworks), clearing a continent (stamp).
    The streak aura (5+ true calls in a row) is drawn on the stage itself. With reduced motion, banners and signs only. */
 const FX_P=[]; let fxRun=false;
+// rewards belong to the screen that earned them: leaving it clears its banners, signs, stamp and particles (a night's confetti may follow
+// you onto that night's results, nowhere else), and a pop-up clears the banners and the stamp so they never sit on its text
+function fxLeave(from,to){ const keep=from==='duel'&&to==='results';
+  document.querySelectorAll('.fx-banner,.fx-neon,.fx-stamp').forEach(e=>{ if(!(keep&&e.classList.contains('fx-stamp'))) e.remove(); });
+  for(let i=FX_P.length-1;i>=0;i--){ const sc=FX_P[i].scr||from; if(sc!==to&&!(keep&&sc==='duel')) FX_P.splice(i,1); } }
+function fxModal(){ document.querySelectorAll('.fx-banner,.fx-stamp').forEach(e=>e.remove()); }
 function fxCanvas(){ let c=$('fxCv'); if(!c){ c=document.createElement('canvas'); c.id='fxCv'; document.body.appendChild(c); } const d=Math.min(2,window.devicePixelRatio||1), w=innerWidth, h=innerHeight;
   if(c.width!==Math.round(w*d)||c.height!==Math.round(h*d)){ c.width=Math.round(w*d); c.height=Math.round(h*d); } return {c,g:c.getContext('2d'),d,w,h}; }
 function fxStart(){ if(fxRun) return; fxRun=true; let last=performance.now();
   const step=now=>{ const dt=Math.min(0.05,(now-last)/1000); last=now; const {g,d,w,h}=fxCanvas(); g.setTransform(d,0,0,d,0,0); g.clearRect(0,0,w,h);
-    for(let i=FX_P.length-1;i>=0;i--){ const p=FX_P[i]; if(p.t<0){ p.t+=dt; continue; } p.t+=dt; if(p.t>p.life||p.y>h+40){ FX_P.splice(i,1); continue; }
+    for(let i=FX_P.length-1;i>=0;i--){ const p=FX_P[i]; if(!p.scr) p.scr=state.screen; if(p.t<0){ p.t+=dt; continue; } p.t+=dt; if(p.t>p.life||p.y>h+40){ FX_P.splice(i,1); continue; }
       p.vy+=(p.grav||0)*dt; p.vx*=(p.drag||1); p.x+=p.vx*dt+(p.sway?Math.sin(p.t*p.sway+p.ph)*20*dt:0); p.y+=p.vy*dt; const a=p.fade?Math.max(0,1-p.t/p.life):1;
       g.globalAlpha=a; fxDraw(g,p); }
     g.globalAlpha=1; if(FX_P.length) requestAnimationFrame(step); else { g.clearRect(0,0,w,h); fxRun=false; } };
@@ -4772,7 +4778,12 @@ function fxCoins(n){ if(reduceMotion) return; const r=fxRect('totalNum'), x0=r.l
   for(let i=0;i<n;i++) FX_P.push({k:'coin',x:x0+(Math.random()-0.5)*30,y:y0,vx:(Math.random()-0.5)*420,vy:-220-Math.random()*320,grav:900,life:2.2,t:0,ph:Math.random()*6});
   fxStart(); }
 function fxStrobe(){ const w=document.querySelector('.stage-wrap'); if(!w||reduceMotion) return; w.classList.remove('fx-strobe'); void w.offsetWidth; w.classList.add('fx-strobe'); setTimeout(()=>w.classList.remove('fx-strobe'),1300); }
-function fxBanner(text,sub,col){ const b=document.createElement('div'); b.className='fx-banner'; b.style.setProperty('--bc',col||'#FFC857'); b.innerHTML='<b>'+text+'</b>'+(sub?'<span>'+sub+'</span>':''); document.body.appendChild(b); setTimeout(()=>b.remove(),2600); }
+function fxBanner(text,sub,col){ document.querySelectorAll('.fx-banner').forEach(e=>e.remove());   // one banner at a time
+  const b=document.createElement('div'); b.className='fx-banner'; b.style.setProperty('--bc',col||'#FFC857'); b.innerHTML='<b>'+text+'</b>'+(sub?'<span>'+sub+'</span>':'');
+  // centred over the stage when one is showing (in landscape the stage is the left column, not the middle of the screen), sized to fit it
+  const sw=document.querySelector('.screen.active .stage-wrap'), r=sw&&sw.offsetParent?sw.getBoundingClientRect():null;
+  if(r&&r.width>0){ b.style.left=(r.left+r.width/2)+'px'; b.style.top=(r.top+r.height*0.18)+'px'; const fs=Math.max(16,Math.min(28,Math.floor((r.width-60)/(text.length*0.78)))); b.querySelector('b').style.fontSize=fs+'px'; b.style.maxWidth=(r.width-8)+'px'; }
+  document.body.appendChild(b); setTimeout(()=>b.remove(),2600); }
 function fxNeon(text){ const r=fxRect(document.querySelector('.scoreline')||'totalNum'), n=document.createElement('div'); n.className='fx-neon'; n.textContent=text; n.style.left=(r.left+r.width/2)+'px'; n.style.top=(r.top+r.height/2)+'px'; document.body.appendChild(n); setTimeout(()=>n.remove(),2400); }
 function fxConfetti(){ if(reduceMotion) return; const cols=['#FF5A4A','#FFC040','#6AE07A','#4AB0FF','#E0609E','#F4ECDC'];
   for(let i=0;i<70;i++) FX_P.push({k:'pick',x:Math.random()*innerWidth,y:-20-Math.random()*innerHeight*0.6,vx:0,vy:80+Math.random()*90,grav:20,sway:2+Math.random()*2,ph:Math.random()*6,spin:(Math.random()-0.5)*6,life:7,t:0,col:cols[i%cols.length]});
@@ -8619,6 +8630,7 @@ function goScreen(n){
   if(n==='title'&&state.screen&&state.screen!=='title') nextSky();
   if(n==='title'){ try{ checkNewScenes(); renderTitleScene(); }catch(e){} }
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('active',s.id==='scr-'+n));
+  if(state.screen&&state.screen!==n) try{ fxLeave(state.screen,n); }catch(e){}
   state.screen=n;
   if(n==='duel'){ computeWin(); renderAll(); }
   fitRendering();
@@ -8764,7 +8776,7 @@ async function finishAnswer(){
   $('btnNext').disabled=false;
 }
 /* ---------- modals ---------- */
-function openModal(html){ $('modalCard').innerHTML=html; $('modal').classList.remove('hidden'); }
+function openModal(html){ try{ fxModal(); }catch(e){} $('modalCard').innerHTML=html; $('modal').classList.remove('hidden'); }
 function closeModal(){ $('modal').classList.add('hidden'); }
 function showHowto(cb){
   openModal('<h3>How to play</h3><ol>'+

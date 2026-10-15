@@ -20,8 +20,7 @@ def main():
     os.makedirs(M,exist_ok=True)
     import procstage; procstage.proc(f'{SRC}/green.png','art/plates/stage_green.png')
     im=Image.open(f'{SRC}/merch.png').convert('RGB'); w,h=im.size; m=int(min(w,h)*0.045); im=im.crop((m,m,w-m,h-m))
-    s=max(640/im.width,360/im.height); im=im.resize((round(im.width*s),round(im.height*s)),Image.LANCZOS); x=(im.width-640)//2; y=(im.height-360)//2; q(im.crop((x,y,x+640,y+360)),64).save(f'{M}/merch.png',optimize=True)
-    import subprocess; subprocess.run([sys.executable,'tests/merchfill.py',f'{M}/merch.png',f'{M}/merch.png'],check=True); q(Image.open(f'{M}/merch.png'),64).save(f'{M}/merch.png',optimize=True); os.remove(f'{M}/merch_mask.png')   # v1.84: brick over the hole
+    s=max(640/im.width,360/im.height); im=im.resize((round(im.width*s),round(im.height*s)),Image.LANCZOS); x=(im.width-640)//2; y=(im.height-360)//2; q(im.crop((x,y,x+640,y+360)),64).save(f'{M}/merch.png',optimize=True)   # v1.85: rooms/merch.png is a Gemini edit with the dark middle repainted as brick (edit_room.py; the old one is rooms/merch_dark_orig.png)
     q(Image.open(f'{SRC}/wall.png').convert('RGB').resize((256,256),Image.LANCZOS),48).save(f'{M}/wall.png',optimize=True)
     for k in ('door_green','door_ear','door_roster'): door(k)
     print('ok',sorted(os.listdir(M)))

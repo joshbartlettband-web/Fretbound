@@ -7,7 +7,8 @@ Read this first, then the START HERE section of `HANDOFF.md`.
 Done: callers mumble their lines, and road-scene quotes are spoken (see HANDOFF v1.83). Still open:
 - **Josh to listen on the phone.** Are any voices too loud, too long or too silly? Each voice is one line in `VOICE` (pitch `b`, speed `st`, size `fs`, breath `br`, echo `ech`, glide `gl`, wobble `wob`). After changing a voice, re-level it with `__fb.voiceTest`.
 - Lines run about 2 to 2.5 s for 70 characters, longer than the typing (0.8 s). Josh may want them shorter or the typing slower.
-- Not voiced yet: the player character and band members (they have no spoken lines today), the recruit cards, the road quizzes. Only 7 road lines are in quotes; writing more quoted speech into road stories would give the voices more to do.
+- v1.84: the players and band talk too (character select, night start and end, perfect-call cheers, member and recruit cards, road reactions). Josh to check: are the lines in character, and is the 1.9 s player answer at the start of each night too slow?
+- Not voiced yet: the road quizzes. Only 7 road lines are in quotes; more quoted speech in road stories would give the voices more to do. A band member could comment on a bad call too (only perfect calls get a cheer).
 - Ideas: a little consonant click at the start of syllables (plosives), a "hm?" for question-only lines, ducking the band slightly while a caller talks.
 
 **`PLAYTEST.md`** has notes from five bot playthroughs of v1.79 with a suggested order. Done so far: band depth and layout (v1.80), reward banners and confetti (v1.81). Next on that list after the mumble voices: a late-game money sink, a real Tour Complete screen, a brighter neck while answering plus colour-blind-safe pocket/groove marks, even music levels, then onboarding. Re-run the bots after gameplay changes: `OUT=/tmp/run python3 tests/dev/botrun.py pro bard greedy` (profiles pro, casual, novice; greedy or thrifty).

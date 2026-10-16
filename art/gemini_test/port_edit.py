@@ -10,7 +10,7 @@ def run(cid,desc,model):
     src=Image.open(R+f'art/_ungraded/RIVAL_PORT/{cid}.png').convert('RGBA'); bg=Image.new('RGBA',src.size,(0,255,0,255)); bg.alpha_composite(src)
     big=bg.convert('RGB').resize((1024,1024),Image.NEAREST)
     prompt=("Edit this pixel-art character portrait on a flat bright green background. Keep everything else exactly the same: same character, face, clothes, colours, framing, pixel style and the flat green background. "
-            f"Replace only the guitar they are holding with {desc}. It is NOT a Stratocaster: a clearly different body outline. Same hands, same angle. Do not add anything else.")
+            f"Replace only the guitar they are holding with {desc}. It is NOT a Stratocaster: a clearly different body outline. Same hands, same angle. There must be exactly ONE guitar with exactly ONE neck and ONE headstock: the old guitar, its neck and its headstock are completely gone. Do not add anything else.")
     e=edit(big,prompt,model,'1:1',f'port_{cid}')
     if e is None: print('failed',cid); return
     os.makedirs('port_edit',exist_ok=True); e.save(f'port_edit/{cid}_big.png')

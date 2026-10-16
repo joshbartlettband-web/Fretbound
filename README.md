@@ -9,3 +9,4 @@ A roguelike ear-training game for guitarists. A rival plays a phrase; you answer
 - `android/`: a minimal WebView wrapper and `build.sh`.
 - `docs/art-checklist.html`: the Gemini prompt checklist.
 - `setup.sh`: installs everything the tests and build need.
+- `landing/`: the website, published by `.github/workflows/pages.yml` to https://joshbartlettband-web.github.io/Fretbound/ (the game at `/play/`); `tools/landing/` remakes its screenshots.

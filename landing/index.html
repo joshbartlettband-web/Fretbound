@@ -1,0 +1,199 @@
+<!doctype html>
+<!-- Fretbound's landing page. The Pages workflow (.github/workflows/pages.yml) copies this folder to the site's root
+     and the game (index.html) to play/. The pictures and fonts come from the game itself:
+     tools/landing/shots.py, then tools/landing/make_landing.py. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fretbound: an ear-training roguelike for guitar</title>
+<meta name="description" content="A rival plays a short phrase and you play it back by ear on a fretboard on your screen. A free roguelike ear-training game for guitarists, playable in your browser.">
+<meta name="theme-color" content="#1C0E0E">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://joshbartlettband-web.github.io/Fretbound/">
+<meta property="og:title" content="Fretbound: an ear-training roguelike for guitar">
+<meta property="og:description" content="A rival plays a short phrase. You play it back by ear on a fretboard on your screen. Win the night, buy pedals, tour the world. Free in your browser.">
+<meta property="og:image" content="https://joshbartlettband-web.github.io/Fretbound/card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' shape-rendering='crispEdges'%3E%3Crect width='16' height='16' fill='%231C0E0E'/%3E%3Cpath d='M4 3h9v2H6v2h5v2H6v4H4z' fill='%23FFC857'/%3E%3C/svg%3E">
+<style>
+  /* the game's own fonts (copied out of index.html by tools/landing/make_landing.py) */
+  @font-face { font-family: "Jacquard 24"; src: url(fonts/jacquard24.woff2) format("woff2"); font-display: swap; }
+  @font-face { font-family: "Jersey 10"; src: url(fonts/jersey10.woff2) format("woff2"); font-display: swap; }
+  @font-face { font-family: "Pixelify Sans"; src: url(fonts/pixelify-400.woff2) format("woff2"); font-weight: 400; font-display: swap; }
+  @font-face { font-family: "Pixelify Sans"; src: url(fonts/pixelify-700.woff2) format("woff2"); font-weight: 700; font-display: swap; }
+
+  /* the palette: the game's :root colours, a dark brown club lit warm */
+  :root {
+    --bg: #1C0E0E; --page: #140909; --panel: #2A1614; --panel-2: #3A2018; --edge: #0E0404;
+    --ink: #FFF0D0; --soft: #E8D2B0; --dim: #CFAE84;
+    --brass: #D9A441; --brass-hi: #FFE3A6; --brass-lo: #7A5418;
+    --gold: #FFC857; --amber: #FFB22E; --orange: #FF9A2E; --hype: #FF7A52; --red: #A8261C; --tone: #7FD6B4; --good: #8ED36A;
+    --display: "Jacquard 24", serif;
+    --ui: "Jersey 10", "Pixelify Sans", monospace;
+    --body: "Pixelify Sans", ui-monospace, monospace;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  /* as in the game: the body font draws its fi and fl ligatures as an A, so ligatures are off everywhere */
+  *, *::before, *::after { font-variant-ligatures: none; font-feature-settings: "liga" 0, "clig" 0; }
+  html { background: var(--page); }
+  body { margin: 0; color: var(--ink); font: 17px/1.55 var(--body);
+         background: var(--bg) radial-gradient(ellipse 120% 600px at 50% 0, #4A2414 0, var(--bg) 100%) no-repeat; }
+  a { color: var(--gold); }
+  .rail { height: 6px; background: repeating-linear-gradient(90deg, var(--brass) 0 18px, var(--brass-lo) 18px 20px); box-shadow: 0 2px 0 var(--edge); }
+  main, footer { width: 100%; max-width: 960px; margin: 0 auto; padding-inline: 16px; }
+  h1, h2 { font-family: var(--display); font-weight: 400; color: var(--gold); letter-spacing: 0; }
+  h1 { font-size: clamp(4rem, 19vw, 6.6rem); line-height: .9; margin: 36px 0 18px; text-shadow: 3px 3px 0 var(--red), 6px 6px 0 #1A0606; }
+  h1 small { display: block; font-family: var(--ui); font-size: clamp(1.15rem, 5vw, 1.45rem); letter-spacing: .06em; color: var(--brass-hi);
+             text-shadow: 2px 2px 0 #1A0606; margin-top: 14px; line-height: 1.1; }
+  h2 { font-size: clamp(2.4rem, 11vw, 3rem); line-height: 1; margin: 60px 0 16px; text-shadow: 2px 2px 0 var(--red), 4px 4px 0 #1A0606; }
+  b { color: var(--brass-hi); }
+  .lede { font-size: 1.12rem; color: var(--soft); max-width: 34em; margin: 0 0 24px; }
+  .note { font-size: .95rem; color: var(--dim); max-width: 34em; margin: 0; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 14px; margin: 0 0 24px; }
+  .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 52px; padding: 4px 22px 6px;
+         font: 1.6rem/1 var(--ui); letter-spacing: .03em; text-decoration: none; text-transform: uppercase;
+         color: #2A1206; background: #E0A030 linear-gradient(180deg, rgba(255,236,210,.2) 0 42%, transparent 42%);
+         border: 2px solid var(--brass); box-shadow: 0 0 0 2px var(--edge), 0 4px 0 2px var(--edge); text-shadow: 1px 1px 0 rgba(255,240,200,.45); }
+  .btn.alt { color: var(--ink); background-color: #5E3A20; text-shadow: 2px 2px 0 #1A0404; }
+  .btn:hover { filter: brightness(1.1); }
+  .btn:active { transform: translateY(2px); box-shadow: 0 0 0 2px var(--edge), 0 2px 0 2px var(--edge); }
+  .btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--tone); outline-offset: 4px; }
+  .hero > div { margin-bottom: 30px; }
+  .phone { display: block; width: 100%; max-width: 360px; height: auto; margin: 0 auto; border: 2px solid var(--brass);
+           box-shadow: 0 0 0 2px var(--edge), 0 12px 32px rgba(0,0,0,.55); }
+  .win { background: var(--panel); border: 2px solid var(--brass-lo); box-shadow: 0 0 0 2px var(--edge); padding: 18px 18px 6px; }
+  .steps { margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  .steps li { counter-increment: s; position: relative; padding-left: 42px; margin: 0 0 14px; color: var(--soft); }
+  .steps li::before { content: counter(s); position: absolute; left: 0; top: 0; width: 28px; height: 28px; display: grid; place-items: center;
+                      font: 1.25rem/1 var(--ui); color: #2A1206; background: var(--amber); box-shadow: 0 0 0 2px var(--edge); }
+  .score { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin: 4px 0 14px; font: 1.35rem/1 var(--ui); }
+  .chip { padding: 5px 12px 7px; box-shadow: 0 0 0 2px var(--edge); color: var(--ink); }
+  .chip.tone { background: #1F5E4E; } .chip.hype { background: var(--red); }
+  .facts { display: grid; gap: 14px; padding: 0; margin: 0; list-style: none; max-width: 46em; }
+  .facts li { position: relative; padding-left: 26px; color: var(--soft); }
+  .facts li::before { content: ""; position: absolute; left: 0; top: .5em; width: 12px; height: 12px; background: var(--c, var(--gold)); box-shadow: 0 0 0 2px var(--edge); }
+  .facts li:nth-child(5n+1) { --c: var(--gold); } .facts li:nth-child(5n+2) { --c: var(--hype); } .facts li:nth-child(5n+3) { --c: var(--tone); }
+  .facts li:nth-child(5n+4) { --c: var(--orange); } .facts li:nth-child(5n+5) { --c: var(--good); }
+  .screens { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin: 0; padding: 0; list-style: none; }
+  .screens li { background: var(--panel); border: 2px solid var(--brass-lo); box-shadow: 0 0 0 2px var(--edge); overflow: hidden; }
+  .screens img { display: block; width: 100%; height: auto; }
+  .screens p { margin: 0; padding: 8px 10px 12px; font-size: .88rem; color: var(--dim); line-height: 1.3; }
+  .screens b { display: block; font: 1.25rem/1.1 var(--ui); color: var(--gold); margin-bottom: 2px; }
+  .teach p { margin: 0 0 14px; color: var(--soft); }
+  details { background: var(--panel); border: 2px solid var(--brass-lo); box-shadow: 0 0 0 2px var(--edge); padding: 2px 16px; margin: 14px 0 0; }
+  summary { cursor: pointer; padding: 12px 0; font: 1.35rem/1.15 var(--ui); color: var(--brass-hi); }
+  details p { margin: 0 0 14px; color: var(--soft); }
+  .play-again { text-align: center; margin: 48px 0 0; }
+  footer { margin-top: 64px; padding-block: 24px 40px; color: var(--dim); font-size: .9rem; border-top: 2px solid var(--brass-lo); }
+  footer p { margin: 0 0 10px; }
+  @media (min-width: 680px) {
+    body { font-size: 18px; }
+    .screens { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .hero { display: grid; grid-template-columns: 1.2fr 1fr; gap: 40px; align-items: center; }
+    .hero > div { margin-bottom: 0; }
+    .two { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; align-items: start; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<!--MORE-TOP--><!--/MORE-TOP-->
+<div class="rail"></div>
+<main>
+  <section class="hero">
+    <div>
+      <h1>Fretbound<small>An ear-training roguelike for guitar</small></h1>
+      <p class="lede">A rival plays a short phrase. You play it back by ear on a fretboard on your screen. Win the night, get paid, buy pedals, and take your guitar on a tour round the world.</p>
+      <div class="buttons">
+        <a class="btn" href="play/">Play in your browser</a>
+        <a class="btn alt" href="#how">How it works</a>
+      </div>
+      <p class="note">Free, with no account and nothing to install. It runs on phones, tablets and computers. Turn your sound on; headphones help. Fretbound is still a prototype, so expect a few rough edges.</p>
+    </div>
+    <img class="phone" src="screen-title.png" width="390" height="844" alt="The title screen: the word Fretbound in gold over a sunset, a red and white camper van driving down a road made of frets, and the buttons Press Start, Backstage and The Van">
+  </section>
+
+  <h2 id="how">How a night goes</h2>
+  <div class="two">
+    <div class="win">
+      <ol class="steps">
+        <li><b>Listen.</b> Tonight’s rival plays a short phrase, the call. You only get to hear it.</li>
+        <li><b>Play it back</b>, note for note, anywhere on the neck. The first note glows gold; the rest you find by ear.</li>
+        <li><b>Mind the beat.</b> Tapping near the beat adds Groove. The same note played higher up the neck scores more Tone.</li>
+        <li><b>Miss a note and that string snaps.</b> Now you have to find the notes somewhere else. You get three replays a night.</li>
+        <li><b>Reach the target</b> before the setlist runs out and you get paid. Spend it at the merch table on pedals and new strings.</li>
+      </ol>
+    </div>
+    <div>
+      <p class="score"><span class="chip tone">TONE</span> x <span class="chip hype">HYPE</span> = your score</p>
+      <p class="lede" style="font-size:1rem">Tone comes from the notes you play and where you play them. Hype comes from the kind of call, your groove, your guitar and your pedals. A run is a tour of four legs, with two continents to choose from at each booking, and it ends when you lose a night.</p>
+    </div>
+  </div>
+
+  <h2>What’s inside</h2>
+  <ul class="facts">
+    <li><b>60 kinds of call.</b> It starts with fifths, fourths, octaves and thirds, then moves on to triads, 7th chords, pentatonic runs and scales from round the world: the Ethiopian modes, flamenco’s Phrygian, Japanese scales like Hirajoshi, ragas and gamelan.</li>
+    <li><b>Six players, each with a guitar and a gift.</b> The Bard, the Metronome Monk, the Hermit, the Busker, the Luthier and the Cartographer. The Hermit’s first note never glows. The Monk’s groove window is tighter but pays more. The Cartographer sees two more frets at once.</li>
+    <li><b>24 pedals that change the scoring,</b> and they fire left to right, so the order matters. Glass Chorus pays for notes high on the neck, Echo Well scores your last note twice, Swamp Fuzz likes the low strings.</li>
+    <li><b>A world tour.</b> 21 venues on seven continents, each with its own rival, house groove and rule. North America is blues, country and surf; Africa is desert blues, rumba and the Ethiopian modes; then bossa and tango, swing and flamenco, ragas and gamelan, slack key and pub rock. Antarctica is a hidden encore.</li>
+    <li><b>Backstage.</b> The Ear Report maps your fretboard: where you are right, where you are slow, and the notes that trip you up. The Green Room is a practice room with your choice of calls, frets, strings and tempo. The Roster keeps every rival you have faced.</li>
+    <li><b>The Van.</b> Fame from each tour buys upgrades, string gauges and seats in the van for a backing band of seven musicians and a crew. Win a tour and Tough Crowd levels open up for a harder run.</li>
+    <li><b>Every sound is made as you play.</b> The guitars are synthesised plucked strings through your pedals and an amp, every venue has its own groove, and the title song changes style on each continent.</li>
+  </ul>
+
+  <h2>Screens</h2>
+  <ul class="screens">
+    <li><img src="screen-chars.png" width="390" height="844" loading="lazy" alt="Choose your player: six portraits, with the Bard selected, his gift Crowd Favorite and his single coil guitar"><p><b>Choose a player</b>Each brings a guitar and a gift</p></li>
+    <li><img src="screen-soundcheck.png" width="390" height="844" loading="lazy" alt="Soundcheck: the first three nights of North America, the guitar’s stats, and three pedals picked out of five"><p><b>Soundcheck</b>A guitar and three pedals</p></li>
+    <li><img src="screen-venue.png" width="390" height="844" loading="lazy" alt="Night one: The Lonesome Spur in Bakersfield, California. The Twang Knight, rule Quick draw: he plays at a faster tempo"><p><b>Night one</b>The Twang Knight plays faster</p></li>
+    <li><img src="screen-duel.png" width="390" height="844" loading="lazy" alt="The duel: the player and the rival on a honky-tonk stage, the score bar, Tone and Hype, the pedalboard and the touch fretboard"><p><b>The duel</b>Answer on the neck below</p></li>
+    <li><img src="screen-backstage.png" width="390" height="844" loading="lazy" alt="Backstage: a world tour map on a brick wall over three doors, the Green Room, the Ear Report and the Roster"><p><b>Backstage</b>Practice, your ears, the rivals</p></li>
+    <li><img src="screen-van.png" width="390" height="844" loading="lazy" alt="The Van: garage upgrades such as the Merch Trunk and Spare Tire, Tough Crowd, and the van parked in the desert"><p><b>The Van</b>Spend Fame between tours</p></li>
+  </ul>
+
+  <h2>For teachers and students</h2>
+  <div class="two teach">
+    <div>
+      <p>Fretbound practises the thing guitar students find hardest to practise alone: hearing a short phrase and finding it on the neck. There is no notation to read. You listen, then you play.</p>
+      <p>It rewards knowing the neck, not one box. The same note scores more higher up, and a snapped string makes you find the next note in another place.</p>
+    </div>
+    <ul class="facts">
+      <li><b>Intervals by ear:</b> fifths, fourths, octaves, thirds and sixths, then half steps and wider leaps.</li>
+      <li><b>Chords as sound:</b> major, minor and diminished triads, 7th chords and arpeggios.</li>
+      <li><b>Scales and modes</b> from blues and pentatonics to Phrygian, Hirajoshi and the Ethiopian modes.</li>
+      <li><b>Time:</b> notes near the beat earn Groove, and the Metronome Monk is built for tighter timing.</li>
+      <li><b>Feedback:</b> the Ear Report’s fretboard map shows accuracy and speed fret by fret, and the Green Room drills the weak spots at a slower tempo, with note names if you want them.</li>
+    </ul>
+  </div>
+
+  <details>
+    <summary>Do I need a guitar?</summary>
+    <p>No. You answer on the fretboard on the screen. The notes sit where they do on a real guitar (standard tuning, apart from a few venues that retune), so what you learn carries over.</p>
+  </details>
+  <details>
+    <summary>Where is my progress kept?</summary>
+    <p>In the browser on the device you play on. Nothing is sent anywhere and there is no account. Clearing the site’s data, or playing on another device, starts you fresh.</p>
+  </details>
+  <details>
+    <summary>Is there an app?</summary>
+    <p>There is an Android version of the same game. The browser version is the easiest way to try it.</p>
+  </details>
+  <details>
+    <summary>Is it finished?</summary>
+    <p>Not yet. Fretbound is a prototype: the art, the sound and the balance are still changing, and it has had little testing on real phones. If something breaks or feels wrong, that is useful to hear.</p>
+  </details>
+
+  <p class="play-again"><a class="btn" href="play/">Play in your browser</a></p>
+</main>
+
+<!--MORE-BOTTOM--><!--/MORE-BOTTOM-->
+<footer>
+  <p><b>Fretbound</b> is a prototype ear-training game for guitar. The whole game is one web page, with its art, fonts and sounds inside it. Source and notes: <a href="https://github.com/joshbartlettband-web/Fretbound">github.com/joshbartlettband-web/Fretbound</a>.</p>
+  <p>Fonts: Jacquard 24, Jersey 10 and Pixelify Sans, under the SIL Open Font License.</p>
+</footer>
+</body>
+</html>

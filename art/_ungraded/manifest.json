@@ -802,5 +802,62 @@
 },
 "EVENT_SRC/unicorn": {
 "graded": "8cb67adc994e40b1f66fe559d52d1497c8e8ac6a"
+},
+"HANG_SRC/gerald": {
+"graded": "563266de4a3f992777346ae382d85b8f28522db2"
+},
+"HANG_SRC/owner": {
+"graded": "2235198b1056e2bb5fb9a191ec600c43810bb7a9"
+},
+"HANG_SRC/fan": {
+"graded": "879b9c2625bf259a188e22857c16a159ea1a5a88"
+},
+"HANG_SRC/radiohost": {
+"graded": "0b7fe4fd34c3cfb0601d9cfdb437ee90567aa1cf"
+},
+"HANG_SRC/producer": {
+"graded": "a9b523fc5b2c785bcb9274b98b15ab0d6adf82e4"
+},
+"HANG_SRC/teahost": {
+"graded": "3381a6934547704561315ec82f0d18f4014f45c7"
+},
+"HANG_SRC/tailor": {
+"graded": "4e0a1cefdb8ff5a586ab44a1c60540e50e90a76d"
+},
+"HANG_SRC/coffeehost": {
+"graded": "02bca496c7ebb055a48df5c20822a81bc8140701"
+},
+"HANG_SRC/drummer": {
+"graded": "1b572a1db1d1b8f6c4124383b79db98d13da5caa"
+},
+"HANG_SRC/teacher": {
+"graded": "cc8eb161a4ddc301af8086adee2b6d60c2f1addf"
+},
+"HANG_SRC/seller": {
+"graded": "d4804cd22179b8c416247fc5495cb0d13e40760f"
+},
+"HANG_SRC/violinist": {
+"graded": "7045fd255d142224fc00c235f827d5dc031da7ef"
+},
+"HANG_SRC/singer": {
+"graded": "71fe2ef8661f0f33eca1535389bc75494d2561a4"
+},
+"HANG_SRC/deckhand": {
+"graded": "5b7cd9885da1febf53a8d77dc0bafd99b09abd61"
+},
+"HANG_SRC/chaiseller": {
+"graded": "0e6fa45c0e1957f762f6a3e5e5bf765f05aa2a49"
+},
+"HANG_SRC/leader": {
+"graded": "8e9abb94f33c0c94734b7d1ebc5657894cca125a"
+},
+"HANG_SRC/bonfireplayer": {
+"graded": "b03ffab10bee677fbabd4bad376b03358bcd8b8f"
+},
+"HANG_SRC/quizmaster": {
+"graded": "a079fe0bcf201e514ed5243cd6f2e566ed421632"
+},
+"HANG_SRC/partyhost": {
+"graded": "becd2e395100409644f0a835b9d4ce0c0549f397"
 }
 }

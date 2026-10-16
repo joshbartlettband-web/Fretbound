@@ -5,6 +5,14 @@ A starting point to build on with Josh, not a finished canon. Every new characte
 ## The feel in one line
 A casually magical version of our world. More 100 gecs than Harry Potter: chaotic, a bit lazy about its magic, and everybody still has time to stop and listen when music happens nearby.
 
+## Reference: 100 gecs and their wizards (Josh's homework, 2026-10-16)
+The touchstone for the tone. 100 gecs wear wizard robes and hats, first in the "mememe" video, and in "Doritos & Fritos" (directed by Chris Maggio) they fly over the city in those robes while the local TV news covers it like ordinary weather. "800db cloud" has them peeking out from behind buildings and trees around LA. What to take from it:
+- **Deadpan magic.** Flying wizards are a local news item, not an event. Nobody is amazed for long.
+- **Cheap costume, real joy.** The robes look homemade. Magic here is a bit of a bedsheet-and-glitter costume, worn with total commitment.
+- **Chaos with a big heart.** Loud, silly, maximalist, but never mean. People are having fun.
+- **The everyday city is the stage.** Strip malls, suburbs, parking lots, the sky over them.
+Possible uses: a road event where the local news is covering your band's van as weather; a caller or player who is plainly a guy in a homemade wizard robe; flyers and posters with that DIY look.
+
 ## How the magic works (barely)
 - Magic is ordinary and slightly underwhelming. It is in the background, like weather or a neighbour's wifi. Nobody studies it; people just put up with it.
 - It does small, specific, faintly useless things. A pie that remembers your order. A fuzz pedal that still rains a little indoors. A motel ice machine that is haunted, friendly, and makes ghost-shaped cubes.

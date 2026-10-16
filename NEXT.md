@@ -14,7 +14,7 @@ Done: callers mumble their lines, and road-scene quotes are spoken (see HANDOFF 
 ## 00. The world and the events (Josh, 2026-10-16)
 - **World:** `WORLD.md` is the draft world bible (casual, lazy magic in the modern world; players are a storybook guild of travelling musicians; callers are the spirits of a music's place; real people only in liner notes). Josh wants to spend time enriching it; its open questions are a good place to start.
 - **Events as conversations (v1.91):** road events can carry `talk` lines spoken by the people in the scene (see HANDOFF v1.91). All 27 events are conversations (v1.92). Next: write more events; Josh wants an idea-jam session for them. The developer menu's EVENTS browser is the way to review them.
-- **Event backgrounds:** done in v1.93 (27 events plus guildhall, laundromat and TV-set practice scenes for future events). Gerald himself still needs art (a portrait and a few road poses); he is painted into the gas station plate at the far right, which the crop mostly hides.
+- **Event backgrounds:** done in v1.93 (27 events plus guildhall, laundromat and TV-set practice scenes for future events). Gerald and 18 other locals have road sprites (v1.94). Still to do: menu portraits for the locals if they ever need one.
 - **Players to bring in line with the world:** the Journeyman and the Busker (see WORLD.md).
 - **In-between frames:** `tests/tween.py` works for small moves (pilot GIFs of the Bard's strum). Next step: wire tweens into the atlases and `drawPose` for strums.
 

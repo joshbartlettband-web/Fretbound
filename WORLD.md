@@ -27,6 +27,9 @@ Ask: is it soft, a bit worn, and doing its best? If it is sleek, powerful or epi
 - **The pawn shop owner** who knows the history of every haunted pedal on the wall.
 - **The superfan** who drives six hours in a homemade shirt with your face on it. Their cat makes requests.
 
+## The van
+The van is a little bit alive (Josh, 2026-10-16). Not a talking car: it honks when it has an opinion, sulks in the cold, and seems faintly embarrassed when it gets a flat. It has been on tour longer than any of you. In the game it speaks only in honks (voice `van`), for example in the flat tire event.
+
 ## Characters to bring into line
 - **The Journeyman** reads as a real session player from today (cardigan, flat cap). Proposed: a travelling guild journeyman, with a guild sash and badge, a road cloak, and picks and capos worn like tools on a belt.
 - **The Busker** reads as modern street style (denim jacket with pins). Proposed: a street minstrel, keeping the cap and the pins but with storybook layers.
@@ -36,6 +39,6 @@ Ask: is it soft, a bit worn, and doing its best? If it is sleek, powerful or epi
 1. What is the guild called, and what does joining it look like? A card? A patch? A song you have to play?
 2. Why is everyone on tour? Is there a reason the world needs travelling musicians (magic runs better with live music nearby?), or is it just what people do?
 3. What do ordinary people do with magic at work? Who else has a former-celebrity animal on staff?
-4. What is the van? Is it a little bit alive?
+4. The van is a little bit alive. What else does it do? Does it have a name, favourite roads, a grudge against a particular gas station?
 5. What happens to callers between shows? Do they have day jobs too?
 6. Where do the haunted pedals come from?

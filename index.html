@@ -233,6 +233,7 @@ h3{font-size:12px}
 @keyframes sbOut{to{opacity:0;transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){ .sbub,.sbub.out{animation:none} }
 .road-band{display:block;margin-top:4px;color:var(--amber)}
+#devRoadBar{position:fixed;left:0;right:0;top:0;z-index:90;display:flex;flex-direction:column;gap:3px;padding:4px;background:rgba(10,4,2,.86);border-bottom:2px solid var(--amber)} #devRoadBar>div{display:flex;gap:4px;align-items:center;flex-wrap:wrap} #devRoadBar .btn{font-size:11px;padding:3px 7px;min-height:0} #devRoadBar .dr-n{font-family:var(--ui);font-size:12px;color:var(--amber);flex:1 1 auto;text-align:center;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .road-talk{display:flex;flex-direction:column;gap:3px;cursor:pointer} .road-talk:empty{display:none} .rt-line{font-size:14px;line-height:1.25;animation:rtIn .22s ease-out both} .rt-line b{font-family:var(--pixel);font-size:10px;color:var(--amber);margin-right:6px;font-weight:normal;letter-spacing:.04em} .rt-line:not(:last-child){opacity:.55} .rt-line.off b{color:#9ED0FF}
 @keyframes rtIn{from{opacity:0;transform:translateY(4px)}}
 /* the NAME IT! house sign over the challenge, and the first-time dim (v1.90) */
@@ -1092,7 +1093,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.91</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.92</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4594,7 +4595,7 @@ const RARUP={common:'uncommon',uncommon:'rare',rare:'legendary',legendary:'legen
 const QUIZ_IV=[[3,'minor 3rd'],[4,'major 3rd'],[5,'4th'],[7,'5th'],[12,'octave']], QUIZ_HARD=[[1,'half step'],[2,'whole step'],[6,'tritone'],[9,'6th'],[10,'flat 7th']];
 const ROAD={
   // shared pool
-  flat:{t:'Flat tire',bg:'vsp',story:'Halfway to the next town, the van lurches onto the shoulder. Flat tire, and the spare is flat too.',talk:[['band','That is not a hiss. That is the tire giving up.','sigh'],['you','And the spare?'],['band','Also giving up. Solidarity, I guess.','shrug'],['you','Okay. Options.']],
+  flat:{t:'Flat tire',bg:'vsp',story:'Halfway to the next town, the van lurches onto the shoulder. Flat tire, and the spare is flat too.',talk:[['van','Honk.'],['band','That is not a hiss. That is the tire giving up.','sigh'],['you','And the spare?'],['band','Also giving up. Solidarity, I guess.','shrug'],['you','Okay. Options.'],['van','(a very small, apologetic honk)']],
     ch:()=>[ {l:'Pay a tow truck ($4)',dis:state.money<4,go:()=>{ RD.money(-4); return 'Twenty minutes and four dollars later, you are rolling again.'; }},
       (state.char==='luthier'||hasSeat('tech'))?{l:(state.char==='luthier'?'Let the Luthier patch it':'Let the Guitar Tech patch it'),go:()=>'A patch kit, some swearing and a lot of gaffer tape. Good as new, nearly.'}:null,
       {l:'Everyone pushes to the next garage',go:()=>{ RD.mod({replays:-1}); return 'You make it, but your arms are shaking. One fewer replay tonight.'; }} ]},
@@ -4609,7 +4610,7 @@ const ROAD={
       return [ {l:'Trade your '+cn+' up',go:()=>{ state.pedals.splice(state.pedals.indexOf(c),1); const r=RD.pedal(RARUP[rarOf(c.id)]); return r?'He takes the '+cn+' and pulls a '+RD.pname(r)+' off the wall.':'He takes it, shrugs, and gives you nothing better. Rough deal.'; }},
         {l:'Sell it for full price ($'+PEDAL_ART[c.id].price+')',go:()=>{ state.pedals.splice(state.pedals.indexOf(c),1); RD.money(PEDAL_ART[c.id].price); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); return 'Cash in hand. The board feels lighter.'; }},
         {l:'Just look around',go:()=>'You leave with nothing but a sticker.'} ]; }},
-  radio:{t:'Live on the radio',bg:'vsp',story:'A small station has you on the morning show. The host has an ear quiz: name the step between two notes. $2 for each right answer.',quiz:{n:3,pay:2,set:QUIZ_IV}},
+  radio:{t:'Live on the radio',bg:'vsp',story:'A small station has you on the morning show. The host has an ear quiz: name the step between two notes. $2 for each right answer.',talk:[['host','Good morning, you\u2019re live! The phone lines are open, and so is the toaster. It gets excited about guests.'],['you','Morning. Is the toaster okay?'],['host','It just likes a crowd. Okay, ear quiz! Name the step between two notes. Two dollars each.']],quiz:{n:3,pay:2,set:QUIZ_IV}},
   motel:{t:'A rainy motel',bg:'vsp',story:'Rain hammers the roof of a cheap motel. Nobody is going anywhere tonight.',talk:[['band','The ice machine is haunted. Friendly, but haunted.','shrug'],['you','Does it still make ice?'],['band','Only cubes shaped like little ghosts.'],['you','That counts.','laugh']],
     ch:()=>[ {l:'Rest and restring',go:()=>{ RD.restring(); RD.spares(1); return 'New strings all round, and a spare set in the case.'; }},
       {l:'Practise all night',go:()=>{ RD.mod({hot:1}); return 'You run the hard ones until dawn. Tonight’s first call is a HOT call: base Tone x2.'; }} ]},
@@ -4617,57 +4618,57 @@ const ROAD={
     ch:()=>[ {l:'Accept the gift',go:()=>{ const r=RD.pedal('common'); RD.mod({bpm:6}); return (r?'A '+RD.pname(r)+'! ':'')+'You promise a fast set. Tonight’s tempo is 6 BPM quicker.'; }},
       {l:'Sign their shirt',go:()=>{ RD.money(3); return 'They insist on paying for your lunch. +$3.'; }} ]},
   // North America
-  jukebox:{c:'na',t:'Truck stop jukebox',bg:'vsp',story:'The truck stop jukebox has three pedals taped to the back, with a note: $2 each.',
+  jukebox:{c:'na',t:'Truck stop jukebox',bg:'vsp',story:'The truck stop jukebox has three pedals taped to the back, with a note: $2 each.',talk:[['band','Somebody taped pedals to the back of the jukebox.'],['you','With a note. Two dollars each.'],['band','The jukebox is humming along. I think it wants us to buy one.','shrug']],
     ch:()=>{ const own=new Set(state.pedals.map(p=>p.id)), pool=shuffle(PEDALS.filter(p=>!own.has(p.id)&&rarOf(p.id)==='common')).slice(0,3);
       return pool.map(p=>({l:'Buy the '+PEDAL_TYPE[p.id].name+' ($2)',dis:state.money<2,go:()=>{ RD.money(-2); if(state.pedals.length<boardMax()){ state.pedals.push(p); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); return 'The '+PEDAL_TYPE[p.id].name+' goes on your board.'; } RD.money(PEDAL_ART[p.id].price); return 'Your board is full, so you sell it straight on for $'+PEDAL_ART[p.id].price+'.'; }})).concat([{l:'Play a song and leave',go:()=>'Somebody’s old country record plays you out the door.'}]); }},
-  session:{c:'na',t:'A session gig',bg:'vsp',story:'A studio in town needs a rhythm guitarist for a country record. It pays, but it is long.',
+  session:{c:'na',t:'A session gig',bg:'vsp',story:'A studio in town needs a rhythm guitarist for a country record. It pays, but it is long.',talk:[['producer','We need rhythm guitar on a country record. Eleven songs. Twelve if the dog likes you.'],['you','The dog?'],['producer','She\u2019s head of A&R. Very strict. Great ears.']],
     ch:()=>[ {l:'Take the session',go:()=>{ RD.money(5); RD.mod({replays:-1}); return '+$5. Your hands are tired: one fewer replay tonight.'; }}, {l:'Save your hands',go:()=>'You wish them luck and drive on.'} ]},
   moonbet:{c:'na',t:'A moonlit bet',bg:'vsp',caller:'juke',story:'Mister Midnight leans on your van, glowing faintly.',talk:[['caller','Evening. I lost a bet with the tide once, so now I bet everybody.'],['you','What are we betting?'],['caller','Tonight\u2019s door money. Double, or nothing.']],
     ch:()=>[ {l:'Take the bet',go:()=>{ RD.mod({doorBet:1}); return '"Splendid." You will find out at the end of the night.'; }}, {l:'Decline politely',go:()=>'"Another time, then." He tips his hat and fades with the dawn.'} ]},
   // Africa
-  tea:{c:'af',t:'Tea in the desert camp',bg:'vsp',story:'Musicians at a camp invite you to sit for tea. By custom there are three glasses: strong, then sweet, then gentle. Each one takes a while.',
+  tea:{c:'af',t:'Tea in the desert camp',bg:'vsp',story:'Musicians at a camp invite you to sit for tea. By custom there are three glasses: strong, then sweet, then gentle. Each one takes a while.',talk:[['host','Sit, sit. There are three glasses. The first is bitter, like life.'],['host','The second is sweet, like love. The third is gentle, like death.'],['band','How long do all three take?'],['host','As long as they take. Nobody here is in a hurry.']],
     ch:()=>[ {l:'Stay for one glass',go:()=>{ RD.spares(1); return 'Strong tea and a spare set of strings from a new friend.'; }},
       {l:'Stay for two',go:()=>{ RD.spares(1); RD.money(3); RD.mod({bpm:4}); return 'A spare set and $3 for joining the jam, but you arrive late and rushed: tempo +4 tonight.'; }},
       {l:'Stay for all three',go:()=>{ RD.spares(1); RD.money(3); RD.mod({hype:1,bpm:8}); return 'A spare set, $3, and their riffs in your head: +1 Hype per true call. You arrive very late: tempo +8.'; }} ]},
-  tailor:{c:'af',t:'The Kinshasa tailor',bg:'vsp',story:'A tailor near the dance halls measures you with one glance. "You cannot play the sebene in that."',
+  tailor:{c:'af',t:'The Kinshasa tailor',bg:'vsp',story:'A tailor near the dance halls measures you with one glance.',talk:[['tailor','You cannot play the sebene in that.'],['you','What\u2019s wrong with it?'],['tailor','Nothing is wrong with it. Nothing is right with it either. Come in.']],
     ch:()=>[ {l:'Buy the sharp suit ($5)',dis:state.money<5,go:()=>{ RD.money(-5); RD.mod({hype:1}); return 'You walk out looking magnifique. +1 Hype on every true call tonight.'; }}, {l:'Admire the window',go:()=>'Maybe next time.'} ]},
-  coffee:{c:'af',t:'The coffee ceremony',bg:'vsp',story:'Your host roasts green coffee beans over coals and pours three rounds: abol, tona and baraka. "What do you need today?"',
+  coffee:{c:'af',t:'The coffee ceremony',bg:'vsp',story:'Your host roasts green coffee beans over coals and pours three rounds: abol, tona and baraka.',talk:[['host','Abol, tona, baraka. Three rounds. Sit, there is time.'],['band','It smells incredible.'],['host','Good coffee is half smell. So, what do you need today?']],
     ch:()=>[ {l:'Fresh strings',go:()=>{ RD.restring(); return 'Your host’s cousin sells strings. All of yours are new.'; }},
       {l:'Rest',go:()=>{ RD.mod({replays:1}); return 'You leave calm and clear-headed. One extra replay tonight.'; }},
       {l:'A blessing',go:()=>{ RD.mod({hype:1}); return 'Baraka, the blessing of the third cup. +1 Hype on every true call tonight.'; }} ]},
   // South America
-  samba:{c:'sa',t:'Samba school rehearsal',bg:'vsp',story:'A samba school is rehearsing in the street, a hundred drums strong. They wave you into the bateria.',
+  samba:{c:'sa',t:'Samba school rehearsal',bg:'vsp',story:'A samba school is rehearsing in the street, a hundred drums strong. They wave you into the bateria.',talk:[['drummer','You, with the guitar! Come and march with the bateria!'],['you','I don\u2019t know the steps.'],['drummer','Nobody knows the steps. The drums know the steps. Just follow them.']],
     ch:()=>[ {l:'March with them',go:()=>{ RD.mod({bpm:8,groove2:1}); return 'Your feet will not stop. Tonight is 8 BPM faster, but every groove hit counts double.'; }}, {l:'Watch from the curb',go:()=>{ RD.money(1); return 'Someone hands you a cold drink and a coin for luck. +$1.'; }} ]},
-  practica:{c:'sa',t:'A tango practica',bg:'vsp',story:'In a dance hall at noon, couples practise slowly. The teacher asks if you can play for them.',
+  practica:{c:'sa',t:'A tango practica',bg:'vsp',story:'In a dance hall at noon, couples practise slowly. The teacher asks if you can play for them.',talk:[['teacher','Slowly, slowly. Tango is a conversation, not a race.'],['teacher','Our record player has opinions today and keeps skipping. Would you play for us instead?']],
     ch:()=>[ {l:'Play for the dancers',go:()=>{ RD.mod({tone:3}); return 'Every note had to land just right. +3 Tone on every note tonight.'; }}, {l:'Take a lesson instead',go:()=>{ RD.money(-1); RD.mod({replays:1}); return 'Your feet hurt, but you listen better. -$1, one extra replay tonight.'; }} ]},
-  mercado:{c:'sa',t:'The market stall',bg:'vsp',story:'At a market stall in Lima, an old fuzz pedal sits between the cassettes. The seller says $6.',
+  mercado:{c:'sa',t:'The market stall',bg:'vsp',story:'At a market stall in Lima, an old fuzz pedal sits between the cassettes. The seller says $6.',talk:[['seller','This fuzz? Very old, very loud. Six dollars.'],['you','Does it work?'],['seller','It worked yesterday. Today it is thinking about it.']],
     ch:()=>[ {l:'Pay $6',dis:state.money<6,go:()=>{ RD.money(-6); const r=RD.pedal('uncommon'); return r?'It is a '+RD.pname(r)+'.':'It turns out to be empty inside. Oh well.'; }},
       {l:'Haggle',go:()=>{ if(Math.random()<0.5){ if(state.money<3) return 'You talk him down to $3, then find you cannot afford even that.'; RD.money(-3); const r=RD.pedal('uncommon'); return 'You talk him down to $3. '+(r?'It is a '+RD.pname(r)+'.':''); } return 'He laughs, packs up the stall and goes to lunch.'; }} ]},
   // Europe
-  metro:{c:'eu',t:'Busking in the Metro',bg:'vsp',story:'A tiled corridor under Paris, perfect echo. Your case is open and the trains are full.',
+  metro:{c:'eu',t:'Busking in the Metro',bg:'vsp',story:'A tiled corridor under Paris, perfect echo. Your case is open and the trains are full.',talk:[['band','Listen to that echo. The tiles are doing half the work.'],['violinist','Hey, this is my spot on Tuesdays. Today is Wednesday. Go ahead.'],['you','Thanks. Same time next week?','laugh']],
     ch:()=>[ {l:'Play for tips',go:()=>{ const n=2+Math.floor(Math.random()*4)+(state.char==='busker'?2:0); RD.money(n); return 'Coins and a ticket stub. +$'+n+'.'; }}, {l:'Keep moving',go:()=>'You catch your train.'} ]},
-  pena:{c:'eu',t:'A late-night pena',bg:'vsp',story:'Behind a bar door, a flamenco session runs past midnight. Someone hands you a guitar.',
+  pena:{c:'eu',t:'A late-night pena',bg:'vsp',story:'Behind a bar door, a flamenco session runs past midnight. Someone hands you a guitar.',talk:[['singer','Late, late. The best music always starts after midnight.'],['singer','Here, take this guitar. Listen first. The palmas will tell you where the beat is.']],
     ch:()=>[ {l:'Join the session',go:()=>{ RD.mod({hot:1,bpm:4}); return 'Fire in the fingers. Tonight’s first call is HOT (base Tone x2), and you play a little quicker.'; }}, {l:'Just listen',go:()=>{ RD.mod({replays:1}); return 'You hear more than you play. One extra replay tonight.'; }} ]},
-  ferry:{c:'eu',t:'The fjord ferry',bg:'vsp',story:'The ferry crossing is rough. The deck is freezing, and a cabin costs extra.',
+  ferry:{c:'eu',t:'The fjord ferry',bg:'vsp',story:'The ferry crossing is rough. The deck is freezing, and a cabin costs extra.',talk:[['band','The deck is freezing. My eyebrows are freezing.','sigh'],['deckhand','Cabins are three dollars. The seagulls are free, but they have opinions.']],
     ch:()=>[ {l:'Pay for a cabin ($3)',dis:state.money<3,go:()=>{ RD.money(-3); return 'Warm, dry and asleep in minutes.'; }}, {l:'Ride on deck',go:()=>{ RD.mod({replays:-1}); return 'Cold hands. One fewer replay tonight.'; }} ]},
   // Asia
-  karaoke:{c:'as',t:'The karaoke box',bg:'vsp',story:'A tiny karaoke room in Tokyo, and the song list has an ear-test channel. Name the step between two notes. $2 each.',quiz:{n:3,pay:2,set:QUIZ_IV}},
-  chai:{c:'as',t:'The chai stall',bg:'vsp',story:'By the river steps, a chai seller hums along with a distant drone. You sit and let the tonic soak in.',
+  karaoke:{c:'as',t:'The karaoke box',bg:'vsp',story:'A tiny karaoke room in Tokyo, and the song list has an ear-test channel. Name the step between two notes. $2 each.',talk:[['band','This song list has an ear-test channel.'],['you','Of course it does.'],['machine','PLEASE NAME THE STEP BETWEEN TWO NOTES. TWO DOLLARS EACH. I BELIEVE IN YOU.']],quiz:{n:3,pay:2,set:QUIZ_IV}},
+  chai:{c:'as',t:'The chai stall',bg:'vsp',story:'By the river steps, a chai seller hums along with a distant drone. You sit and let the tonic soak in.',talk:[['seller','Sit, sit. The drone is free. The chai is two dollars.'],['you','Where is the drone coming from?'],['seller','Across the river. It has been going since before my grandfather. Nobody minds.']],
     ch:()=>[ {l:'Sit and listen',go:()=>{ RD.mod({hype:1}); return 'Your ear settles on home. +1 Hype on every true call tonight.'; }}, {l:'Buy chai for the band ($2)',dis:state.money<2,go:()=>{ RD.money(-2); RD.mod({replays:1}); return 'Everyone is in a good mood. One extra replay tonight.'; }} ]},
-  gamelan:{c:'as',t:'A village rehearsal',bg:'vsp',story:'In a pavilion, a village gamelan is rehearsing. The leader shows you how two players split one fast line.',
+  gamelan:{c:'as',t:'A village rehearsal',bg:'vsp',story:'In a pavilion, a village gamelan is rehearsing. The leader shows you how two players split one fast line.',talk:[['leader','Two players, one line. Each plays half, and together it is fast.'],['you','Like a zipper.'],['leader','Yes. A zipper made of bronze. Try it.']],
     ch:()=>[ {l:'Learn to interlock',go:()=>{ RD.mod({tone:2}); return 'Locked in. +2 Tone on every note tonight.'; }}, {l:'Make an offering of thanks ($2)',dis:state.money<2,go:()=>{ RD.money(-2); RD.mod({hype:1}); return 'They smile and play one more piece for you. +1 Hype on every true call tonight.'; }} ]},
   // Oceania
-  bonfire:{c:'oc',t:'Bonfire on the beach',bg:'vsp',story:'A beach bonfire, and somebody has a slack key guitar. Songs go round the circle.',
+  bonfire:{c:'oc',t:'Bonfire on the beach',bg:'vsp',story:'A beach bonfire, and somebody has a slack key guitar. Songs go round the circle.',talk:[['player','Songs go round the circle. When it comes to you, you play. No skipping.'],['you','What if I don\u2019t know one?'],['player','Then you make one up. That\u2019s how we got most of them.']],
     ch:()=>[ {l:'Join the singalong',go:()=>{ RD.mod({hype:1}); return 'Everyone sings. +1 Hype on every true call tonight.'; }}, {l:'Learn a tuning',go:()=>{ RD.restring(); return 'You loosen everything and tune it back up. Fresh strings all round.'; }} ]},
-  trivia:{c:'oc',t:'Pub trivia night',bg:'vsp',story:'The pub runs a music round. Name the step between two notes. $2 a correct answer.',quiz:{n:3,pay:2,set:QUIZ_IV}},
-  party:{c:'oc',t:'The flat party',bg:'vsp',story:'A student flat in Dunedin is throwing a garage show. The amp is huge and the ceiling is low.',
+  trivia:{c:'oc',t:'Pub trivia night',bg:'vsp',story:'The pub runs a music round. Name the step between two notes. $2 a correct answer.',talk:[['quizmaster','Music round! Name the step between two notes. Two dollars a right answer.'],['band','Who settles a tie?'],['quizmaster','The pub cat. Her rulings are final.']],quiz:{n:3,pay:2,set:QUIZ_IV}},
+  party:{c:'oc',t:'The flat party',bg:'vsp',story:'A student flat in Dunedin is throwing a garage show. The amp is huge and the ceiling is low.',talk:[['host','Garage show tonight! The amp\u2019s huge, the ceiling\u2019s low, the neighbours are cool.'],['band','Are the neighbours actually cool?'],['host','One of them is a ghost. He\u2019s very cool. He mostly requests the Clean.']],
     ch:()=>[ {l:'Play loud',go:()=>{ META.fame=(META.fame||0)+2; state.fameGain=(state.fameGain||0)+2; RD.breakOne(); save(); return '+2 Fame, and you snap a string on the last chord.'; }}, {l:'Go to bed early',go:()=>{ RD.mod({replays:1}); return 'Well rested. One extra replay tonight.'; }} ]},
   // Antarctica
-  supply:{c:'an',t:'Supply flight delayed',bg:'vsp',story:'The supply flight is grounded by wind. The station needs hands to unload the last one.',
+  supply:{c:'an',t:'Supply flight delayed',bg:'vsp',story:'The supply flight is grounded by wind. The station needs hands to unload the last one.',talk:[['radio','Supply flight\u2019s grounded, wind at sixty knots. We need hands on the last load.'],['band','How cold is it out there?'],['radio','Cold enough that the van has started sulking. It\u2019ll warm up to you.']],
     ch:()=>[ {l:'Help unload',go:()=>{ RD.spares(2); return 'They let you raid the spare strings. Two spare sets.'; }}, {l:'Stay warm inside',go:()=>{ RD.mod({replays:1}); return 'Hot cocoa and a nap. One extra replay tonight.'; }} ]},
-  station:{c:'an',t:'Station radio',bg:'vsp',story:'Every station on the continent tunes in for your set on the radio. It is a hard quiz: name the step between two notes. $3 each.',quiz:{n:3,pay:3,set:QUIZ_HARD}},
+  station:{c:'an',t:'Station radio',bg:'vsp',story:'Every station on the continent tunes in for your set on the radio. It is a hard quiz: name the step between two notes. $3 each.',talk:[['operator','Every station on the continent is listening. Hard quiz tonight: name the step between two notes.'],['you','No pressure.'],['operator','Some pressure. It is very quiet down here.']],quiz:{n:3,pay:3,set:QUIZ_HARD}},
 };
-function roadFriend(){ const here=new Set((TOURS[state.tour]||{venues:[]}).venues.map(v=>v.id)); const all=TOURS.flatMap(T=>T.venues).filter(v=>!here.has(v.id)&&dexC0(v.id).won>0&&POSE_META[v.id]); return all[(state.runSeed||0)%Math.max(1,all.length)]||null; }
+function roadFriend(){ if(DEVROAD){ const L=devRoadCallers(); return L[DEVROAD.fi%L.length]; } const here=new Set((TOURS[state.tour]||{venues:[]}).venues.map(v=>v.id)); const all=TOURS.flatMap(T=>T.venues).filter(v=>!here.has(v.id)&&dexC0(v.id).won>0&&POSE_META[v.id]); return all[(state.runSeed||0)%Math.max(1,all.length)]||null; }
 function roadPick(){ const cid=(TOURS[state.tour]||{}).id, seen=new Set(state.roadSeen||[]);
   const pool=Object.keys(ROAD).filter(k=>ROAD[k].story&&(!ROAD[k].c||ROAD[k].c===cid)&&!seen.has(k)&&(!ROAD[k].req||ROAD[k].req()));
   const local=pool.filter(k=>ROAD[k].c===cid), pick=(local.length&&Math.random()<0.6)?local:pool; return pick.length?pick[Math.floor(Math.random()*pick.length)]:null; }
@@ -4701,8 +4702,32 @@ function roadTalk(lines,done){ const box=$('roadTalk'), rs=roadState; if(!box||!
   next(); }
 function roadAnchor(i){ const p=roadState&&roadState.cast[i], cv=$('roadScene'); if(!p||p.cxf==null||!cv) return null; return {el:cv,fx:p.cxf,fy:p.topf}; }
 function roadVoice(){ const c=roadState&&roadState.cast.find(q=>q.side); return c?c.id:'road_'+(roadState?roadState.id:''); }
+// developer: the event browser (v1.92). Step through every road event with any player, band member and (for the old-friend event) caller.
+// Nothing is saved: no run save, and whatever a choice changes (money, fame, strings...) is put back on EXIT.
+let DEVROAD=null;
+function devRoadCallers(){ return TOURS.flatMap(T=>T.venues).filter(v=>POSE_META[v.id]); }
+function devRoadStart(){ DEVROAD={i:0,list:Object.keys(ROAD),chars:CHARS.map(c=>c.id),ci:Math.max(0,CHARS.findIndex(c=>c.id===(state.char||'bard'))),bands:[null].concat(Object.keys(MEMBERS).filter(id=>HANG_META[id])),bi:1,fi:0,
+  snap:JSON.stringify({meta:META,money:state.money,char:state.char,lineup:state.lineup||[],tour:state.tour,roadMod:state.roadMod||null,spares:state.spares||0,broken:state.broken,roadSeen:state.roadSeen||[],roadDone:!!state.roadDone,gauge:state.gauge}),pedals:state.pedals.slice()};
+  if(!state.pedals.length) state.pedals=PEDALS.filter(q=>rarOf(q.id)==='common').slice(0,2);   // the pawn shop needs something to trade (put back on EXIT)
+  initAudio(); devRoadShow(); }
+function devRoadShow(){ const D=DEVROAD; if(!D) return; const id=D.list[D.i], E=ROAD[id];
+  state.char=D.chars[D.ci]; state.lineup=D.bands[D.bi]?[D.bands[D.bi]]:[]; const ti=TOURS.findIndex(T=>T.id===E.c); if(ti>=0) state.tour=ti;
+  goRoad(()=>{ D.i=(D.i+1)%D.list.length; devRoadShow(); },id); devRoadBar(); }
+function devRoadEnd(stay){ const D=DEVROAD; if(!D) return; DEVROAD=null; const b=$('devRoadBar'); if(b) b.remove();
+  try{ const S=JSON.parse(D.snap); Object.keys(META).forEach(k=>delete META[k]); Object.assign(META,S.meta); ['money','char','lineup','tour','roadMod','spares','broken','roadSeen','roadDone','gauge'].forEach(k=>state[k]=S[k]); state.pedals=D.pedals; save(); }catch(e){}
+  if(!stay) goScreen('title'); }
+function devRoadBar(){ const D=DEVROAD; let b=$('devRoadBar'); if(!b){ b=document.createElement('div'); b.id='devRoadBar'; document.body.appendChild(b); }
+  const id=D.list[D.i], E=ROAD[id], C=CHARS[D.ci], bm=D.bands[D.bi], fr=E.caller==='friend'?devRoadCallers()[D.fi%devRoadCallers().length]:null;
+  const btn=(a,t)=>'<button class="btn small blue" data-dr="'+a+'">'+t+'</button>';
+  b.innerHTML='<div>'+btn('pe','&lt;')+'<span class="dr-n">'+(D.i+1)+'/'+D.list.length+' '+E.t+'</span>'+btn('ne','&gt;')+btn('rp','REPLAY')+btn('x','EXIT')+'</div>'+
+    '<div>'+btn('pl','PLAYER: '+C.name.replace(/^The /,''))+btn('bd','BAND: '+(bm?(NICK[bm]||MEMBERS[bm].name):'nobody'))+(fr?btn('fr','FRIEND: '+titleCase(fr.rival)):'')+'</div>';
+  b.querySelectorAll('[data-dr]').forEach(x=>x.onclick=()=>{ const a=x.dataset.dr; blip(700,0.04);
+    if(a==='x'){ devRoadEnd(); return; }
+    if(a==='pe') D.i=(D.i+D.list.length-1)%D.list.length; if(a==='ne') D.i=(D.i+1)%D.list.length;
+    if(a==='pl') D.ci=(D.ci+1)%D.chars.length; if(a==='bd') D.bi=(D.bi+1)%D.bands.length; if(a==='fr') D.fi++;
+    devRoadShow(); }); }
 function goRoad(next,force){
-  const id=(force&&(!ROAD[force].req||ROAD[force].req()))?force:roadPick(); if(!id){ next(); return; }
+  const id=(force&&(DEVROAD||!ROAD[force].req||ROAD[force].req()))?force:roadPick(); if(!id){ next(); return; }
   try{ closeModal(); trStop(); hideDialog(); }catch(e){} ++state.runId;
   state.roadSeen=(state.roadSeen||[]).concat([id]); state.roadDone=true;
   const E=ROAD[id]; roadState={id,next,t0:performance.now(),cast:roadCast(E)};
@@ -4712,12 +4737,12 @@ function goRoad(next,force){
   if(E.quiz) roadQuiz(E.quiz); else (E.ch()||[]).filter(Boolean).forEach(c=>{ const b=document.createElement('button'); b.className='btn small '+(c.dis?'':'gold'); b.textContent=c.l; b.disabled=!!c.dis;
     b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||'';
       if(c.talk){ $('roadTalk').innerHTML=''; roadTalk(c.talk,()=>roadDoneBtn()); } else { roadDoneBtn(); try{ const d=mumbleQuotes(roadVoice(),out); roadBandLine(id,d); }catch(e){} } }; box.appendChild(b); });
-  if(E.talk&&!E.quiz){ box.classList.add('hidden'); roadState.started=false; }
-  goScreen('road'); saveRun(); try{ setTimeout(()=>{ if(state.screen!=='road'||!roadState||roadState.id!==id) return; if(E.talk&&!E.quiz) roadTalk(E.talk,()=>{ box.classList.remove('hidden'); }); else mumbleQuotes(roadVoice(),$('roadStory').textContent); },450); }catch(e){}
+  if(E.talk){ box.classList.add('hidden'); roadState.started=false; }
+  goScreen('road'); if(!DEVROAD) saveRun(); try{ setTimeout(()=>{ if(state.screen!=='road'||!roadState||roadState.id!==id) return; if(E.talk) roadTalk(E.talk,()=>{ box.classList.remove('hidden'); }); else mumbleQuotes(roadVoice(),$('roadStory').textContent); },450); }catch(e){}
   const sk=()=>{ if(roadState&&roadState.skip) roadState.skip(); }; $('roadScene').onclick=sk; $('roadTalk').onclick=sk; try{ if(ctx&&ROAD_CUES[id]){ cueWarmDef(ROAD_CUES[id]); cueStart(ROAD_CUES[id],'road'); } }catch(e){}
   requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },40); });
 }
-function roadDoneBtn(){ const b=$('roadGo'); b.classList.remove('hidden'); b.textContent='ON TO THE SHOW'; renderCash(); saveRun(); }
+function roadDoneBtn(){ const b=$('roadGo'); b.classList.remove('hidden'); b.textContent=DEVROAD?'NEXT EVENT':'ON TO THE SHOW'; renderCash(); if(!DEVROAD) saveRun(); }
 function roadQuiz(Q){ let k=0, right=0; const box=$('roadChoices'); box.classList.add('quiz');
   const ask=()=>{ if(k>=Q.n){ RD.money(right*Q.pay); box.innerHTML=''; $('roadOut').textContent=right+' of '+Q.n+' right. +$'+(right*Q.pay)+'.'; roadDoneBtn(); return; }
     const [iv,name]=Q.set[Math.floor(Math.random()*Q.set.length)], root=45+Math.floor(Math.random()*8), wrong=shuffle(Q.set.filter(q=>q[1]!==name)).slice(0,2), opts=shuffle([[iv,name],...wrong]);
@@ -5478,6 +5503,8 @@ Object.assign(VOICE,{
   hale:{b:69,w:'sine',st:0.085,fs:1.2,q:7,wob:0.8,sp:3,v:0.32}, tam:{b:53,w:'sawtooth',st:0.065,fs:1.0,q:8,sp:3,v:1.55},
   brass:{b:50,w:'square',st:0.07,fs:0.9,q:10,gl:0.6,sp:2,v:1.16}, tech:{b:52,w:'triangle',st:0.085,fs:1,q:6,sp:2,v:0.86},
   fay:{b:58,w:'triangle',st:0.08,fs:1.08,q:6,ech:0.35,sp:2,v:0.86},
+  van:{b:43,w:'square',st:0.16,fs:0.75,q:4,sp:0,v:0.9},   // the van: one low, sheepish horn note
+  machine:{b:60,w:'square',st:0.05,fs:1.2,q:12,sp:0,v:0.6},   // the karaoke machine: flat robot beeps
   gerald:{b:57,w:'triangle',st:0.095,fs:1.04,q:6,wob:0.35,gl:0.5,sp:2,v:0.95}   // Gerald: a kind, slightly slow TV voice
 });
 const TALK={
@@ -8902,7 +8929,7 @@ async function voiceTest(id,text,raw){
   } finally { ctx=saved.ctx; master=saved.master; noiseBuf=saved.noiseBuf; MUM.out=saved.out; MUM.line=saved.line; }
 }
 function goScreen(n){
-  try{ if(n!==state.screen){ mumbleStop(); bubblesClear(); } if(n==='title') renderTitleStats(); }catch(e){}
+  try{ if(n!==state.screen){ mumbleStop(); bubblesClear(); } if(n==='title') renderTitleStats(); if(DEVROAD&&n!=='road') devRoadEnd(true); }catch(e){}
   if(n!=='duel'&&state.practice) leavePractice();
   try{ if(CUE.on&&CUE.screen!==n) cueStop(); }catch(e){}
   try{ if(n==='title'){ if(ctx&&ctx.state==='running') startTitleSong(); } else stopTitleSong(); }catch(e){}
@@ -9127,7 +9154,8 @@ function showDev(){
     '<div class="setrow"><span>Unlock everyone<br><span class="dim">Band, crew and callers. Save untouched.</span></span>'+knobBtn('dAll',!!s.devUnlock)+'</div>'+
     '<div class="setrow"><span>Scene preview<br><span class="dim">Every title scene.</span></span>'+knobBtn('dScene',!!s.previewScenes)+'</div>'+
     '<div class="setrow"><span>Dev button in Settings<br><span class="dim">Skip a night mid-run.</span></span>'+knobBtn('dPause',!!s.dev)+'</div></div>'+
-    '<div class="row-btns"><button class="btn gold" id="dClose">CLOSE</button></div>');
+    '<div class="row-btns"><button class="btn blue" id="dEvents">EVENTS</button><button class="btn gold" id="dClose">CLOSE</button></div>');
+  $('dEvents').onclick=()=>{ blip(990,0.08); closeModal(); devRoadStart(); };
   setKnob('dBand',DEV.band); setKnob('dAll',!!s.devUnlock); setKnob('dScene',!!s.previewScenes); setKnob('dPause',!!s.dev);
   document.querySelectorAll('[data-dt]').forEach(b=>b.onclick=()=>{ blip(660,0.04); DEV.tour=+b.dataset.dt; showDev(); });
   document.querySelectorAll('[data-dv]').forEach(b=>b.onclick=()=>{ blip(990,0.08); devStart(DEV.tour,+b.dataset.dv); });
@@ -9255,7 +9283,7 @@ buildBg();
 drawTube(0);
 applySettings();
 requestAnimationFrame(loop);
-window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={huntNow:(pc)=>{ runHunt(pc,3,12,'FIND',null); },noWarm:v=>{ window.__fbNoWarm=v; },vhats:()=>TOURS.flatMap(T=>T.venues).map(v=>[v.id,v.hats]),crowdRows:n=>{ CROWD_ROWS=n; },fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },road:(id)=>goRoad(()=>goScreen('title'),id),cueCheck:()=>cueCheck(),cueTest:(id,n,r,so)=>cueTest(id,n,r,so),songTest:(a,n)=>songTest(a,n),roadAnimState:()=>roadState&&roadState.cast.map(p=>p.id+':'+(p.anim?p.anim.cur:'-')).join(' '),cueState:()=>({on:CUE.on,screen:CUE.screen,riff:CUE.riff&&CUE.riff.id,i:CUE.i}),giftEval:(ch,sf,ci)=>{ const oc=state.char, oi=state.callIdx; state.char=ch; applyTuning(); const c=makeCall(1); c.notes=sf.map(([s,f])=>({midi:OPEN[s]+f,s,f})); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); if(ci!=null) state.callIdx=ci; const r=evaluate(); state.char=oc; state.callIdx=oi; applyTuning(); return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
+window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={huntNow:(pc)=>{ runHunt(pc,3,12,'FIND',null); },noWarm:v=>{ window.__fbNoWarm=v; },vhats:()=>TOURS.flatMap(T=>T.venues).map(v=>[v.id,v.hats]),crowdRows:n=>{ CROWD_ROWS=n; },fx:(k)=>{ ({coins:()=>fxBigCall(1500),neon:()=>fxNeon('NEW BEST'),perfect:()=>{ fxBanner('PERFECT NIGHT','Every call true','#8ED36A'); fxConfetti(); state.lighterUntil=perfNow()+6; },head:()=>{ fxBanner('HEADLINER DOWN','Mister Midnight takes a bow','#FFC857'); fxFireworks(); },stamp:()=>fxStamp(TOURS[state.tour]),aura:()=>{ state.streak=12; },party:()=>fxCrowdParty(true),streak:()=>{ state.streak=(state.streak||1)+1; renderStreakTag(false); },broke:()=>{ renderStreakTag(true); state.streak=0; },signal:()=>{ [0,1,2].forEach((i,k)=>setTimeout(()=>fxSignal(i),k*260)); }})[k](); },learn:(s,f)=>{ store.fret[s+','+f]={n:4,ok:4,ms:1000}; renderNeck(); },echoTest:(m)=>{ state.phase='answer'; echoNote(m); },roadEval:(m)=>{ state.roadMod=m; const c=makeCall(1); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); const r=evaluate(); state.roadMod=null; return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },devRoad:()=>devRoadStart(), devRoadState:()=>DEVROAD&&{i:DEVROAD.i,n:DEVROAD.list.length,ev:DEVROAD.list[DEVROAD.i]}, road:(id)=>goRoad(()=>goScreen('title'),id),cueCheck:()=>cueCheck(),cueTest:(id,n,r,so)=>cueTest(id,n,r,so),songTest:(a,n)=>songTest(a,n),roadAnimState:()=>roadState&&roadState.cast.map(p=>p.id+':'+(p.anim?p.anim.cur:'-')).join(' '),cueState:()=>({on:CUE.on,screen:CUE.screen,riff:CUE.riff&&CUE.riff.id,i:CUE.i}),giftEval:(ch,sf,ci)=>{ const oc=state.char, oi=state.callIdx; state.char=ch; applyTuning(); const c=makeCall(1); c.notes=sf.map(([s,f])=>({midi:OPEN[s]+f,s,f})); state.call=c; state.answer=c.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:'groove'})); if(ci!=null) state.callIdx=ci; const r=evaluate(); state.char=oc; state.callIdx=oi; applyTuning(); return r.steps.map(s=>s.label).join(' | ')+' = '+r.score; },roadIds:()=>Object.keys(ROAD),roadMod:()=>state.roadMod,linerMore:(id,k)=>{ linerMore(id); for(let i=0;i<(k||0);i++) $('lmN').click(); },rosterCard:id=>{ const T=TOURS.find(T=>T.venues.some(v=>v.id===id)); dexC(id).faced=1; rosterCallerCard(T.venues.find(v=>v.id===id),T); },lore:()=>({tours:TOURS.map(T=>({id:T.id,name:T.name,blurb:T.blurb,venues:T.venues.map(v=>({id:v.id,name:v.name,place:v.place,rival:v.rival,rivalSub:v.rivalSub,rule:v.rule,ruleText:v.ruleText,lines:v.lines,liner:v.liner,allow:v.allow}))})),hands:HANDS.map(h=>({id:h.id,name:h.name,desc:h.desc})),chars:CHARS,members:MEMBERS}),say:(w,t)=>say(w,t,0,true),open:()=>OPEN.slice(0,NS),dev:(ti,vi,band,ch)=>{ DEV.band=!!band; if(ch){ store.settings.char=ch; state.char=ch; } devStart(ti,vi); },devWin:()=>devWinNight(),tours:()=>TOURS.map(T=>({id:T.id,n:T.venues.length,v:T.venues.map(v=>v.id)})),places:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,xy,ext:bandExtent(id)})),vanTest:(line,ch,lv)=>{ line.forEach(id=>META.hired[id]=1); META.van=META.van||{}; if(lv!=null) META.van.bigvan=lv; META.lineup=line.slice(0,vanSeats()); if(ch) state.char=ch; goVan(); },stageTest:(idx,line,riv)=>{ state.venueIdx=idx; state.lineup=line.slice(); state.rivalBand=(riv||[]).slice(); buildBg(); },fxTest:(ids,N)=>{ const out={}, sv={pedals:state.pedals,call:state.call,answer:state.answer,money:state.money,afterMiss:state.afterMiss,replays:state.replays}; ids=(ids&&ids.length)?ids:PEDALS.map(p=>p.id); N=N||400;
     for(const id of ids){ let fire=0,sum=0,base=0;
       for(let t=0;t<N;t++){ const call=makeCall(1+(t%3)); state.call=call; state.answer=call.notes.map(x=>({midi:x.midi,s:x.s,f:x.f,g:Math.random()<0.5?(Math.random()<0.5?'pocket':'groove'):null})); state.money=10; state.afterMiss=(t%5===0); state.replays=2; state.callReplayed=(t%2===0);
         state.pedals=[{id:'iron'}]; const r0=evaluate().score; state.pedals=[{id:'iron'},{id:id}]; const r1=evaluate().score; base+=r0; sum+=r1; if(r1!==r0) fire++; }

@@ -15,9 +15,24 @@ def build():
         q=c.quantize(colors=64,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE); q.save(f'art/events/{i}.png',optimize=True)
         a=np.asarray(q.convert('RGB'))[:3].reshape(-1,3); top[i]='#%02X%02X%02X'%tuple(int(v) for v in np.median(a,axis=0))
     json.dump(top,open('art/events/top.json','w')); print('built',len(top),sum(os.path.getsize(f'art/events/{i}.png') for i in top)//1024,'KB')
+def lights():
+    from scipy import ndimage as ndi
+    out={}
+    for f in sorted(glob.glob('art/events/*.png')):
+        i=os.path.basename(f)[:-4]; a=np.asarray(Image.open(f).convert('RGB')).astype(float)
+        L=a@np.array([0.299,0.587,0.114]); mx=a.max(2); sat=(mx-a.min(2))/np.maximum(mx,1)
+        light=(L>185)|((mx>215)&(sat>0.35))            # lamps, windows, screens, neon, fire
+        light[int(H*0.66):]=False                      # not the floor
+        light=ndi.binary_opening(light,iterations=1); lab,n=ndi.label(light); spots=[]
+        for k in range(1,n+1):
+            ys,xs=np.where(lab==k)
+            if len(xs)<6: continue
+            c=a[ys,xs].mean(0); spots.append((len(xs),int(xs.mean()),int(ys.mean()),int(min(60,max(10,np.sqrt(len(xs))*3.2))),'#%02X%02X%02X'%tuple(int(v) for v in c)))
+        spots.sort(reverse=True); out[i]=[list(s_[1:]) for s_ in spots[:6]]
+    json.dump(out,open('art/events/lights.json','w')); print('lights',{k:len(v) for k,v in out.items()})
 def embed(path='index.html'):
-    top=json.load(open('art/events/top.json')); src={i:'data:image/png;base64,'+base64.b64encode(open(f'art/events/{i}.png','rb').read()).decode() for i in top}
-    s=open(path,encoding='utf-8').read(); blk='/*EVENTS:BEGIN*/\nconst EVENT_SRC='+json.dumps(src,separators=(',',':'))+', EVENT_TOP='+json.dumps(top,separators=(',',':'))+';\n/*EVENTS:END*/'
+    lights(); top=json.load(open('art/events/top.json')); LT=json.load(open('art/events/lights.json')); src={i:'data:image/png;base64,'+base64.b64encode(open(f'art/events/{i}.png','rb').read()).decode() for i in top}
+    s=open(path,encoding='utf-8').read(); blk='/*EVENTS:BEGIN*/\nconst EVENT_SRC='+json.dumps(src,separators=(',',':'))+', EVENT_TOP='+json.dumps(top,separators=(',',':'))+', EVENT_LIGHTS='+json.dumps(LT,separators=(',',':'))+';\n/*EVENTS:END*/'
     if '/*EVENTS:BEGIN*/' in s: a=s.index('/*EVENTS:BEGIN*/'); b=s.index('/*EVENTS:END*/')+len('/*EVENTS:END*/'); s=s[:a]+blk+s[b:]
     else: a=s.index('/*VSP:BEGIN*/'); s=s[:a]+blk+'\n'+s[a:]
     open(path,'w',encoding='utf-8').write(s); print('embedded',len(src))

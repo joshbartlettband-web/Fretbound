@@ -233,6 +233,12 @@ h3{font-size:12px}
 @keyframes sbOut{to{opacity:0;transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){ .sbub,.sbub.out{animation:none} }
 .road-band{display:block;margin-top:4px;color:var(--amber)}
+/* the NAME IT! house sign over the challenge, and the first-time dim (v1.90) */
+.nsign{position:fixed;z-index:65;pointer-events:none;image-rendering:pixelated;animation:nsIn .18s ease-out both} .nsign.out{animation:nsOut .22s ease-in both}
+@keyframes nsIn{0%{transform:translateY(8px);opacity:0}100%{transform:none;opacity:1}} @keyframes nsOut{to{opacity:0;transform:translateY(-6px)}}
+.nsdim{position:fixed;inset:0;z-index:64;pointer-events:none;animation:nsDim .25s ease-out both;transition:opacity .3s} .nsdim i{position:fixed;background:rgba(6,2,4,.62)} .nsdim.out{opacity:0}
+@keyframes nsDim{from{opacity:0}}
+@media (prefers-reduced-motion:reduce){ .nsign,.nsign.out{animation:none} }
 /* the challenge announces itself: it pops in, and its border flashes bright three times with a glow (each time it appears from hidden) */
 .namepick{animation:npIn .26s cubic-bezier(.2,1.5,.4,1) both,npFlash .9s steps(1,end) .06s both}
 @keyframes npIn{0%{transform:scale(.86) translateY(6px);opacity:0}100%{transform:none;opacity:1}}
@@ -1084,7 +1090,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.89</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.90</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4742,19 +4748,55 @@ const NN_FLAT=['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
 // a spot on the neck is learned once you have found the note there at least 3 times, 3 out of 4 times or better (store.fret, from earLog)
 function cellLearned(s,f){ const r=store.fret&&store.fret[s+','+f]; return !!(r&&r.n>=3&&r.ok/r.n>=0.75); }
 function nameLog(pc,ok){ try{ const r=store.names[pc]||(store.names[pc]={n:0,ok:0}); r.n++; if(ok) r.ok++; save(); }catch(e){} }
+// the house sign (v1.90): when a caller throws down the dare to name the first note, the club's neon NAME IT! sign buzzes on above the question,
+// with a strip of chasing bulb arrows pointing down at the answers. The first time it happens each night the rest of the screen dims for a beat.
+function nameSign(first){
+  const pick=$('namePick'); if(!pick) return ()=>{}; const r=pick.getBoundingClientRect(); if(!r.width) return ()=>{};
+  const W=112, H=44, sc=Math.max(2,Math.min(4,Math.floor(Math.min(r.width*0.86,340)/W))), cv=document.createElement('canvas'); cv.width=W; cv.height=H; cv.className='nsign';
+  cv.style.width=W*sc+'px'; cv.style.height=H*sc+'px'; cv.style.left=Math.round(r.left+r.width/2-W*sc/2)+'px'; cv.style.top=Math.round(Math.max(4,r.top-H*sc-2))+'px';
+  document.body.appendChild(cv);
+  let dim=null; if(first&&!reduceMotion){ dim=document.createElement('div'); dim.className='nsdim'; const x0=Math.max(0,r.left-4), y0=Math.max(0,r.top-H*sc-8), x1=Math.min(innerWidth,r.right+4), y1=Math.min(innerHeight,r.bottom+4);
+    // four dark panels around the sign and the answers (a huge box-shadow did not paint in every layout)
+    [[0,0,innerWidth,y0],[0,y1,innerWidth,innerHeight-y1],[0,y0,x0,y1-y0],[x1,y0,innerWidth-x1,y1-y0]].forEach(([l,tp,w,h])=>{ const d=document.createElement('i'); d.style.cssText='left:'+l+'px;top:'+tp+'px;width:'+w+'px;height:'+h+'px'; dim.appendChild(d); });
+    document.body.appendChild(dim); setTimeout(()=>dim&&dim.classList.add('out'),1500); }
+  try{ if(ctx){ const t=ctx.currentTime, o=ctx.createOscillator(), gn=ctx.createGain(), f=biq('bandpass',240,3); o.type='sawtooth'; o.frequency.value=120;   // the transformer hum of a neon tube catching
+    gn.gain.setValueAtTime(0.0001,t); [0,0.06,0.1,0.17,0.22].forEach((d,i)=>gn.gain.setValueAtTime(i%2?0.0001:0.05,t+d)); gn.gain.setTargetAtTime(0.0001,t+0.3,0.08);
+    o.connect(f); f.connect(gn); gn.connect(master); o.start(t); o.stop(t+0.7); } }catch(e){}
+  const g=cv.getContext('2d'), t0=performance.now(), FL=[1,0,1,1,0,0,1,0,1,1,1];   // the flicker as it catches: on, off, on... then steady
+  const PINK='#FF4FA0', TUBE_OFF='#4A1830', BULB='#FFC857', BULB_OFF='#5A3A14';
+  const txt=g=>{ g.font='20px "Jersey 10","Pixelify Sans",monospace'; g.textAlign='center'; g.textBaseline='middle'; };
+  let raf=0, alive=true;
+  const frame=now=>{ if(!alive) return; const t=(now-t0)/1000, fi=Math.floor(t/0.045), on=fi<FL.length?FL[fi]:(Math.random()>0.015?1:0.6);
+    g.clearRect(0,0,W,H);
+    // the sign's backing board and frame
+    g.fillStyle='rgba(18,6,12,.9)'; g.fillRect(2,1,W-4,25); g.fillStyle='#3A1428'; g.fillRect(2,1,W-4,1); g.fillRect(2,25,W-4,1); g.fillRect(2,1,1,25); g.fillRect(W-3,1,1,25);
+    txt(g); const tx=W/2, ty=14;
+    if(on){ g.save(); g.shadowColor=PINK; g.shadowBlur=6*on; g.fillStyle=PINK; g.globalAlpha=on; g.fillText('NAME IT!',tx,ty); g.shadowBlur=0; g.fillStyle='#FFD0E6'; g.globalAlpha=0.9*on; g.fillText('NAME IT!',tx,ty-0.5); g.restore(); }
+    else { g.fillStyle=TUBE_OFF; g.fillText('NAME IT!',tx,ty); }
+    // chasing bulb arrows below the board, pointing down at the answers
+    const lit=Math.floor(t*12);   // each arrow is a V of bulbs; the light runs down each V toward the answers
+    for(let k=0;k<3;k++){ const cx=Math.round(W*(0.22+k*0.28)); for(let j=0;j<4;j++){ const y=28+j*4, wv=(3-j)*3, b=((lit-j)%4+4)%4===0||((lit-j)%4+4)%4===1;
+      const col=t<0.45?BULB_OFF:(b?BULB:'#7A4E18'); g.fillStyle=col;
+      if(wv){ g.fillRect(cx-wv-1,y,3,3); g.fillRect(cx+wv-1,y,3,3); } else g.fillRect(cx-1,y,3,3);
+      if(b&&t>=0.45){ g.fillStyle='rgba(255,200,87,.35)'; if(wv){ g.fillRect(cx-wv-2,y-1,5,5); g.fillRect(cx+wv-2,y-1,5,5); } else g.fillRect(cx-2,y-1,5,5); } } }
+    raf=requestAnimationFrame(frame); };
+  raf=requestAnimationFrame(frame);
+  return ()=>{ alive=false; cancelAnimationFrame(raf); cv.classList.add('out'); setTimeout(()=>cv.remove(),250); if(dim){ dim.classList.add('out'); setTimeout(()=>dim&&dim.remove(),300); } };
+}
 function askName(tok){ return new Promise(res=>{ const el=$('namePick'), m=state.call.notes[0].midi, pc=((m%12)+12)%12;
   const d=shuffle([1,-1,2,-2,5,-5,7]).slice(0,2).map(x=>((pc+x)%12+12)%12), opts=shuffle([pc,...d]), T=4000; let done=false;
   const flat=Math.random()<0.5, sp=o=>(flat&&NN[o].length>1)?NN_FLAT[o]:NN[o], both=o=>NN[o].length>1?NN[o]+' / '+NN_FLAT[o]:NN[o];   // sharps or flats, so both spellings get learned
   try{ if(ctx){ blip(988,0.07,0.08,'triangle'); setTimeout(()=>{ try{ blip(1319,0.12,0.08,'triangle'); }catch(e){} },90); } }catch(e){}   // a two-note chime (B, E): the question is here
+  const nk=(state.legNo||1)+':'+state.venueIdx, firstTonight=state.nameNight!==nk&&!state.practice; state.nameNight=nk; let unsign=()=>{};
   el.className='namepick'; el.innerHTML='<span class="np-q">FIRST NOTE?</span>'+opts.map(o=>'<button class="btn small gold" data-pc="'+o+'">'+sp(o)+'</button>').join('')+'<i class="np-bar" style="width:100%"></i>';
-  requestAnimationFrame(()=>{ const b=el.querySelector('.np-bar'); if(b){ b.style.transitionDuration=T+'ms'; b.style.width='0%'; } });
-  const end=(pick)=>{ if(done) return; done=true; clearTimeout(to); const ok=pick===pc; nameLog(pc,ok);
+  requestAnimationFrame(()=>{ const b=el.querySelector('.np-bar'); if(b){ b.style.transitionDuration=T+'ms'; b.style.width='0%'; } try{ unsign=nameSign(firstTonight); }catch(e){} });
+  const end=(pick)=>{ if(done) return; done=true; clearTimeout(to); try{ unsign(); }catch(e){} const ok=pick===pc; nameLog(pc,ok);
     el.classList.add(ok?'ok':'bad'); state.nameStreak=ok?(state.nameStreak||0)+1:0; const ns=state.nameStreak;
     el.innerHTML='<span class="np-q">'+(ok?'YES, '+both(pc)+'!'+(ns>=3?' '+ns+' IN A ROW':''):pick==null?'TOO SLOW: IT WAS '+both(pc):'NO, IT WAS '+both(pc))+'</span>'; if(ok) blip(1180,0.06); else thud();
     setTimeout(()=>{ el.className='namepick hidden'; el.innerHTML=''; res(ok?'ok':'miss'); },ok?550:950); };
   el.querySelectorAll('button').forEach(b=>b.onclick=()=>end(+b.dataset.pc));
   const to=setTimeout(()=>end(null),T);
-  const chk=setInterval(()=>{ if(!alive(tok)){ clearInterval(chk); if(!done){ done=true; clearTimeout(to); el.className='namepick hidden'; el.innerHTML=''; res(null); } } else if(done) clearInterval(chk); },100); }); }
+  const chk=setInterval(()=>{ if(!alive(tok)){ clearInterval(chk); if(!done){ done=true; clearTimeout(to); try{ unsign(); }catch(e){} el.className='namepick hidden'; el.innerHTML=''; res(null); } } else if(done) clearInterval(chk); },100); }); }
 
 // note hunt (v1.73): find every place a note name lives. Used for each night's warm-up (find tonight's note, +$1 each)
 // and for the Green Room's NOTE HUNT preset. Taps are checked in onFretTap while state.phase==='hunt'.
@@ -9188,7 +9230,7 @@ window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={h
       out[id]={avg:Math.round(tot/runs),target:venueTarget(V)}; });
     Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); stageLights(cg,t,id); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1}); if(ART[id].vec){ drawRivalVec(cg,id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,id,t); } drawBandStage(cg,t,'front',id); drawCrowdFront(cg,t,V.hats); stageBlind(cg,V,t); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),mumble:(id,t,o)=>mumble(id,t,o), voiceTest:(id,t,raw)=>voiceTest(id,t,raw), voices:()=>Object.keys(VOICE), voiceTable:()=>VOICE, mumLog:()=>MUM.log.slice(), syl:t=>mumbleSyllables(t),
   talk:()=>TALK, speakTest:(id,t)=>speak(id,null,t,stageAnchor(HERO_X,FIGHTER_Y-92)), cheerTest:()=>bandCheer(), pedalFaceTest:ids=>{ const w=document.createElement('div'); w.id='pfTest'; w.style.cssText='position:fixed;inset:0;z-index:99;background:#1A0C0A;display:flex;flex-wrap:wrap;gap:8px;padding:8px;align-content:flex-start'; ids.forEach(id=>{ const p=PEDALS.find(q=>q.id===id); if(p) w.appendChild(pedalFace(p,{})); }); document.body.appendChild(w); }, memberTest:id=>memberModal(id), recruitTest:()=>{ state.lineup=[]; state.rivalBand=[]; state.recruitAsked=null; maybeRecruit(true); }, roadLineTest:(rid)=>roadBandLine(rid,0), heroLineTest:(w)=>{ const T=TALK[state.char||'bard']; speak(state.char||'bard',null,w?T.win:T.lose,stageAnchor(HERO_X,FIGHTER_Y-92)); },
-  askNameTest:()=>{ if(!state.call) state.call={notes:[{midi:57}]}; askName(state.runId); },depthInfo:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,y:xy[1],s:+bandArtScale(xy[1]).toFixed(3)})),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid,bl)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1,blink:!!bl}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q,true),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
+  askNameTest:(first)=>{ if(!state.call) state.call={notes:[{midi:57}]}; if(first) state.nameNight=null; askName(state.runId); },depthInfo:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,y:xy[1],s:+bandArtScale(xy[1]).toFixed(3)})),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid,bl)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1,blink:!!bl}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q,true),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
 })();
 </script>
 </body>

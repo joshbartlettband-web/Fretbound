@@ -712,5 +712,95 @@
 },
 "HANG_SRC/journey": {
 "graded": "23f0f25649bbfd3b7574a9b3b628a031a4401e0b"
+},
+"EVENT_SRC/bonfire": {
+"graded": "7fa4f03b3b0ac75033cabd94716153692097d6c6"
+},
+"EVENT_SRC/chai": {
+"graded": "f3794f35118ecd8c483ea31d74d27a1f486194b5"
+},
+"EVENT_SRC/coffee": {
+"graded": "5938a31d07f2ae694e279f05a36f705043529cc1"
+},
+"EVENT_SRC/fan": {
+"graded": "89805b3291bb11e3327ec74e2e06104502480717"
+},
+"EVENT_SRC/ferry": {
+"graded": "d08ff6087a33844c3054432ff546ff9504f12750"
+},
+"EVENT_SRC/flat": {
+"graded": "63b3ffdaada8d88103c429e112002bad61de8076"
+},
+"EVENT_SRC/friend": {
+"graded": "165b5856bfae1653f4b7854b7bff71c159868261"
+},
+"EVENT_SRC/gamelan": {
+"graded": "7fd70a74df92db6df94faf8ccd409c1060e8215e"
+},
+"EVENT_SRC/guildhall": {
+"graded": "54c687ce673b7b48f8a059f59c94178a168fba4d"
+},
+"EVENT_SRC/jukebox": {
+"graded": "8b9bd7a8c4773cac0ecb78f78beed8d67b7c4dd9"
+},
+"EVENT_SRC/karaoke": {
+"graded": "74ca08605310f36d22c775e973899c1bcc1fa89c"
+},
+"EVENT_SRC/laundromat": {
+"graded": "016ce76fcce52b0c180842634a8f3adc25504662"
+},
+"EVENT_SRC/mercado": {
+"graded": "2ca6ff7942b8e28a04949011712ee3fd730f8d19"
+},
+"EVENT_SRC/metro": {
+"graded": "852496a97a4b4912b571a48a664d8dfa04f3fc15"
+},
+"EVENT_SRC/moonbet": {
+"graded": "c751b0308d4413736dbbaf52a2ca232ebff608dc"
+},
+"EVENT_SRC/motel": {
+"graded": "81fbcb66228141392138f3fe2f9244ed665e66f0"
+},
+"EVENT_SRC/party": {
+"graded": "01cadca1d8600ba8c409e3185f414dd1bfe9d084"
+},
+"EVENT_SRC/pawn": {
+"graded": "7eb564db9cce203189649bf151e92820cecbc51a"
+},
+"EVENT_SRC/pena": {
+"graded": "b4f149a6c4d42debc801fff83b1c584d3b657694"
+},
+"EVENT_SRC/practica": {
+"graded": "e8102013a28584f96e3d72cc26085f4025d3be0a"
+},
+"EVENT_SRC/radio": {
+"graded": "3570774821cf471bb381243885b9f24fe89bd139"
+},
+"EVENT_SRC/samba": {
+"graded": "dcf61c496340c2af8f4ef2ddcb1551a106f118f0"
+},
+"EVENT_SRC/session": {
+"graded": "94da0a16ec93c22374280878533062a2d35634b6"
+},
+"EVENT_SRC/station": {
+"graded": "9e0f08405c617f342e03172c3ed9c32afab7b100"
+},
+"EVENT_SRC/supply": {
+"graded": "fc57a9636107f902a56eaf01d7e4ef392c31ba77"
+},
+"EVENT_SRC/tailor": {
+"graded": "369dfe2a7874e67bade493d9b23467225dbaff53"
+},
+"EVENT_SRC/tea": {
+"graded": "0971d4bd423c487196369bf48a603ca89ab8ebab"
+},
+"EVENT_SRC/trivia": {
+"graded": "0cf1f60904c3e30433300658f2a2e865d1221d04"
+},
+"EVENT_SRC/tvset": {
+"graded": "bd068675e5e754c5bf45060e46f12b904249726b"
+},
+"EVENT_SRC/unicorn": {
+"graded": "8cb67adc994e40b1f66fe559d52d1497c8e8ac6a"
 }
 }

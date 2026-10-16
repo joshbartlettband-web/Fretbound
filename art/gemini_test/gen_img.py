@@ -13,5 +13,8 @@ for _ in range(3):
     try: d=json.loads(r.stdout)
     except Exception: continue
     for p in d.get('candidates',[{}])[0].get('content',{}).get('parts',[]):
-        if 'inlineData' in p: open(out,'wb').write(base64.b64decode(p['inlineData']['data'])); print('saved',out); sys.exit(0)
+        if 'inlineData' in p:
+            open(out,'wb').write(base64.b64decode(p['inlineData']['data']))
+            open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'spend.log'),'a').write(__import__('time').strftime('%Y-%m-%d %H:%M')+'\t'+M+'\t'+('%.3f'%{'gemini-2.5-flash-image':0.039,'gemini-3-pro-image':0.134}.get(M,0))+'\t'+os.path.basename(out)+'\n')   # cost log (v1.93)
+            print('saved',out); sys.exit(0)
 print('FAILED',out,str(d)[:200])

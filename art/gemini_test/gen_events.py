@@ -1,0 +1,48 @@
+# v1.93: painted backdrops for the road events (and a few practice scenes for the world in WORLD.md). 480x200 plates like the Van scenes.
+# usage: python3 gen_events.py [id ...]   -> events/<id>.png   (Pro model; every call is logged in spend.log)
+import subprocess,sys,os
+from concurrent.futures import ThreadPoolExecutor
+BASE=("Pixel-art painted game backdrop, very wide panorama, side-on flat view at eye level, crisp pixels, warm hand-painted palette with dark outlines, 64-colour feel. "
+ "The world is our modern world with a little lazy, casual, slightly useless magic in it (soft, scruffy, a bit worn, never epic or sleek). "
+ "COMPOSITION: the bottom 40 percent of the image is a flat, plain, empty floor or ground, level and uncluttered, because characters will stand on it; nothing stands in that bottom strip; "
+ "the scene's furniture, buildings and details sit in the upper and middle part and along the far edges. "
+ "FULL-BLEED artwork that fills the entire image edge to edge: no border, no frame, no letterbox bars. No people, no readable text or letters, no logos, no watermark. Scene: ")
+S={
+'flat':"Dusk on the shoulder of a two-lane highway in the American southwest: a long empty road receding to distant mesas, a single leaning mile post, a dented guardrail, a pink and orange sky, gravel shoulder in the foreground. A small grey cloud hangs sulkily low over the road.",
+'friend':"Inside a 1950s roadside diner: a long counter with red stools along the back, a pie case on the counter where one cherry pie glows very faintly, a coffee pot, chrome napkin holders, big windows showing a night parking lot, checkerboard floor.",
+'pawn':"Inside a dusty pawn shop: a back wall covered with second-hand guitar pedals on pegboard, old guitars hanging, a glass counter with watches, a ceiling fan. One green fuzz pedal on the wall has a tiny personal rain cloud drizzling over it. Worn wooden floor.",
+'radio':"A small local radio station studio in the morning: a mixing desk, two microphones on arms, a big ON AIR light glowing red (no letters), egg-crate foam on the walls, a window to a sunny small town, a chrome toaster on the desk with two little cartoon-free sparkles of excitement above it. Carpet floor.",
+'motel':"A cheap motel walkway at night in heavy rain: a row of doors and windows with warm light, puddles reflecting neon, a vending machine and an ice machine glowing a soft friendly ghostly blue with a faint smiling shape in the frost. Wet concrete walkway floor.",
+'fan':"The back door of a small music club at sunset: a brick wall with a steel stage door, a single bulb lamp, gig posters (no text), stacked equipment cases, a dumpster, a parked tour van at the far right edge. Asphalt alley floor.",
+'jukebox':"Inside a truck stop at night: a glowing vintage jukebox against a wood-panelled wall, three guitar pedals taped to its side, booths, a coffee counter, a rack of road maps, a window showing big trucks under orange lights. Linoleum floor.",
+'session':"A cosy analogue recording studio: a big mixing console, tape machine, guitar amps with baffles, rugs, warm lamps, a window into the live room. A grey-muzzled old dog is curled asleep in the producer's leather chair. Wooden floor with a rug.",
+'moonbet':"A rural crossroads at night in the Mississippi Delta: two dirt roads crossing, a leaning wooden signpost with blank arms, cotton fields, a lone cypress tree, fireflies, a huge starry sky with NO moon at all (an empty dark patch where the moon should be). Packed dirt ground.",
+'tea':"A desert camp in the Sahara at dusk: low tents of woven cloth, a small fire with a blue enamel teapot and little tea glasses on a brass tray, camel saddles, rolling dunes, a huge violet and orange sky. Flat sand foreground.",
+'tailor':"A tailor's shop near the dance halls in Kinshasa: bright patterned fabrics on shelves, a treadle sewing machine, sharp colourful suits on mannequins, a tape measure, a big window to a lively evening street. A pair of scissors is hanging in mid-air by itself, idly. Tiled floor.",
+'coffee':"A home coffee ceremony in Ethiopia: a low table with small handleless cups, a black clay jebena coffee pot over a charcoal brazier, incense smoke, fresh green grass and flowers scattered on the floor area at the back, a woven mat, warm afternoon light through a window. Plain floor in front.",
+'samba':"A street in Rio de Janeiro at night during a samba school rehearsal: colourful houses climbing a hill, strings of lights and bunting across the street, big surdo drums waiting on the pavement, a balcony with plants. Cobbled street foreground.",
+'practica':"An old dance hall in Buenos Aires at noon: high ceilings, tall windows with sunbeams, a wooden bandstand with a lone bandoneon on a chair, café tables along the walls, an old record player on a side table looking a bit sulky. Polished wooden dance floor.",
+'mercado':"A busy covered market in Lima: a stall stacked with cassettes, old radios and electronics, one battered fuzz pedal on display, fruit stalls and colourful tarps behind, hanging bulbs. Stone floor.",
+'metro':"A tiled corridor in the Paris Metro: white bevelled tiles, curved ceiling, a green-and-white direction sign with no letters, a poster frame, a bench, warm lamps, an archway to a platform. Smooth tiled floor.",
+'pena':"The back room of a bar in Andalusia after midnight: whitewashed walls, wooden chairs in a half circle, a guitar on a stand, old photos and a poster (no text), a wine barrel used as a table, warm lamp light. Terracotta tile floor.",
+'ferry':"The open deck of a car ferry crossing a Norwegian fjord: railings, life rings, a lifeboat, a red funnel, steep snowy mountains and grey water, seagulls perched on the rail looking judgmental, cold blue light. Painted steel deck floor.",
+'karaoke':"Inside a tiny karaoke box room in Tokyo: a padded bench, a low table with drinks, a big screen glowing with colourful abstract shapes (no text), two microphones in a stand, disco lights, a tambourine. A small karaoke machine on the table has a faint cheerful glow like it is paying attention. Carpet floor.",
+'chai':"River steps (ghats) in India in the early morning: wide stone steps going down to a misty river, a small chai stall with a kettle on a stove and clay cups, temple domes in the haze, boats on the water, marigold garlands. Flat stone landing in front.",
+'gamelan':"An open-sided pavilion in a Balinese village: a carved wooden roof, rows of bronze gamelan instruments (metallophones and hanging gongs) at the back, offerings of flowers in small palm-leaf baskets, palm trees and rice terraces beyond. Smooth stone floor.",
+'bonfire':"A beach in Hawaii at dusk: a crackling bonfire with driftwood logs around it, a ukulele leaning on a log, palm trees, gentle surf, an orange and pink sky over the ocean. The sand in the foreground is textured, painted with ripples, footprints, small shells and the warm glow of the fire on it, not a flat block of colour.",
+'trivia':"A cosy pub in New Zealand: a wooden bar with taps, a chalkboard with doodles (no letters), framed photos, a dartboard, a fat tabby cat sitting on the bar like a judge. Wooden floorboards.",
+'party':"The garage of a student flat in Dunedin: a huge old guitar amp, mismatched couches, fairy lights, posters (no text), a low ceiling with exposed beams, a drum kit in the corner, a faint friendly ghost outline in the doorway, relaxed. Concrete floor.",
+'supply':"A polar research station hangar in Antarctica: a big open hangar door showing a small supply plane on a snowy runway in strong wind, crates and fuel drums, orange equipment, snow blowing in. Concrete hangar floor.",
+'station':"The radio room of a small Antarctic research station: a desk of radio equipment with glowing dials, a microphone, maps on the wall (no text), a window showing aurora over the snow, a thermos and a knitted blanket. Linoleum floor.",
+'unicorn':"A small gas station on a quiet highway at golden hour: two old fuel pumps, a little shop with a bulletin board covered in flyers (no readable text), a soda machine. A soft, scruffy, slightly round unicorn with a knitted scarf and a faded rainbow mane stands at the right edge reading the bulletin board, friendly and a bit worn. Asphalt forecourt in front.",
+# practice scenes for the world in WORLD.md (backgrounds for future events)
+'guildhall':"The local hall of a travelling musicians' guild: a cosy, slightly shabby union-hall room with mismatched chairs, a notice board crowded with flyers (no text), a trophy cabinet of old broken guitar strings, a tea urn, banners with simple instrument emblems (no letters), a piano with a pot plant on it. Worn wooden floor.",
+'laundromat':"A laundromat late at night: a row of washing machines and dryers, fluorescent lights, a vending machine, plastic chairs. One dryer is gently glowing and a single sock floats lazily above it. Linoleum floor.",
+'tvset':"The dusty old set of a 1990s public-television kids' show: a cardboard rainbow, big wooden number blocks, a painted sky backdrop, a stool with a knitted scarf on it, a studio camera pushed to the side, soft nostalgic light. Studio floor.",
+}
+def gen(i):
+    env=dict(os.environ,GEM='gemini-3-pro-image'); r=subprocess.run(["python3","gen_img.py",f"events/{i}.png",BASE+S[i],"21:9"],capture_output=True,text=True,env=env); return i,(r.stdout+r.stderr).strip()[-60:]
+if __name__=='__main__':
+    os.makedirs('events',exist_ok=True); ids=sys.argv[1:] or [k for k in S if not os.path.exists(f'events/{k}.png')]
+    with ThreadPoolExecutor(4) as ex:
+        for r in ex.map(gen,ids): print(*r,flush=True)

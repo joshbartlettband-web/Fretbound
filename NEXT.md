@@ -11,6 +11,16 @@ Done: callers mumble their lines, and road-scene quotes are spoken (see HANDOFF 
 - Not voiced yet: the road quizzes. Only 7 road lines are in quotes; more quoted speech in road stories would give the voices more to do. A band member could comment on a bad call too (only perfect calls get a cheer).
 - Ideas: a little consonant click at the start of syllables (plosives), a "hm?" for question-only lines, ducking the band slightly while a caller talks.
 
+## 00. The world and the events (Josh, 2026-10-16)
+- **World:** `WORLD.md` is the draft world bible (casual, lazy magic in the modern world; players are a storybook guild of travelling musicians; callers are the spirits of a music's place; real people only in liner notes). Josh wants to spend time enriching it; its open questions are a good place to start.
+- **Events as conversations (v1.91):** road events can carry `talk` lines spoken by the people in the scene (see HANDOFF v1.91). Done for flat, pawn, motel, fan, moonbet, friend and the new Gerald event. The other 19 events still use the old single paragraph; convert them, and write more events. Josh wants an idea-jam session for new events.
+- **Event backgrounds:** every event still shows its continent's Van-scene plate, so the karaoke box looks like a temple and the pawn shop like a motel. Painted backdrops per event are high on Josh's list and are the natural place for the fantastic details (a haunted ice machine, Gerald's bulletin board). Estimate: one Pro image each at about $0.134, so all 27 events are about $4 plus retries; they use the same 480x200 plate format as the Van scenes. Gerald himself also needs art (a portrait and a few road poses).
+- **Players to bring in line with the world:** the Journeyman and the Busker (see WORLD.md).
+- **In-between frames:** `tests/tween.py` works for small moves (pilot GIFs of the Bard's strum). Next step: wire tweens into the atlases and `drawPose` for strums.
+
+## Pinned: Brain Jam (a separate app idea, 2026-10-16)
+An app for teasing out ideas by talking with an AI partner: a simple animated avatar (fun, simple graphics), powered by a large enough model to feel natural, that asks questions about an idea, leads where it helps, and writes up documentation of the ideas as you go. Josh: "I suppose I'm just describing the live chat feature of any of the LLMs, but with fun, simple graphics." Not started; pinned for later.
+
 ## 0a. Guitars
 Done (v1.87, v1.88): 9 characters have their own guitar shapes on stage and in their portraits. The Bard and the Dune Looper keep Strats by choice. Gemini spend for the whole job: about $8.50 (`art/gemini_test/spend.log`).
 

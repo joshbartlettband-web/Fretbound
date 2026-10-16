@@ -233,6 +233,8 @@ h3{font-size:12px}
 @keyframes sbOut{to{opacity:0;transform:translateY(-4px)}}
 @media (prefers-reduced-motion:reduce){ .sbub,.sbub.out{animation:none} }
 .road-band{display:block;margin-top:4px;color:var(--amber)}
+.road-talk{display:flex;flex-direction:column;gap:3px;cursor:pointer} .road-talk:empty{display:none} .rt-line{font-size:14px;line-height:1.25;animation:rtIn .22s ease-out both} .rt-line b{font-family:var(--pixel);font-size:10px;color:var(--amber);margin-right:6px;font-weight:normal;letter-spacing:.04em} .rt-line:not(:last-child){opacity:.55} .rt-line.off b{color:#9ED0FF}
+@keyframes rtIn{from{opacity:0;transform:translateY(4px)}}
 /* the NAME IT! house sign over the challenge, and the first-time dim (v1.90) */
 .nsign{position:fixed;z-index:65;pointer-events:none;image-rendering:pixelated;animation:nsIn .18s ease-out both} .nsign.out{animation:nsOut .22s ease-in both}
 @keyframes nsIn{0%{transform:translateY(8px);opacity:0}100%{transform:none;opacity:1}} @keyframes nsOut{to{opacity:0;transform:translateY(-6px)}}
@@ -1090,7 +1092,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.90</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.91</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -1215,7 +1217,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
   <section id="scr-road" class="screen" aria-label="On the road">
     <div class="road">
       <div class="win road-art"><canvas id="roadScene" aria-hidden="true"></canvas></div>
-      <div class="win road-text"><div class="kicker">On the road</div><h2 id="roadTitle"></h2><p id="roadStory"></p><div class="road-ch" id="roadChoices"></div><p class="road-out" id="roadOut" aria-live="polite"></p>
+      <div class="win road-text"><div class="kicker">On the road</div><h2 id="roadTitle"></h2><p id="roadStory"></p><div class="road-talk" id="roadTalk" aria-live="polite"></div><div class="road-ch" id="roadChoices"></div><p class="road-out" id="roadOut" aria-live="polite"></p>
         <button class="btn gold hidden" id="roadGo">ON TO THE SHOW</button></div>
     </div>
   </section>
@@ -4592,23 +4594,26 @@ const RARUP={common:'uncommon',uncommon:'rare',rare:'legendary',legendary:'legen
 const QUIZ_IV=[[3,'minor 3rd'],[4,'major 3rd'],[5,'4th'],[7,'5th'],[12,'octave']], QUIZ_HARD=[[1,'half step'],[2,'whole step'],[6,'tritone'],[9,'6th'],[10,'flat 7th']];
 const ROAD={
   // shared pool
-  flat:{t:'Flat tire',bg:'vsp',story:'Halfway to the next town, the van lurches onto the shoulder. Flat tire, and the spare is flat too.',
+  flat:{t:'Flat tire',bg:'vsp',story:'Halfway to the next town, the van lurches onto the shoulder. Flat tire, and the spare is flat too.',talk:[['band','That is not a hiss. That is the tire giving up.','sigh'],['you','And the spare?'],['band','Also giving up. Solidarity, I guess.','shrug'],['you','Okay. Options.']],
     ch:()=>[ {l:'Pay a tow truck ($4)',dis:state.money<4,go:()=>{ RD.money(-4); return 'Twenty minutes and four dollars later, you are rolling again.'; }},
       (state.char==='luthier'||hasSeat('tech'))?{l:(state.char==='luthier'?'Let the Luthier patch it':'Let the Guitar Tech patch it'),go:()=>'A patch kit, some swearing and a lot of gaffer tape. Good as new, nearly.'}:null,
       {l:'Everyone pushes to the next garage',go:()=>{ RD.mod({replays:-1}); return 'You make it, but your arms are shaking. One fewer replay tonight.'; }} ]},
-  friend:{t:'An old friend',bg:'vsp',caller:'friend',req:()=>!!roadFriend(),story:()=>{ const v=roadFriend(); return titleCase(v.rival)+' is parked at the same diner, guitar case on the next stool. "You again! Sit down."'; },
+  friend:{t:'An old friend',bg:'vsp',caller:'friend',req:()=>!!roadFriend(),story:()=>{ const v=roadFriend(); return titleCase(v.rival)+' is parked at the same diner, guitar case on the next stool.'; },talk:[['caller','You again! Sit down. Try the pie, it is magic. Mildly.'],['you','Mildly?'],['caller','It remembers your order. That is all it does. It is very proud of it.']],
     ch:()=>[ {l:'Jam for a pedal',go:()=>{ const r=RD.pedal('uncommon'); return r?'You trade licks until the coffee goes cold. They hand you a '+RD.pname(r)+'.':'You trade licks until the coffee goes cold.'; }},
       {l:'Ask for advice',go:()=>{ RD.mod({hype:1}); return '"Listen to the whole phrase before you move." +1 Hype on every true call tonight.'; }} ]},
-  pawn:{t:'The pawn shop',bg:'vsp',req:()=>state.pedals.length>0,story:'A dusty pawn shop with a wall of second-hand pedals. The owner eyes your board.',
+  unicorn:{t:'A unicorn carpool',bg:'vsp',story:'At a gas station, a scruffy unicorn in a knitted scarf is reading the bulletin board. A sign on the saddle says: RIDES. ANYWHERE. CONVERSATION REQUIRED.',talk:[['gerald','Hi! I\u2019m Gerald. I had a TV show. Counting with Gerald, public television, ninety-four to ninety-nine.'],['you','The one with the counting song?','laugh'],['gerald','Everybody remembers the counting song. Nobody remembers the season about feelings.'],['band','I remember the feelings season.'],['gerald','Oh! Oh, that is so nice. Do you need a lift to the show?']],
+    ch:()=>[ {l:'Ride with Gerald',go:()=>{ RD.mod({hype:1}); return 'You arrive early, a little damp from the rainbow, and deeply understood. +1 Hype on every true call tonight.'; },talk:[['gerald','Seven, eight, nine... we\u2019re here! That\u2019s the counting song. You\u2019re welcome.']]},
+      {l:'Take the van',go:()=>'Gerald waves you off with one hoof and goes back to the bulletin board.'} ]},
+  pawn:{t:'The pawn shop',bg:'vsp',req:()=>state.pedals.length>0,story:'A dusty pawn shop with a wall of second-hand pedals. The owner eyes your board.',talk:[['owner','Nice board. Bit thin, though.'],['you','It does what I need.'],['owner','That fuzz on the wall used to belong to a weather wizard. Still rains a little when you stomp it.'],['band','Inside?'],['owner','Mostly inside.']],
     ch:()=>{ const c=state.pedals.slice().sort((a,b)=>PEDAL_ART[a.id].price-PEDAL_ART[b.id].price)[0], cn=PEDAL_TYPE[c.id].name;
       return [ {l:'Trade your '+cn+' up',go:()=>{ state.pedals.splice(state.pedals.indexOf(c),1); const r=RD.pedal(RARUP[rarOf(c.id)]); return r?'He takes the '+cn+' and pulls a '+RD.pname(r)+' off the wall.':'He takes it, shrugs, and gives you nothing better. Rough deal.'; }},
         {l:'Sell it for full price ($'+PEDAL_ART[c.id].price+')',go:()=>{ state.pedals.splice(state.pedals.indexOf(c),1); RD.money(PEDAL_ART[c.id].price); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); return 'Cash in hand. The board feels lighter.'; }},
         {l:'Just look around',go:()=>'You leave with nothing but a sticker.'} ]; }},
   radio:{t:'Live on the radio',bg:'vsp',story:'A small station has you on the morning show. The host has an ear quiz: name the step between two notes. $2 for each right answer.',quiz:{n:3,pay:2,set:QUIZ_IV}},
-  motel:{t:'A rainy motel',bg:'vsp',story:'Rain hammers the roof of a cheap motel. Nobody is going anywhere tonight.',
+  motel:{t:'A rainy motel',bg:'vsp',story:'Rain hammers the roof of a cheap motel. Nobody is going anywhere tonight.',talk:[['band','The ice machine is haunted. Friendly, but haunted.','shrug'],['you','Does it still make ice?'],['band','Only cubes shaped like little ghosts.'],['you','That counts.','laugh']],
     ch:()=>[ {l:'Rest and restring',go:()=>{ RD.restring(); RD.spares(1); return 'New strings all round, and a spare set in the case.'; }},
       {l:'Practise all night',go:()=>{ RD.mod({hot:1}); return 'You run the hard ones until dawn. Tonight’s first call is a HOT call: base Tone x2.'; }} ]},
-  fan:{t:'A superfan',bg:'vsp',story:'Someone in a homemade shirt with your face on it is waiting by the van. They have a gift, and a request: play it fast tonight.',
+  fan:{t:'A superfan',bg:'vsp',story:'Someone in a homemade shirt with your face on it is waiting by the van. They have a gift, and a request: play it fast tonight.',talk:[['fan','I drove six hours! I made this shirt! Your face is on it!'],['you','It is. It really is.','laugh'],['fan','Play the fast one tonight? Please? My cat requested it.'],['band','The cat has taste.']],
     ch:()=>[ {l:'Accept the gift',go:()=>{ const r=RD.pedal('common'); RD.mod({bpm:6}); return (r?'A '+RD.pname(r)+'! ':'')+'You promise a fast set. Tonight’s tempo is 6 BPM quicker.'; }},
       {l:'Sign their shirt',go:()=>{ RD.money(3); return 'They insist on paying for your lunch. +$3.'; }} ]},
   // North America
@@ -4617,7 +4622,7 @@ const ROAD={
       return pool.map(p=>({l:'Buy the '+PEDAL_TYPE[p.id].name+' ($2)',dis:state.money<2,go:()=>{ RD.money(-2); if(state.pedals.length<boardMax()){ state.pedals.push(p); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); return 'The '+PEDAL_TYPE[p.id].name+' goes on your board.'; } RD.money(PEDAL_ART[p.id].price); return 'Your board is full, so you sell it straight on for $'+PEDAL_ART[p.id].price+'.'; }})).concat([{l:'Play a song and leave',go:()=>'Somebody’s old country record plays you out the door.'}]); }},
   session:{c:'na',t:'A session gig',bg:'vsp',story:'A studio in town needs a rhythm guitarist for a country record. It pays, but it is long.',
     ch:()=>[ {l:'Take the session',go:()=>{ RD.money(5); RD.mod({replays:-1}); return '+$5. Your hands are tired: one fewer replay tonight.'; }}, {l:'Save your hands',go:()=>'You wish them luck and drive on.'} ]},
-  moonbet:{c:'na',t:'A moonlit bet',bg:'vsp',caller:'juke',story:'Mister Midnight leans on your van, glowing faintly. "A friendly wager. Tonight’s door money: double, or nothing."',
+  moonbet:{c:'na',t:'A moonlit bet',bg:'vsp',caller:'juke',story:'Mister Midnight leans on your van, glowing faintly.',talk:[['caller','Evening. I lost a bet with the tide once, so now I bet everybody.'],['you','What are we betting?'],['caller','Tonight\u2019s door money. Double, or nothing.']],
     ch:()=>[ {l:'Take the bet',go:()=>{ RD.mod({doorBet:1}); return '"Splendid." You will find out at the end of the night.'; }}, {l:'Decline politely',go:()=>'"Another time, then." He tips his hat and fades with the dawn.'} ]},
   // Africa
   tea:{c:'af',t:'Tea in the desert camp',bg:'vsp',story:'Musicians at a camp invite you to sit for tea. By custom there are three glasses: strong, then sweet, then gentle. Each one takes a while.',
@@ -4670,8 +4675,31 @@ let roadState=null;
 // who speaks the quotes in a road scene: the caller in it, or a voice for the encounter's own stranger
 // after a road choice, sometimes a band member in the van says something (their name and line under the outcome, in their voice)
 function roadBandLine(rid,after){ const ids=(state.lineup||[]).filter(k=>TALK[k]&&TALK[k].road); if(!ids.length) return; const h=voiceHash(rid+':'+(state.runSeed||0)); if(h%2) return;
-  const k=ids[(h>>>3)%ids.length], line=talkPick(TALK[k].road,h>>>7), o=$('roadOut'); const p=document.createElement('span'); p.className='road-band'; p.textContent=({lou:'Lou',rosa:'Rosa',dee:'Dee',jo:'Jo',hale:'Hale',tam:'Tam',brass:'The Brass Tacks',tech:'Your tech',fay:'Fay'}[k]||MEMBERS[k].name)+': “'+line+'”'; o.appendChild(p);
+  const k=ids[(h>>>3)%ids.length], line=talkPick(TALK[k].road,h>>>7), o=$('roadOut'); const p=document.createElement('span'); p.className='road-band'; p.textContent=(NICK[k]||MEMBERS[k].name)+': “'+line+'”'; o.appendChild(p);
   setTimeout(()=>{ try{ if(state.screen==='road') mumble(k,line); }catch(e){} },Math.round((after||0)*1000)+250); }
+// road conversations (v1.91): an event's `talk` lines are spoken one at a time by the people in the scene, script style in the panel
+// (SPEAKER: line), a bubble over whoever is talking, their mumble voice; the speaker gestures and everyone else listens. Tap to skip ahead.
+// A line is [who, text, mood]: who is 'you', 'band' (the seated member; skipped when nobody is seated), 'caller', or any other word for an
+// off-screen stranger (shown as its own name). mood (laugh, shrug, sigh, coffee) picks the speaker's gesture. Choices can carry `talk` too.
+const NICK={lou:'Lou',rosa:'Rosa',dee:'Dee',jo:'Jo',hale:'Hale',tam:'Tam',brass:'The Brass Tacks',tech:'Your tech',fay:'Fay'};
+function roadWho(w){ const cast=roadState.cast;
+  if(w==='you') return {i:0,name:heroName(),voice:state.char||'bard'};
+  if(w==='band'){ const i=cast.findIndex((q,k)=>k>0&&q.hang&&MEMBERS[q.id]); if(i<0) return null; const id=cast[i].id; return {i,name:(NICK[id]||MEMBERS[id].name).toUpperCase(),voice:id}; }
+  if(w==='caller'){ const i=cast.findIndex(q=>q.side); if(i<0) return null; const v=TOURS.flatMap(T=>T.venues).find(x=>x.id===cast[i].id); return {i,name:v?v.rival:'',voice:cast[i].id}; }
+  return {i:-1,name:String(w).toUpperCase(),voice:VOICE[w]?w:'road_'+roadState.id+'_'+w}; }
+function roadTalk(lines,done){ const box=$('roadTalk'), rs=roadState; if(!box||!rs){ if(done) done(); return; } let k=0; rs.talking=true; box.innerHTML='';
+  const next=()=>{ if(roadState!==rs||state.screen!=='road') return; clearTimeout(rs.tt);
+    while(k<lines.length&&!roadWho(lines[k][0])) k++;
+    if(k>=lines.length){ rs.speaker=-1; rs.mood=null; rs.talking=false; rs.skip=null; if(done) done(); return; }
+    const L=lines[k++], w=roadWho(L[0]), text=typeof L[1]==='function'?L[1]():L[1];
+    rs.speaker=w.i; rs.mood=L[2]||null; rs.lineT=performance.now()/1000;
+    const p=document.createElement('div'); p.className='rt-line'+(w.i<0?' off':''); p.innerHTML='<b></b><span></span>'; p.querySelector('b').textContent=w.name; p.querySelector('span').textContent=text;
+    box.appendChild(p); while(box.children.length>2) box.removeChild(box.firstChild);
+    const a=w.i>=0?roadAnchor(w.i):null; if(a) speak(w.voice,null,text,a,{ms:Math.max(1400,Math.min(3200,text.length*44))}); else try{ mumble(w.voice,text); }catch(e){}
+    rs.tt=setTimeout(next,Math.max(1500,Math.min(3400,text.length*46))); };
+  rs.skip=()=>{ if(rs.talking){ bubblesClear(); next(); } };
+  next(); }
+function roadAnchor(i){ const p=roadState&&roadState.cast[i], cv=$('roadScene'); if(!p||p.cxf==null||!cv) return null; return {el:cv,fx:p.cxf,fy:p.topf}; }
 function roadVoice(){ const c=roadState&&roadState.cast.find(q=>q.side); return c?c.id:'road_'+(roadState?roadState.id:''); }
 function goRoad(next,force){
   const id=(force&&(!ROAD[force].req||ROAD[force].req()))?force:roadPick(); if(!id){ next(); return; }
@@ -4680,9 +4708,13 @@ function goRoad(next,force){
   const E=ROAD[id]; roadState={id,next,t0:performance.now(),cast:roadCast(E)};
   $('roadTitle').textContent=E.t; $('roadStory').textContent=typeof E.story==='function'?E.story():E.story; $('roadOut').textContent=''; $('roadGo').classList.add('hidden');
   const box=$('roadChoices'); box.innerHTML=''; box.classList.remove('quiz');
+  roadState.calm=true; $('roadTalk').innerHTML='';
   if(E.quiz) roadQuiz(E.quiz); else (E.ch()||[]).filter(Boolean).forEach(c=>{ const b=document.createElement('button'); b.className='btn small '+(c.dis?'':'gold'); b.textContent=c.l; b.disabled=!!c.dis;
-    b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||''; roadDoneBtn(); try{ const d=mumbleQuotes(roadVoice(),out); roadBandLine(id,d); }catch(e){} }; box.appendChild(b); });
-  goScreen('road'); saveRun(); try{ setTimeout(()=>{ if(state.screen==='road'&&roadState&&roadState.id===id) mumbleQuotes(roadVoice(),$('roadStory').textContent); },350); }catch(e){} try{ if(ctx&&ROAD_CUES[id]){ cueWarmDef(ROAD_CUES[id]); cueStart(ROAD_CUES[id],'road'); } }catch(e){}
+    b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||'';
+      if(c.talk){ $('roadTalk').innerHTML=''; roadTalk(c.talk,()=>roadDoneBtn()); } else { roadDoneBtn(); try{ const d=mumbleQuotes(roadVoice(),out); roadBandLine(id,d); }catch(e){} } }; box.appendChild(b); });
+  if(E.talk&&!E.quiz){ box.classList.add('hidden'); roadState.started=false; }
+  goScreen('road'); saveRun(); try{ setTimeout(()=>{ if(state.screen!=='road'||!roadState||roadState.id!==id) return; if(E.talk&&!E.quiz) roadTalk(E.talk,()=>{ box.classList.remove('hidden'); }); else mumbleQuotes(roadVoice(),$('roadStory').textContent); },450); }catch(e){}
+  const sk=()=>{ if(roadState&&roadState.skip) roadState.skip(); }; $('roadScene').onclick=sk; $('roadTalk').onclick=sk; try{ if(ctx&&ROAD_CUES[id]){ cueWarmDef(ROAD_CUES[id]); cueStart(ROAD_CUES[id],'road'); } }catch(e){}
   requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },40); });
 }
 function roadDoneBtn(){ const b=$('roadGo'); b.classList.remove('hidden'); b.textContent='ON TO THE SHOW'; renderCash(); saveRun(); }
@@ -4707,7 +4739,7 @@ function drawRoadScene(){ const cv=$('roadScene'); if(!cv||!roadState) return; c
   const hasC=roadState.cast.some(q=>q.side);
   roadState.cast.forEach((p,i)=>{ const cx=p.side?Math.round(W*0.74):Math.round(W*(hasC?(roadState.cast.length>2?0.2:0.3):0.3)+i*W*(hasC?0.2:0.3));
     const A=roadAnim(p,t), get=k=>(p.hang?vsHang(p.id,ss,k,cx>mid):null)||roadPose(p.id,ss,!!p.side,p.hang?0:k);
-    const spr=get(A.cur); if(!spr) return;
+    const spr=get(A.cur); if(!spr) return; p.cxf=cx/W; p.topf=Math.max(0.06,(foot-spr.fy*0.92)/H);
     const br=1+0.007*Math.sin(t*2*Math.PI/(3.4+hfrac(p.id+'br')*1.4)+i*2.1);   // breathing, a slow rise of the chest anchored at the feet
     g.fillStyle='rgba(0,0,0,.35)'; g.fillRect(cx-Math.round(spr.w*0.22),foot,Math.round(spr.w*0.44),Math.max(2,Math.round(2*dpr)));
     const put=(sp,a)=>{ if(!sp||a<=0) return; g.globalAlpha=a; g.drawImage(sp.c,Math.round(cx-sp.fx),Math.round(foot-sp.fy*br+dpr),sp.w,sp.h*br); };
@@ -4717,7 +4749,14 @@ function drawRoadScene(){ const cv=$('roadScene'); if(!cv||!roadState) return; c
 // each figure keeps its own clock: long rests, short gestures, and they take turns, so nobody moves in step with anyone else
 const ROAD_REST=[2,3], ROAD_TALK=[0,5,6], ROAD_REACT=[1,2,4];
 function roadAnim(p,t){ let A=p.anim; const R=()=>Math.random();
-  if(!A){ A=p.anim={cur:p.hang?ROAD_REST[R()<0.5?0:1]:0,prev:0,t0:t,fade:0,next:t+0.8+R()*3.2,blink:t+1.5+R()*3}; }
+  if(!A){ A=p.anim={cur:p.hang?ROAD_REST[R()<0.5?0:1]:0,prev:0,t0:t,fade:0,next:t+0.8+R()*3.2,blink:t+1.5+R()*3,rest:ROAD_REST[R()<0.5?0:1]}; }
+  { const rs=roadState, me=rs?rs.cast.indexOf(p):-1;   // v1.91: poses follow the conversation instead of a random clock
+    const set=(c,fade)=>{ if(c!==A.cur){ A.prev=A.cur; A.cur=c; A.t0=t; A.fade=fade; } };
+    if(rs&&rs.talking){ const sp=rs.speaker===me, MOOD={laugh:1,shrug:6,sigh:3,coffee:4};
+      if(p.hang){ if(sp){ const m=MOOD[rs.mood]; set(m!=null&&t-rs.lineT<1.2?m:(Math.floor((t-rs.lineT)/0.9)%2?5:0),0.15); } else set(A.rest,0.2); }
+      else { if(sp) set(Math.floor(t*5)%2?15:0,0); else set(Math.sin(t*1.7)>0.3?1:0,0); }
+      return A; }
+    if(p.hang&&rs&&rs.calm){ if(t>=A.next){ set(R()<0.8?A.rest:4,0.25); A.next=t+6+R()*5; } return A; } }
   if(!p.hang){   // the caller: idle and breath frames, a blink now and then, sometimes a nod or a word
     if(A.cur===14&&t>=A.t0+0.13){ A.cur=A.back; A.fade=0; }
     else if(A.cur!==14&&t>=A.blink){ A.back=A.cur; A.cur=14; A.t0=t; A.fade=0; A.blink=t+2.4+R()*4; }
@@ -5438,7 +5477,8 @@ Object.assign(VOICE,{
   dee:{b:36,w:'sine',st:0.11,fs:0.78,q:5,sp:1,v:0.57}, jo:{b:57,w:'triangle',st:0.075,fs:1.05,q:8,sp:3,v:0.78},
   hale:{b:69,w:'sine',st:0.085,fs:1.2,q:7,wob:0.8,sp:3,v:0.32}, tam:{b:53,w:'sawtooth',st:0.065,fs:1.0,q:8,sp:3,v:1.55},
   brass:{b:50,w:'square',st:0.07,fs:0.9,q:10,gl:0.6,sp:2,v:1.16}, tech:{b:52,w:'triangle',st:0.085,fs:1,q:6,sp:2,v:0.86},
-  fay:{b:58,w:'triangle',st:0.08,fs:1.08,q:6,ech:0.35,sp:2,v:0.86}
+  fay:{b:58,w:'triangle',st:0.08,fs:1.08,q:6,ech:0.35,sp:2,v:0.86},
+  gerald:{b:57,w:'triangle',st:0.095,fs:1.04,q:6,wob:0.35,gl:0.5,sp:2,v:0.95}   // Gerald: a kind, slightly slow TV voice
 });
 const TALK={
   bard:{hi:'Every town has a song. I want to learn them all.',re:['Play it, then. I’m listening.','I’ve heard worse. Go on.','All right. Show me how it goes.'],win:'That one goes in the songbook.',lose:'I’ll learn it on the road.'},
@@ -8820,6 +8860,7 @@ const MENU_CUES={
     bass:['electric','1..1..8.....5.7.',1],comp:['chop','..x...x.xx..x...',1,55],lv:'keys',
     lead:'. . . . B4 - D5 - E5 - - - . . . . | . . . . C#5 - E5 - G5 - E5 - . . . . | . . . . B4 - D5 - E5 - G5 - E5 - D5 - | E5 - - - C#5 - - - A4 - - - . . . .'}
 };
+ROAD_CUES.unicorn=ROAD_CUES.motel;   // Gerald's ride borrows the motel's easy groove until it has its own
 function menuCue(k){ try{ if(ctx&&MENU_CUES[k]) cueStart(MENU_CUES[k],k==='win'||k==='lose'?'results':k); }catch(e){} }
 // checks for the test scripts: every bar of every line has the right number of steps, every voice exists
 function cueCheck(){ const bad=[], all=Object.assign({select:SEL_CUE},ROAD_CUES); Object.entries(MENU_CUES).forEach(([k,v])=>all['m:'+k]=v);

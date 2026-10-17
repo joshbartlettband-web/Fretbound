@@ -11,6 +11,9 @@ Done: callers mumble their lines, and road-scene quotes are spoken (see HANDOFF 
 - Not voiced yet: the road quizzes. Only 7 road lines are in quotes; more quoted speech in road stories would give the voices more to do. A band member could comment on a bad call too (only perfect calls get a cheer).
 - Ideas: a little consonant click at the start of syllables (plosives), a "hm?" for question-only lines, ducking the band slightly while a caller talks.
 
+## 000. The project page (v1.96)
+`landing/` plus `.github/workflows/pages.yml` publish a project page with the game at `/play/`, once this branch is merged to `main` and Settings > Pages > Source is set to "GitHub Actions" (Josh). The sibling sites (Rainbow mode, Double Rainbow) already link to https://joshbartlettband-web.github.io/Fretbound/. Retake the pictures with `python3 tests/dev/site_shots.py` when the look changes; refresh the numbers in the page text when the content changes.
+
 ## 00. The world and the events (Josh, 2026-10-16)
 - **World:** `WORLD.md` is the draft world bible (casual, lazy magic in the modern world; players are a storybook guild of travelling musicians; callers are the spirits of a music's place; real people only in liner notes). Josh wants to spend time enriching it; its open questions are a good place to start.
 - **Events as conversations (v1.91):** road events can carry `talk` lines spoken by the people in the scene (see HANDOFF v1.91). All 27 events are conversations (v1.92). Next: write more events; Josh wants an idea-jam session for them. The developer menu's EVENTS browser is the way to review them.

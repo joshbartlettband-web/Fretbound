@@ -1,0 +1,53 @@
+# Fretbound's project page, built by GitHub and published to this repo's GitHub Pages site.
+#   /       the project page (landing/), with the "Other projects by Josh" cards
+#   /play/  the game itself (index.html, one self-contained page)
+# Setup: Actions enabled, and Settings > Pages > Source set to "GitHub Actions".
+# Heads up: if Pages used to serve this repo from a branch, the game lived at the site's root. After this, it lives at /play/.
+name: pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-24.04
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Pages
+        id: pages
+        uses: actions/configure-pages@v5
+
+      - name: Build the site
+        run: |
+          set -e
+          mkdir -p site/play
+          cp -r landing/. site/
+          cp index.html site/play/index.html
+          repo="${GITHUB_REPOSITORY}"
+          sed -i -e "s|@SITE@|${{ steps.pages.outputs.base_url }}|g" -e "s|@REPO@|$repo|g" site/index.html
+          if grep -q '@SITE@\|@REPO@' site/index.html; then echo "::error::a placeholder was not filled in"; exit 1; fi
+          for f in site/index.html site/play/index.html site/card.png site/hero.png; do test -s "$f" || { echo "::error::$f is missing"; exit 1; }; done
+          du -sh site; ls -la site site/play
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+      - name: Deploy
+        id: deploy
+        uses: actions/deploy-pages@v4

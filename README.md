@@ -7,5 +7,6 @@ A roguelike ear-training game for guitarists. A rival plays a phrase; you answer
 - `tests/`: Playwright checks and the art processing scripts.
 - `art/`: processed portraits, title plates, masks, castle sprite, world map.
 - `android/`: a minimal WebView wrapper and `build.sh`.
+- `landing/` and `.github/workflows/pages.yml`: the project page for GitHub Pages (the game plays at `/play/`).
 - `docs/art-checklist.html`: the Gemini prompt checklist.
 - `setup.sh`: installs everything the tests and build need.

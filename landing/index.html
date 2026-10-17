@@ -1,0 +1,132 @@
+<!doctype html>
+<!-- Fretbound's project page. The workflow (.github/workflows/pages.yml) copies this folder to the site's root, puts the game at /play/,
+     and fills in @SITE@ (the site's address) and @REPO@ (owner/name). The pictures come from tests/dev/site_shots.py (real screenshots of the build). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fretbound: ear training for guitarists</title>
+<meta name="description" content="A roguelike ear-training game for guitarists. A rival plays a phrase, you find it by ear and play it back on the fretboard. 21 venues, 7 continents, and a casually magical world. Plays in your browser.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Fretbound">
+<meta property="og:description" content="A roguelike ear-training game for guitarists. Hear a phrase, play it back, take your band around the world. Plays in your browser.">
+<meta property="og:image" content="@SITE@/card.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%231a0c0a'/%3E%3Cpath d='M3 13V3h7M3 8h5' fill='none' stroke='%23ffb22e' stroke-width='2.4'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #1a0c0a; --panel: #2c160f; --panel-2: #44231a; --ink: #f6e8c9; --soft: #dcc7a2; --dim: #a98f6c;
+    --amber: #ffb22e; --gold: #ffd37a; --brass: #c8963a; --teal: #56d6c0; --rose: #ff6f91;
+    --font: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body { margin: 0; background: radial-gradient(1200px 500px at 50% -80px, #4a2412 0, transparent 70%), var(--bg); color: var(--ink); font: 18px/1.6 var(--font); }
+  a { color: var(--teal); }
+  .strip { height: 8px; background: repeating-linear-gradient(90deg, var(--brass) 0 18px, #8a5e1a 0 20px); }
+  main, footer { width: 100%; max-width: 940px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  h1 { font-size: clamp(2.8rem, 10vw, 5rem); line-height: 1; margin: 40px 0 12px; letter-spacing: -.02em; color: var(--amber); text-shadow: 0 3px 0 #5a2c10; }
+  h1 small { display: block; font-size: .3em; letter-spacing: .02em; color: var(--dim); font-weight: 600; margin-top: 10px; text-shadow: none; }
+  h2 { font-size: 1.7rem; line-height: 1.15; margin: 64px 0 14px; color: var(--gold); }
+  .lede { font-size: 1.2rem; color: var(--soft); max-width: 36em; margin: 0 0 24px; }
+  .buttons { display: flex; flex-wrap: wrap; gap: 12px; margin: 0 0 28px; }
+  .btn { display: inline-flex; align-items: center; min-height: 54px; padding: 0 28px; border-radius: 6px; font-weight: 800; letter-spacing: .02em;
+         text-decoration: none; color: #2a1206; background: linear-gradient(#ffd37a, var(--amber)); box-shadow: 0 4px 0 #8a5e1a; }
+  .btn.alt { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 2px var(--brass); }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:focus-visible, a:focus-visible, summary:focus-visible { outline: 3px solid var(--teal); outline-offset: 3px; }
+  .hero img { display: block; width: 100%; height: auto; border-radius: 10px; border: 3px solid var(--brass); box-shadow: 0 10px 40px rgba(0,0,0,.5); }
+  .how { display: grid; gap: 14px; grid-template-columns: repeat(4, 1fr); counter-reset: n; padding: 0; margin: 0; list-style: none; }
+  .how li { counter-increment: n; background: var(--panel); border-radius: 10px; padding: 16px 14px; border-top: 4px solid var(--amber); color: var(--soft); font-size: .98rem; line-height: 1.45; }
+  .how li::before { content: counter(n); display: block; font-weight: 900; font-size: 1.6rem; color: var(--amber); margin-bottom: 4px; }
+  .how b { color: var(--ink); }
+  .screens { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin: 0; padding: 0; list-style: none; }
+  .screens li { background: var(--panel); border-radius: 12px; overflow: hidden; border: 2px solid #5a3420; }
+  .screens img { display: block; width: 100%; height: auto; }
+  .screens p { margin: 0; padding: 10px 14px 16px; font-size: .95rem; color: var(--soft); line-height: 1.4; }
+  .screens b { display: block; color: var(--ink); font-size: 1.05rem; margin-bottom: 2px; }
+  .world { background: var(--panel); border-radius: 12px; padding: 22px 24px 8px; border-left: 6px solid var(--rose); }
+  .world p { margin: 0 0 14px; color: var(--soft); }
+  .world p:first-child { color: var(--ink); font-size: 1.1rem; }
+  .facts { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 28px; padding: 0; margin: 0; list-style: none; }
+  .facts li { padding-left: 26px; position: relative; color: var(--soft); }
+  .facts li::before { content: ""; position: absolute; left: 0; top: .55em; width: 12px; height: 12px; background: var(--c, var(--amber)); transform: rotate(45deg); border: 2px solid #1a0c0a; }
+  .facts li:nth-child(3n+2) { --c: var(--teal); } .facts li:nth-child(3n+3) { --c: var(--rose); }
+  .facts b { color: var(--ink); }
+  .more { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin: 0; padding: 0; list-style: none; }
+  .more a { display: block; height: 100%; background: var(--panel); border-radius: 12px; overflow: hidden; text-decoration: none; color: var(--soft); border: 2px solid #5a3420; }
+  .more a:hover { border-color: var(--amber); }
+  .more img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: cover; image-rendering: pixelated; background: #000; }
+  .more div { padding: 14px 16px 18px; }
+  .more b { display: block; font-size: 1.15rem; color: var(--ink); margin-bottom: 4px; }
+  .more span { display: block; font-size: .95rem; line-height: 1.45; }
+  .more em { display: inline-block; margin-top: 10px; font-style: normal; font-weight: 800; color: var(--teal); }
+  footer { margin-top: 64px; padding-bottom: 40px; color: var(--dim); font-size: .9rem; }
+  footer p { margin: 0 0 8px; }
+  @media (max-width: 760px) { .how { grid-template-columns: repeat(2, 1fr); } .screens { grid-template-columns: repeat(2, 1fr); } .facts, .more { grid-template-columns: 1fr; } }
+  @media (max-width: 440px) { body { font-size: 17px; } .screens { gap: 10px; } }
+  @media (prefers-reduced-motion: no-preference) { .btn { transition: transform .12s, filter .12s; } .btn:hover { transform: translateY(-2px); } }
+</style>
+</head>
+<body>
+<div class="strip" aria-hidden="true"></div>
+<main>
+  <h1>Fretbound<small>A roguelike ear-training game for guitarists</small></h1>
+  <p class="lede">A rival plays a short phrase. You find it by ear and play it back on the fretboard. Win the night, buy pedals, hire a band, and take the whole thing around the world.</p>
+  <div class="buttons">
+    <a class="btn" href="play/">Play in your browser</a>
+    <a class="btn alt" href="https://github.com/@REPO@">The code on GitHub</a>
+  </div>
+  <div class="hero"><img src="hero.png" width="860" height="398" alt="Fretbound's title screen: a camper van on a road at sunset, with the buttons Press Start, Backstage and The Van"></div>
+
+  <h2>How a night goes</h2>
+  <ol class="how">
+    <li><b>Listen.</b> A caller plays a short phrase. You only get to hear it, so use your ear.</li>
+    <li><b>Find it.</b> The first note glows. Play the rest anywhere on the neck. Higher up the neck scores more.</li>
+    <li><b>Hit the groove.</b> Play near the beat for extra Hype. Miss a note and a string snaps.</li>
+    <li><b>Cash out.</b> Reach the target before the setlist runs out, then spend your pay on pedals and strings.</li>
+  </ol>
+
+  <h2>A look around</h2>
+  <ul class="screens">
+    <li><img src="shots/title.png" width="560" height="1212" loading="lazy" alt="The title screen on a phone"><p><b>The van</b>Seven title scenes, one for each continent you can tour.</p></li>
+    <li><img src="shots/players.png" width="560" height="1212" loading="lazy" alt="Choosing a player: the Math Rock Wizard"><p><b>Ten players</b>Each brings a guitar and a gift that changes how you score.</p></li>
+    <li><img src="shots/duel.png" width="560" height="1212" loading="lazy" alt="A night on stage with a full band"><p><b>The duel</b>Your band plays behind you. The caller's band plays behind them.</p></li>
+    <li><img src="shots/nameit.png" width="560" height="1212" loading="lazy" alt="A neon NAME IT sign over three answer buttons"><p><b>Name it!</b>After a true call, the house sign lights up and asks for the first note's name.</p></li>
+    <li><img src="shots/event_unicorn.png" width="560" height="1212" loading="lazy" alt="A scruffy unicorn named Gerald at a gas station, talking with your band"><p><b>On the road</b>27 events between shows, each one a conversation. This is Gerald.</p></li>
+    <li><img src="shots/event_motel.png" width="560" height="1212" loading="lazy" alt="A rainy motel with a faintly haunted ice machine"><p><b>Lazy magic</b>The ice machine is haunted. Friendly, but haunted.</p></li>
+  </ul>
+
+  <h2>A casually magical world</h2>
+  <div class="world">
+    <p>Think more 100 gecs than Harry Potter. The world is ours, with microwaves and gas stations, plus a little lazy magic that never quite solves anything.</p>
+    <p>You play in a loose guild of travelling musicians. The callers you face are the spirits of a music's place: a siren for surf, a moon spirit at the crossroads, a flame for flamenco. The van is a little bit alive. You might get a ride from a scruffy unicorn who used to host a counting show on public television.</p>
+    <p>Real musicians never turn into characters. Every venue has liner notes about the real players behind its music, and those stay true.</p>
+  </div>
+
+  <h2>What's in it</h2>
+  <ul class="facts">
+    <li><b>21 venues</b> on 7 continents, from a honky-tonk in Bakersfield to the South Pole.</li>
+    <li><b>21 callers</b>, each with their own sound, rule, band and voice.</li>
+    <li><b>10 players</b>, <b>9 band and crew members</b> and <b>36 pedals</b> to build a run from.</li>
+    <li><b>27 road events</b>, every one a conversation, each with its own painted backdrop.</li>
+    <li><b>Mumble voices.</b> Everyone talks in a made-up mumble, synthesised on the fly. There are no recordings.</li>
+    <li><b>A note-name trainer</b> that learns which notes you miss and which spots on the neck you know.</li>
+    <li><b>Liner notes</b> on the real music behind every place you visit.</li>
+    <li><b>Phone first.</b> It is one self-contained page. Turn your sound on, and headphones help.</li>
+  </ul>
+
+  <h2 id="jbm-h">Other projects by Josh</h2>
+  <ul class="more">
+    <li><a href="https://joshbartlettband-web.github.io/felucca-rainbow/"><img src="more/rainbow-mode.gif" width="240" height="240" loading="lazy" alt="Rainbow mode, a few of its screens"><div><b>Rainbow mode</b><span>Firmware for the M-VAVE FM-1, made for little hands: 94 friends, beats, and a color for every note.</span><em>Take a look</em></div></a></li>
+    <li><a href="https://joshbartlettband-web.github.io/Double-Rainbow/"><img src="more/double-rainbow.gif" width="240" height="240" loading="lazy" alt="Double Rainbow, a few of its screens"><div><b>Double Rainbow</b><span>Firmware for the FM-1 for ages 10 to 14 and up: seven escaped sounds, an ear trainer and songs to learn.</span><em>Take a look</em></div></a></li>
+  </ul>
+</main>
+<footer>
+  <p>Fretbound is a prototype and changes often. Art painted with Gemini and finished by hand; code, music and voices written with Claude. Fonts: Handjet, Jacquard, Jersey, Pixelify Sans, Silkscreen and Sixtyfour, under the SIL Open Font License.</p>
+  <p><a href="https://github.com/@REPO@">Source and notes on GitHub</a></p>
+</footer>
+<div class="strip" aria-hidden="true"></div>
+</body>
+</html>

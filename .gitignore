@@ -17,3 +17,6 @@ s5stage.png
 art/gemini_test/sheets/out/
 art/gemini_test/sheets/run.log
 art/gemini_test/sheets/repick.log
+
+# raw Gemini outputs of atlas_edit.py runs (v1.86): large, kept local; the results live in poses_master
+art/gemini_test/atlas_edit/*/

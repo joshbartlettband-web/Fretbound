@@ -1,6 +1,6 @@
 # Working on Fretbound
 
-Start with `NEXT.md` (open items and questions waiting on Josh). The game is a single file, `index.html` (about 2.2 MB, with art embedded as base64). `HANDOFF.md` documents every system; read the relevant section before changing anything.
+Start with `NEXT.md` (open items and questions waiting on Josh) and `WORLD.md` (the world and its tone: every new character, event and picture follows it). The game is a single file, `index.html` (about 2.2 MB, with art embedded as base64). `HANDOFF.md` documents every system; read the relevant section before changing anything.
 
 ## Setup
 Run `bash setup.sh` once per machine.

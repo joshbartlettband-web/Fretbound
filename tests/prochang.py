@@ -8,11 +8,22 @@ from PIL import Image
 import procposes as PP
 import gen_sheet as GS
 IDS='bard monk hermit busker luthier carto smith wizard herald journey lou rosa dee jo hale tam brass brassb brassc'.split()
+# v1.94: the road's locals (art/gemini_test/sheets/gen_locals.py) use the same 8-pose sheets; their heights come from its LOCALS table
+import gen_locals as GL
+IDS+=list(GL.LOCALS)
+for _k,(_h,_d) in GL.LOCALS.items(): GS.CH.setdefault(_k,{'height':_h})
 MASTER='art/gemini_test/hang_master'
 def build(cid,n=1):
     im,fg,masks=PP.split(f'art/gemini_test/sheets/out/hang_{cid}_{n}.png')
     if masks is None: return None,'could not find 8 figures'
     a=np.asarray(im); sp=[]
+    from scipy import ndimage as ndi
+    def tidy(m):   # v1.94: drop specks that are not part of the figure (they stretched a cell and lifted the pose); keep pieces near the biggest one
+        lab,n=ndi.label(m)
+        if n<=1: return m
+        sz=ndi.sum(m,lab,range(1,n+1)); big=lab==(1+int(np.argmax(sz))); near=ndi.binary_dilation(big,iterations=6)
+        keep=[i+1 for i in range(n) if (near&(lab==i+1)).any()]; return np.isin(lab,keep)
+    masks=[tidy(m) for m in masks]
     for m in masks:
         ys,xs=np.where(m); x0,y0,x1,y1=xs.min(),ys.min(),xs.max()+1,ys.max()+1
         rgba=np.dstack([a,(m*255).astype(np.uint8)])[y0:y1,x0:x1]; low=ys>ys.max()-max(4,int((y1-y0)*0.04)); sp.append((Image.fromarray(rgba),float(np.median(xs[low])-x0)))

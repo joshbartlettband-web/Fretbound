@@ -25,7 +25,7 @@
   body { margin: 0; background: radial-gradient(1200px 500px at 50% -80px, #4a2412 0, transparent 70%), var(--bg); color: var(--ink); font: 18px/1.6 var(--font); }
   a { color: var(--teal); }
   .strip { height: 8px; background: repeating-linear-gradient(90deg, var(--brass) 0 18px, #8a5e1a 0 20px); }
-  main, footer { width: 100%; max-width: 940px; margin: 0 auto; padding-inline: 16px; }
+  main, footer { width: 100%; max-width: 940px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
   h1 { font-size: clamp(2.8rem, 10vw, 5rem); line-height: 1; margin: 40px 0 12px; letter-spacing: -.02em; color: var(--amber); text-shadow: 0 3px 0 #5a2c10; }
   h1 small { display: block; font-size: .3em; letter-spacing: .02em; color: var(--dim); font-weight: 600; margin-top: 10px; text-shadow: none; }
   h2 { font-size: 1.7rem; line-height: 1.15; margin: 64px 0 14px; color: var(--gold); }

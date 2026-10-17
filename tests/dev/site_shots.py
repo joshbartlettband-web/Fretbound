@@ -36,4 +36,10 @@ with sync_playwright() as p:
     pg=b.new_page(viewport={'width':844,'height':390},device_scale_factor=2); pg.goto(URL); time.sleep(2.2); raw=pg.screenshot(); pg.close(); b.close()
 im=Image.open(io.BytesIO(raw)).convert('RGB'); im.resize((860,round(im.height*860/im.width)),Image.LANCZOS).quantize(colors=200,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).save(f'{OUT}/hero.png',optimize=True)
 w=int(im.height*1200/630); x=(im.width-w)//2; im.crop((x,0,x+w,im.height)).resize((1200,630),Image.LANCZOS).save(f'{OUT}/card.png',optimize=True)
+# the moving picture the other two projects' pages show for Fretbound (their landing/more/fretbound.gif): the phone screens in turn, 240 x 519
+os.makedirs(f'{OUT}/more',exist_ok=True)
+fr=[]
+for n in ('title','players','duel','nameit','event_unicorn','event_motel'):
+    im=Image.open(f'{OUT}/shots/{n}.png').convert('RGB').resize((240,519),Image.LANCZOS); fr.append(im.quantize(colors=128,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE))
+fr[0].save(f'{OUT}/more/fretbound.gif',save_all=True,append_images=fr[1:],duration=1200,loop=0,optimize=True)
 print('done')

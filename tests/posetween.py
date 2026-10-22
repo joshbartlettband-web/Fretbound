@@ -5,6 +5,7 @@
 #   16 lean_half  halfway from idle to lean_in, shown going into and out of the lean
 #   17 lean_down  halfway from lean_in to strum_down: strumming while leaning, the head stays forward
 #   18 lean_up    halfway from lean_in to strum_up
+#   19 to 22      halfway from idle to cheer, slump, flinch and showoff (v2.01: the reactions no longer snap)
 # usage: python3 tests/posetween.py [--embed] [OUT_DIR]   -> OUT_DIR/<id>_tw.png (three cells in a row), --embed writes POSE_TW_SRC
 import sys,os,json,glob,base64,io
 import numpy as np
@@ -14,15 +15,17 @@ from tween import tween
 import outlinefix
 ROOT=os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 args=[a for a in sys.argv[1:] if not a.startswith('--')]; OUT=args[0] if args else os.path.join(ROOT,'art','poses_tw'); os.makedirs(OUT,exist_ok=True)
-PAIRS=[('idle','lean_in'),('lean_in','strum_down'),('lean_in','strum_up')]
+PAIRS=[('idle','lean_in'),('lean_in','strum_down'),('lean_in','strum_up'),('idle','cheer'),('idle','slump'),('idle','flinch'),('idle','showoff')]
 src={}
 for mf in sorted(glob.glob(os.path.join(ROOT,'art','poses','*_meta.json'))):
     cid=os.path.basename(mf)[:-10]; m=json.load(open(mf)); cw,ch=m['cw'],m['ch']; a=np.asarray(Image.open(mf.replace('_meta.json','_atlas.png')).convert('RGBA'))
     C=[a[(i//8)*ch:(i//8)*ch+ch,(i%8)*cw:(i%8)*cw+cw].copy() for i in range(16)]
     allpx=np.concatenate([c[c[:,:,3]>140][:,:3] for c in C]); pal=np.unique(allpx,axis=0).astype(float)
-    strip=Image.new('RGBA',(cw*3,ch),(0,0,0,0))
+    strip=Image.new('RGBA',(cw*len(PAIRS),ch),(0,0,0,0))
     for k,(pa,pb) in enumerate(PAIRS):
         f=tween(C[m['names'].index(pa)],C[m['names'].index(pb)],0.5,pal); f=outlinefix.fix_cell(f)
+        A0=C[m['names'].index(pa)][:,:,3]>127; B0=C[m['names'].index(pb)][:,:,3]>127; F0=f[:,:,3]>127
+        if F0.sum()>max(A0.sum(),B0.sum())*1.06 or (F0&~A0&~B0).sum()>0.012*F0.sum(): print('  ghost, left blank:',cid,pb,flush=True); continue   # pixels in neither pose (a second guitar): the flow failed on a big swing. Clean frames measure under 0.5%, ghosts 2% and up
         strip.paste(Image.fromarray(f.astype(np.uint8),'RGBA'),(k*cw,0))
     p=os.path.join(OUT,cid+'_tw.png'); strip.save(p,optimize=True); src[cid]=p; print(cid,cw,ch,flush=True)
 if '--embed' in sys.argv:

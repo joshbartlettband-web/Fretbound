@@ -3,6 +3,11 @@
 Updated 2026-10-02 after v1.55 (painted pose sets for 34 of 35 characters: painted pose sets for the Bard and the Tiger) (developer menu: five taps on the version text). v1.43 is merged to main; v1.44 to v1.55 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
 Read this first, then the START HERE section of `HANDOFF.md`.
 
+## v2.01 (2026-10-22)
+- Done from the list: band blinks, reaction in-betweens, dusk stars and clouds, menu sounds, a brighter neck while answering, shape-coded pocket/groove marks. Josh to check them on the phone.
+- The APK: Josh updated the environment; a NEW session picks up the real key (this one still had the 24-character placeholder). Build with `bash android/build.sh` there.
+- Still open from the list: tap targets (pause 26x30 px, REPLAY 33 px tall), music levels (menu cues 11 to 20 dB under the title song), a late-game money sink, a Tour Complete screen, onboarding, more events (idea jam with Josh), the Journeyman and the Busker (Gemini spend: ask Josh), more distinct guitars (about $4 to $6: ask Josh).
+
 ## Stage light, boards, skies (v1.99, 2026-10-22)
 - Stage lighting: Josh likes it (v1.99). Josh to check the board tiles, the night skies (moonbet, samba) and the portrait fills above every event.
 - v2.00: the crowd has bodies (no floating heads). Josh to check it on the phone, especially the 4-row rooms.

@@ -6708,10 +6708,10 @@ function drawStage(t,dt){
 // the front row: the people nearest you, under the caption strip. Twice the size of the crowd on the stage canvas and darker (closer to you, out of the stage light),
 // bobbing on the beat and cheering with everyone else. The caption darkens over them when someone speaks.
 const FR_CACHE={};
-function frSprite(k){ if(FR_CACHE[k]) return FR_CACHE[k]; const im=CROWD_IMG[k]; if(!im) return null; const c=document.createElement('canvas'); c.width=im.width*2; c.height=im.height*2; const g=c.getContext('2d');
-  g.imageSmoothingEnabled=false; g.filter='brightness(0.55) saturate(0.8)'; g.drawImage(im,0,0,c.width,c.height); g.filter='none';
+function frSprite(k,mid){ const key=mid?k+'m':k; if(FR_CACHE[key]) return FR_CACHE[key]; const im=CROWD_IMG[k]; if(!im) return null; const sc=mid?1.5:2, c=document.createElement('canvas'); c.width=Math.round(im.width*sc); c.height=Math.round(im.height*sc); const g=c.getContext('2d');   // mid: the row between the stage's crowd and the front row
+  g.imageSmoothingEnabled=false; g.filter=mid?'brightness(0.68) saturate(0.85)':'brightness(0.55) saturate(0.8)'; g.drawImage(im,0,0,c.width,c.height); g.filter='none';
   g.globalCompositeOperation='source-atop'; const gr=g.createLinearGradient(0,0,0,c.height*0.4); gr.addColorStop(0,'rgba(255,190,120,.22)'); gr.addColorStop(1,'rgba(255,190,120,0)'); g.fillStyle=gr; g.fillRect(0,0,c.width,c.height);   // a little stage light on the tops of their heads
-  return FR_CACHE[k]=c; }
+  return FR_CACHE[key]=c; }
 // the Pole has no audience: the strip under the stage is snow blowing across the ice, never an empty bar
 function drawQuietStrip(g,W,H,t,V){ const sky=g.createLinearGradient(0,0,0,H); sky.addColorStop(0,'#C8D8E8'); sky.addColorStop(1,'#E8F0F6'); g.fillStyle=sky; g.fillRect(0,0,W,H);
   g.fillStyle='#F6FAFC'; for(let x=0;x<W;x++){ const y=Math.round(H*0.55+Math.sin(x*0.035+1)*H*0.12+Math.sin(x*0.11)*H*0.05); g.fillRect(x,y,1,H-y); }
@@ -6724,6 +6724,9 @@ function drawFrontRow(t,V){ const cv=$('frontRow'), dl=$('dialog'); if(!cv||!dl)
   const gr=g.createLinearGradient(0,0,0,H); gr.addColorStop(0,'#2A140C'); gr.addColorStop(1,'#0C0504'); g.fillStyle=gr; g.fillRect(0,0,W,H);
   const kind=V.hats; if(kind==='none'||VENUE_ROWS[V.id]===0){ drawQuietStrip(g,W,H,t,V); return; } const cheering=anim.cheerUntil>t, rows=VENUE_ROWS[V.id]||3, nF=rows>=3?10:8;
   if(rows<3){ const fl=g.createLinearGradient(0,H*0.45,0,H); fl.addColorStop(0,'rgba(90,50,24,.0)'); fl.addColorStop(1,'rgba(90,50,24,.55)'); g.fillStyle=fl; g.fillRect(0,0,W,H); }   // a quiet room: fewer people, the warm floor shows between them
+  if(rows>=3) for(let i=0;i<=nF;i++){ const k=crowdPick(i*3+2,kind,cheering,1), sp=frSprite(k,1); if(!sp) continue;   // a middle row, heads at the top of the strip between the front row's, so the crowd runs on from the stage without a dark band or gaps
+    const b=(tr.on&&((Math.max(0,state.beat)+i)%2===0))?1:0, up=cheering&&i%2===0?2:0, x=Math.round((nF<10?22+(i-0.5)*(300/nF):14+(i-0.5)*33)+((i*7)%5)-sp.width/2), y=Math.round(1+(i%2)-b-up);
+    g.drawImage(sp,x,y); }
   for(let i=0;i<nF;i++){ const k=crowdPick(i*3+1,kind,cheering,0), sp=frSprite(k); if(!sp) continue;
     const b=(tr.on&&((Math.max(0,state.beat)+i)%2===1))?2:0, up=cheering&&i%2?3:0, x=Math.round((nF<10?22+i*(300/nF):14+i*33)+((i*11)%7)-sp.width/2), y=Math.round(H*0.18+(i%3)*2-b-up);
     g.drawImage(sp,x,y); }

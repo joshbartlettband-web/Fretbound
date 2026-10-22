@@ -3,6 +3,10 @@
 Updated 2026-10-02 after v1.55 (painted pose sets for 34 of 35 characters: painted pose sets for the Bard and the Tiger) (developer menu: five taps on the version text). v1.43 is merged to main; v1.44 to v1.55 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
 Read this first, then the START HERE section of `HANDOFF.md`.
 
+## Stage light, boards, skies (v1.99, 2026-10-22)
+- Josh to check: the stage lighting (rims swap on the beat), the new board tiles, the night skies (moonbet, samba) and the portrait fills above every event.
+- Skies could go further: photographs as references (Josh can attach sky photos; the photo sites are blocked from the sandbox), real skies for more events at dusk (the first stars), clouds for the day events.
+
 ## Lighting, in-betweens and the crowd (v1.97, 2026-10-22)
 - Crowd under the caption (v1.98): the strip's front row starts right under the stage crowd; the Spur has 2 rows. Josh to check the other 4-row rooms (Sebene, Chicha, Tokyo, Milonga, Rio, Outback, Cave) for the same wedged look.
 - Leaning into a call: in-betweens added (HANDOFF v1.97). Josh to check: does any caller still look like they double over? Other big pose changes (big_hit, cheer, slump, showoff) still jump; they are short reactions, so they were left alone.

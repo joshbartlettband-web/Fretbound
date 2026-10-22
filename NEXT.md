@@ -4,9 +4,9 @@ Updated 2026-10-02 after v1.55 (painted pose sets for 34 of 35 characters: paint
 Read this first, then the START HERE section of `HANDOFF.md`.
 
 ## Lighting, in-betweens and the crowd (v1.97, 2026-10-22)
-- Crowd gap under the caption: fixed (a middle row). Josh to check it on the phone.
+- Crowd under the caption (v1.98): the strip's front row starts right under the stage crowd; the Spur has 2 rows. Josh to check the other 4-row rooms (Sebene, Chicha, Tokyo, Milonga, Rio, Outback, Cave) for the same wedged look.
 - Leaning into a call: in-betweens added (HANDOFF v1.97). Josh to check: does any caller still look like they double over? Other big pose changes (big_hit, cheer, slump, showoff) still jump; they are short reactions, so they were left alone.
-- **Lighting pilot: Josh to choose.** Clips `bonfire_lighting.mp4` and `karaoke_lighting.mp4` compare now / dome / mix. If he wants it: generate normals for every hang sheet (`tests/dev/normals.mjs`), embed them (or compute them in the browser: dome is a distance transform, about 40 lines), switch `RELIGHT.on`, and tune `amb`, `gain`, `back` per event. The stage (`drawPose`) could use the same lights next (the stage plates' lamps and the light show).
+- Road-event lighting is ON (v1.98, mix, the strongest version). Josh to say how it feels: `RELIGHT.gain` (1.0), `amb` (0.86) and `back` (0.12) are the knobs, per event if needed. Next could be the stage (`drawPose`) lit by the stage plates' lamps and the light show.
 - claude-pxl's other tools (code-drawn art without Gemini spend) could redo the still code-drawn items (section 4).
 
 ## 0. Mumble voices (v1.83, 2026-10-15)

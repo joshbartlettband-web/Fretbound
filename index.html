@@ -1093,7 +1093,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.97</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v1.98</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4791,11 +4791,32 @@ function drawRoadScene(){ const cv=$('roadScene'); if(!cv||!roadState) return; c
     const f=A.fade>0?Math.min(1,(t-A.t0)/A.fade):1;
     if(f<1) put(get(A.prev),1-f,A.prev); put(spr,f<1?f:1,A.cur); g.globalAlpha=1; });
   roadVignette(g,W,H); }   // v1.95: a soft edge vignette instead of the old 25% dark film over everything
-// lighting pilot (v1.97, off unless __fb.relight turns it on): the people at a road event lit by the event's own lights through normal
-// maps of their hang sheets (made offline by tests/dev/normals.mjs with claude-pxl and handed in by the hook). Each pixel gets the
-// painting's colour times (ambient + each light's colour x how much the surface faces it), the light rounded to a few steps so it
-// stays pixel art. RELIGHT.N[id][mode] is the normal sheet; RELIGHT.mode picks dome, luma or mix.
-const RELIGHT={on:false,mode:'mix',amb:0.9,gain:0.7,back:0.12,steps:4,N:{},cache:new Map()};   // back: how far behind the people the painting's lamps are (a share of the screen), so they rim-light
+// road-event lighting (v1.97): the people at a road event are lit by the event's own lights (EVENT_LIGHTS, EVENT_LIGHT_MODE) through
+// normal maps of their hang sheets. Each pixel gets the painting's colour times (ambient + each light's colour x how much the surface faces
+// it), rounded to a few steps so it stays pixel art; the painting's lamps sit behind the people (back), so they rim-light. The normal maps
+// are worked out in the browser the first time a sheet is lit (sheetNormals), after claude-pxl's bump() (github.com/augusto-scarvalho/claude-pxl,
+// MIT): "dome" bulges each figure like a pillow from its outline, "luma" takes height from the painting's own shading, "mix" adds the two.
+// __fb.relight(on,{mode,amb,gain,back,steps,N}) changes it (N: normal sheets as images, from tests/dev/normals.mjs, override the computed ones).
+const RELIGHT={on:true,mode:'mix',amb:0.86,gain:1.0,back:0.12,steps:4,N:{},S:{},cache:new Map()};
+function sheetNormals(id,mode){ const k=id+'|'+mode; if(RELIGHT.S[k]) return RELIGHT.S[k]; const im=HANG_IMG[id]; if(!im||!im.width) return null;
+  const w=im.width, h=im.height, c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d',{willReadFrequently:true}); cg.drawImage(im,0,0); const px=cg.getImageData(0,0,w,h).data, n=w*h;
+  const mask=new Uint8Array(n); for(let i=0;i<n;i++) mask[i]=px[i*4+3]>127?1:0;
+  const grad=(ht,luma,depth,out)=>{ const at=(x,y,i)=>{ if(x<0||y<0||x>=w||y>=h) return luma?ht[i]:0; const j=y*w+x; return mask[j]?ht[j]:luma?ht[i]:0; };
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){ const i=y*w+x; if(!mask[i]) continue; const gx=(at(x+1,y,i)-at(x-1,y,i))/2, gy=(at(x,y+1,i)-at(x,y-1,i))/2, nx=-gx*depth, ny=-gy*depth, l=Math.hypot(nx,ny,1); out[i*3]+=nx/l; out[i*3+1]+=ny/l; out[i*3+2]+=1/l; } };
+  const N=new Float32Array(n*3);
+  if(mode!=='luma'){ const d=new Float32Array(n), D=Math.SQRT2, get=(x,y)=>x<0||y<0||x>=w||y>=h?0:d[y*w+x];   // chamfer distance to the outline
+    for(let i=0;i<n;i++) d[i]=mask[i]?1e9:0;
+    for(let y=0;y<h;y++) for(let x=0;x<w;x++){ const i=y*w+x; if(d[i]) d[i]=Math.min(d[i],get(x-1,y)+1,get(x,y-1)+1,get(x-1,y-1)+D,get(x+1,y-1)+D); }
+    for(let y=h-1;y>=0;y--) for(let x=w-1;x>=0;x--){ const i=y*w+x; if(d[i]) d[i]=Math.min(d[i],get(x+1,y)+1,get(x,y+1)+1,get(x+1,y+1)+D,get(x-1,y+1)+D); }
+    const blob=new Int32Array(n).fill(-1), peak=[], ht=new Float32Array(n);   // each connected figure bulges to its own deepest point
+    for(let s0=0;s0<n;s0++){ if(!mask[s0]||blob[s0]>=0) continue; const id2=peak.length, st=[s0]; let top=0; blob[s0]=id2;
+      while(st.length){ const i=st.pop(), x=i%w; top=Math.max(top,d[i]); for(const j of [x>0?i-1:-1,x<w-1?i+1:-1,i-w,i+w]) if(j>=0&&j<n&&mask[j]&&blob[j]<0){ blob[j]=id2; st.push(j); } }
+      peak.push(top); }
+    for(let i=0;i<n;i++){ if(!mask[i]) continue; const R=peak[blob[i]], t=1-d[i]/(R+0.5); ht[i]=(R+0.5)*Math.sqrt(Math.max(0,1-t*t)); }
+    grad(ht,false,1,N); }
+  if(mode!=='dome'){ const ht=new Float32Array(n); for(let i=0;i<n;i++) if(mask[i]) ht[i]=(0.3*px[i*4]+0.59*px[i*4+1]+0.11*px[i*4+2])/255*4; grad(ht,true,2.5,N); }
+  for(let i=0;i<n;i++){ const l=Math.hypot(N[i*3],N[i*3+1],N[i*3+2]); if(l){ N[i*3]/=l; N[i*3+1]/=l; N[i*3+2]/=l; } else N[i*3+2]=1; }
+  return RELIGHT.S[k]={w,h,N}; }
 function relightLights(PL,t,W,H){ const id=PL&&PL.id&&PL.id.startsWith('ev:')?PL.id.slice(3):null; if(!id) return []; const L=EVENT_LIGHTS[id]||[], mode=EVENT_LIGHT_MODE[id], s=Math.max(W/480,Math.min(H/200,W/480*1.6)), ox=Math.round((W-480*s)/2), oy=Math.round(H-200*s), out=[];
   const rgb=c=>{ const h=c.replace('#',''); return [parseInt(h.slice(0,2),16)/255,parseInt(h.slice(2,4),16)/255,parseInt(h.slice(4,6),16)/255]; };
   L.slice().sort((a,b)=>b[2]-a[2]).slice(0,3).forEach(([x,y,r,c],k)=>{ const ph=k*1.7+id.length; let a=0.7+0.15*Math.sin(t*1.3+ph);
@@ -4805,11 +4826,12 @@ function relightLights(PL,t,W,H){ const id=PL&&PL.id&&PL.id.startsWith('ev:')?PL
   if(mode==='disco'||mode==='party'){ const cols=mode==='disco'?[[1,.31,.7],[.31,.78,1],[1,.86,.31],[.59,1,.47]]:[[1,.78,.35],[1,.47,.35],[.47,.86,1]];
     cols.forEach((c,k)=>out.push({x:W*(0.5+0.42*Math.sin(t*(0.5+k*0.17)+k*2)),y:H*(0.45+0.3*Math.sin(t*(0.7+k*0.13)+k)),z:Math.min(W,H)*0.2,R:Math.min(W,H)*0.6,c,a:mode==='disco'?0.9:0.6})); }
   return out; }
-function relit(id,sp,pose,mirror,x0,y0,PL,t,W,H){ const NS=RELIGHT.N[id], M=HANG_META[id], im=HANG_IMG[id]; if(!NS||!M||!im) return null; const nim=NS[RELIGHT.mode]; if(!nim||!nim.complete) return null;
+function relit(id,sp,pose,mirror,x0,y0,PL,t,W,H){ const M=HANG_META[id], im=HANG_IMG[id]; if(!M||!im||!im.width) return null; const nim=RELIGHT.N[id]&&RELIGHT.N[id][RELIGHT.mode], SN=nim&&nim.complete?null:sheetNormals(id,RELIGHT.mode); if(!SN&&!(nim&&nim.complete)) return null;
   const w=M.cw, h=M.ch, key=id+'|'+RELIGHT.mode+'|'+pose+(mirror?'m':''); let C=RELIGHT.cache.get(key);   // lit at the painting's own pixels, then scaled like the sprite
   if(!C){ const cell=(src,flipN)=>{ const c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d'); if(mirror){ cg.translate(w,0); cg.scale(-1,1); } cg.drawImage(src,pose*w,0,w,h,0,0,w,h); return cg.getImageData(0,0,w,h); };
-    const alb=cell(im), nd=cell(nim).data, N=new Float32Array(w*h*3);
-    for(let i=0;i<w*h;i++){ let nx=nd[i*4]/127.5-1, ny=-(nd[i*4+1]/127.5-1), nz=nd[i*4+2]/127.5-1; if(mirror) nx=-nx; const l=Math.hypot(nx,ny,nz)||1; N[i*3]=nx/l; N[i*3+1]=ny/l; N[i*3+2]=nz/l; }   // screen y points down
+    const alb=cell(im), N=new Float32Array(w*h*3);
+    if(SN){ for(let y=0;y<h;y++) for(let x=0;x<w;x++){ const sx=pose*w+(mirror?w-1-x:x), j=(y*SN.w+sx)*3, i=(y*w+x)*3; N[i]=mirror?-SN.N[j]:SN.N[j]; N[i+1]=SN.N[j+1]; N[i+2]=SN.N[j+2]; } }
+    else { const nd=cell(nim).data; for(let i=0;i<w*h;i++){ let nx=nd[i*4]/127.5-1, ny=-(nd[i*4+1]/127.5-1), nz=nd[i*4+2]/127.5-1; if(mirror) nx=-nx; const l=Math.hypot(nx,ny,nz)||1; N[i*3]=nx/l; N[i*3+1]=ny/l; N[i*3+2]=nz/l; } }   // screen y points down
     C={alb,N,out:document.createElement('canvas'),img:null}; C.out.width=w; C.out.height=h; C.img=C.out.getContext('2d').createImageData(w,h); RELIGHT.cache.set(key,C); }
   const L=relightLights(PL,t,W,H), A=C.alb.data, O=C.img.data, N=C.N, amb=RELIGHT.amb, st=RELIGHT.steps, sx=sp.w/w, sy=sp.h/h;
   for(let y=0;y<h;y++) for(let x=0;x<w;x++){ const i=y*w+x, j=i*4; if(A[j+3]<8){ O[j+3]=0; continue; } let r=amb,gg=amb,b=amb;
@@ -5763,7 +5785,7 @@ function crowdPick(i,kind,cheering,b){
 // each nearer row is a little lower, so the canvas edge crops it, and darker, out of the stage light. Rows are offset so heads fill the gaps.
 let CROWD_ROWS=0; let CROWD_VID=null; const CROWD_TINT={};
 // how deep each room's crowd is: packed clubs and dance halls 4, mid-size rooms 3, quiet listening rooms 2, the Pole none
-const VENUE_ROWS={sebene:4,chicha:4,tokyo:4,milonga:4,rio:4,outback:4,spur:4,cave:4,tide:3,juke:3,paris:3,lanai:3,mess:3,frost:3,dunes:2,azmari:2,ghat:2,bali:2,grotto:2,aurora:2,pole:0,green:0};
+const VENUE_ROWS={sebene:4,chicha:4,tokyo:4,milonga:4,rio:4,outback:4,spur:2,cave:4,tide:3,juke:3,paris:3,lanai:3,mess:3,frost:3,dunes:2,azmari:2,ghat:2,bali:2,grotto:2,aurora:2,pole:0,green:0};
 function crowdRows(){ if(CROWD_ROWS) return CROWD_ROWS; const r=VENUE_ROWS[CROWD_VID||(VEN()||{}).id]; return r==null?3:r; }
 function crowdTint(k,im,f){ const key=k+'|'+f; if(CROWD_TINT[key]) return CROWD_TINT[key]; const c=document.createElement('canvas'); c.width=im.width; c.height=im.height; const g=c.getContext('2d'); g.filter='brightness('+f+')'; g.drawImage(im,0,0); g.filter='none'; return CROWD_TINT[key]=c; }
 function drawCrowdPainted(g,t,kind){
@@ -6759,13 +6781,10 @@ function drawFrontRow(t,V){ const cv=$('frontRow'), dl=$('dialog'); if(!cv||!dl)
   const gr=g.createLinearGradient(0,0,0,H); gr.addColorStop(0,'#2A140C'); gr.addColorStop(1,'#0C0504'); g.fillStyle=gr; g.fillRect(0,0,W,H);
   const kind=V.hats; if(kind==='none'||VENUE_ROWS[V.id]===0){ drawQuietStrip(g,W,H,t,V); return; } const cheering=anim.cheerUntil>t, rows=VENUE_ROWS[V.id]||3, nF=rows>=3?10:8;
   if(rows<3){ const fl=g.createLinearGradient(0,H*0.45,0,H); fl.addColorStop(0,'rgba(90,50,24,.0)'); fl.addColorStop(1,'rgba(90,50,24,.55)'); g.fillStyle=fl; g.fillRect(0,0,W,H); }   // a quiet room: fewer people, the warm floor shows between them
-  if(rows>=3) for(let i=0;i<=nF;i++){ const k=crowdPick(i*3+2,kind,cheering,1), sp=frSprite(k,1); if(!sp) continue;   // a middle row, heads at the top of the strip between the front row's, so the crowd runs on from the stage without a dark band or gaps
-    const b=(tr.on&&((Math.max(0,state.beat)+i)%2===0))?1:0, up=cheering&&i%2===0?2:0, x=Math.round((nF<10?22+(i-0.5)*(300/nF):14+(i-0.5)*33)+((i*7)%5)-sp.width/2), y=Math.round(1+(i%2)-b-up);
-    g.drawImage(sp,x,y); }
   for(let i=0;i<nF;i++){ const k=crowdPick(i*3+1,kind,cheering,0), sp=frSprite(k); if(!sp) continue;
-    const b=(tr.on&&((Math.max(0,state.beat)+i)%2===1))?2:0, up=cheering&&i%2?3:0, x=Math.round((nF<10?22+i*(300/nF):14+i*33)+((i*11)%7)-sp.width/2), y=Math.round(H*0.18+(i%3)*2-b-up);
+    const b=(tr.on&&((Math.max(0,state.beat)+i)%2===1))?2:0, up=cheering&&i%2?3:0, x=Math.round((nF<10?22+i*(300/nF):14+i*33)+((i*11)%7)-sp.width/2), y=Math.round(H*0.04+(i%3)*2-b-up);   // heads at the top of the strip, right under the stage's own crowd (v1.97: no dark band)
     g.drawImage(sp,x,y); }
-  if(state.lighterUntil&&perfNow()<state.lighterUntil&&!reduceMotion){ for(let i=0;i<10;i+=2){ const x=Math.round(14+i*33+((i*11)%7))+6, y=Math.round(H*0.18)-10-((i*3)%4), f=Math.sin(t*14+i)*1;   // lighters up for a perfect night
+  if(state.lighterUntil&&perfNow()<state.lighterUntil&&!reduceMotion){ for(let i=0;i<10;i+=2){ const x=Math.round(14+i*33+((i*11)%7))+6, y=Math.round(H*0.04)-10-((i*3)%4), f=Math.sin(t*14+i)*1;   // lighters up for a perfect night
       g.fillStyle='#5A5A64'; g.fillRect(x,y,3,6); g.fillStyle='rgba(255,170,60,.35)'; g.fillRect(x-3,y-9+f,9,9); g.fillStyle='#FFB030'; g.fillRect(x,y-6+f,3,5); g.fillStyle='#FFF4C0'; g.fillRect(x+1,y-4+f,1,2); } }
   if(state.blind){ g.fillStyle='rgba(10,3,8,.45)'; g.fillRect(0,0,W,H); } }
 function drawPortrait(c,V){

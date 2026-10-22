@@ -4,7 +4,8 @@ Updated 2026-10-02 after v1.55 (painted pose sets for 34 of 35 characters: paint
 Read this first, then the START HERE section of `HANDOFF.md`.
 
 ## Stage light, boards, skies (v1.99, 2026-10-22)
-- Josh to check: the stage lighting (rims swap on the beat), the new board tiles, the night skies (moonbet, samba) and the portrait fills above every event.
+- Stage lighting: Josh likes it (v1.99). Josh to check the board tiles, the night skies (moonbet, samba) and the portrait fills above every event.
+- v2.00: the crowd has bodies (no floating heads). Josh to check it on the phone, especially the 4-row rooms.
 - Skies could go further: photographs as references (Josh can attach sky photos; the photo sites are blocked from the sandbox), real skies for more events at dusk (the first stars), clouds for the day events.
 
 ## Lighting, in-betweens and the crowd (v1.97, 2026-10-22)

@@ -3,10 +3,22 @@
 Updated 2026-10-02 after v1.55 (painted pose sets for 34 of 35 characters: painted pose sets for the Bard and the Tiger) (developer menu: five taps on the version text). v1.43 is merged to main; v1.44 to v1.55 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
 Read this first, then the START HERE section of `HANDOFF.md`.
 
-## After Wednesday 2026-10-21 (Josh, 2026-10-19: do not start before then)
-1. **Lighting pilot with normal maps.** Built 2026-10-22, off by default, waiting on Josh's call (HANDOFF, "Lighting pilot"; pictures in `docs/lighting_pilot/`). The original plan: Make normal maps for free from each sprite's outline (puffed up in the middle, falling away at the edges, so every pose and tween frame stays consistent). Precompute three greyscale layers per sprite (lit from the side, from above, from the front), mix them per frame by the light's position, and round the light to a few steps so it stays pixel art. Light one stage player and one event local with `roadLights`' fire and disco modes, and show Josh side-by-sides. Tool for the normal maps: claude-pxl (github.com/augusto-scarvalho/claude-pxl, MIT, Node 22.18+, no dependencies): import a sprite PNG, `bump` it with "dome" (the outline pillow) or "luma" (height from the painting's own shading), and the build writes `<name>_n.png` normal maps for engine lights. Only if the result looks too plain on faces or guitars: try a few frames through Sprite Fusion's normal-map API (spritefusion.com is blocked from the sandbox; Josh to check its price) and compare.
-2. **Smoother playing animations for players and callers.** Between the playing poses the jump looks like the character is almost doubled over. Add a frame or two in between. Start from `tests/tween.py` (the optical-flow in-between pilot); look at which pose pairs make the biggest jump first.
-3. **A gap in the crowd after the message window closes.** When the message window goes away it leaves an unexplained gap in the audience. Find what hides or moves those crowd members while the window is up and why they do not come back.
+## v2.01 (2026-10-22)
+- Done from the list: band blinks, reaction in-betweens, dusk stars and clouds, menu sounds, a brighter neck while answering, shape-coded pocket/groove marks. Josh to check them on the phone.
+- The APK: Josh updated the environment; a NEW session picks up the real key (this one still had the 24-character placeholder). Build with `bash android/build.sh` there.
+- v2.02: music levels evened (menu and road pieces about 4 dB under the title song) and bigger touch areas on pause and REPLAY. Josh to listen: is the Van and Backstage music now a good level?
+- Still open from the list: a late-game money sink, a Tour Complete screen, onboarding, more events (idea jam with Josh), the Journeyman and the Busker (Gemini spend: ask Josh), more distinct guitars (about $4 to $6: ask Josh).
+
+## Stage light, boards, skies (v1.99, 2026-10-22)
+- Stage lighting: Josh likes it (v1.99). Josh to check the board tiles, the night skies (moonbet, samba) and the portrait fills above every event.
+- v2.00: the crowd has bodies (no floating heads). Josh to check it on the phone, especially the 4-row rooms.
+- Skies could go further: photographs as references (Josh can attach sky photos; the photo sites are blocked from the sandbox), real skies for more events at dusk (the first stars), clouds for the day events.
+
+## Lighting, in-betweens and the crowd (v1.97, 2026-10-22)
+- Crowd under the caption (v1.98): the strip's front row starts right under the stage crowd; the Spur has 2 rows. Josh to check the other 4-row rooms (Sebene, Chicha, Tokyo, Milonga, Rio, Outback, Cave) for the same wedged look.
+- Leaning into a call: in-betweens added (HANDOFF v1.97). Josh to check: does any caller still look like they double over? Other big pose changes (big_hit, cheer, slump, showoff) still jump; they are short reactions, so they were left alone.
+- Road-event lighting is ON (v1.98, mix, the strongest version). Josh to say how it feels: `RELIGHT.gain` (1.0), `amb` (0.86) and `back` (0.12) are the knobs, per event if needed. Next could be the stage (`drawPose`) lit by the stage plates' lamps and the light show.
+- claude-pxl's other tools (code-drawn art without Gemini spend) could redo the still code-drawn items (section 4).
 
 ## 0. Mumble voices (v1.83, 2026-10-15)
 Done: callers mumble their lines, and road-scene quotes are spoken (see HANDOFF v1.83). Still open:

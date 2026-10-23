@@ -7,7 +7,7 @@ AUDIT="""(()=>{ const out=[]; const vw=innerWidth, vh=innerHeight;
    const txt=[...el.childNodes].some(n=>n.nodeType===3&&n.textContent.trim());
    const tag=(el.id?'#'+el.id:'')+(typeof el.className==='string'&&el.className?'.'+el.className.split(' ').join('.'):'')||el.tagName;
    if(txt&&el.scrollWidth>el.clientWidth+1&&cs.overflowX!=='visible') out.push('CLIPX '+tag+' "'+el.textContent.trim().slice(0,24)+'" '+el.scrollWidth+'>'+el.clientWidth);
-   if(txt&&el.tagName==='BUTTON'&&el.scrollWidth>el.clientWidth+1) out.push('BTNOVER '+tag+' "'+el.textContent.trim().slice(0,24)+'"');
+   if(txt&&el.tagName==='BUTTON'&&!el.dataset.hitpad&&el.scrollWidth>el.clientWidth+1) out.push('BTNOVER '+tag+' "'+el.textContent.trim().slice(0,24)+'"');
    if(r.right>vw+1.5||r.left<-1.5) out.push('OFFX '+tag+' '+Math.round(r.left)+'..'+Math.round(r.right));
    const w=el.parentElement&&el.parentElement.closest('.win,.pc,.pco,.modal-card'); if(w&&txt){ const R=w.getBoundingClientRect(); if(r.right>R.right+1.5||r.left<R.left-1.5) out.push('SPILL '+tag+' "'+el.textContent.trim().slice(0,20)+'" past '+(w.id||w.className.split(' ')[0])); }
  })); return [...new Set(out)]; })()"""

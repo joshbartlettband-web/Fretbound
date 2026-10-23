@@ -11,7 +11,7 @@ Run `bash setup.sh` once per machine.
 - Many tests load `file:///home/claude/...` paths from the original workspace. Point them at this repo's `index.html` (or a copy) before running.
 - Make edits with exact string replacements that assert the match count; `index.html` is large and repeated snippets are common.
 - Pixel art: vector first, snapped to pixels, dark brown outline, warm palette. Title backdrops are painted Gemini plates processed by `tests/procplate.py` and masked by `tests/procfg.py`.
-- Writing in the game and in replies to Josh: plain, human, few em dashes.
+- Writing in the game, on the website and in replies to Josh: follow `WRITING.md` (plain, human, few em dashes, no spell breakers).
 - The title song is in E minor. Fixed-pitch sounds are snapped to E minor while it plays (`snapEm`); keep new parts in key.
 
 ## Releasing a version

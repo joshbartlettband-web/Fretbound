@@ -223,10 +223,13 @@ h3{font-size:12px}
 .namepick.ok{border-color:#8ED36A}.namepick.bad{border-color:#FF4848}
 /* speech bubbles (v1.84): who is talking, over their head or portrait; fixed, so nothing scrolls */
 .sbub{position:fixed;z-index:70;pointer-events:none;max-width:min(230px,64vw);padding:5px 9px 6px;background:#FFF1D2;color:#2A1408;border:2px solid #2A1408;border-radius:9px;font-family:var(--body);font-size:14px;line-height:1.2;box-shadow:0 2px 0 rgba(0,0,0,.4);transform-origin:var(--tx,50%) 100%;animation:sbIn .2s cubic-bezier(.2,1.5,.4,1) both}
-.sbub::after{content:'';position:absolute;left:var(--tx,50%);bottom:-6px;width:9px;height:9px;margin-left:-5px;background:#FFF1D2;border-right:2px solid #2A1408;border-bottom:2px solid #2A1408;transform:rotate(45deg)}
+.sbub::before,.sbub::after{content:'';position:absolute;left:var(--tx,50%);width:0;height:0;border-style:solid;border-color:transparent}
+.sbub::before{bottom:calc(-1 * var(--tl,8px) - 3px);margin-left:-8px;border-width:calc(var(--tl,8px) + 3px) 8px 0 8px;border-top-color:#2A1408}
+.sbub::after{bottom:calc(-1 * var(--tl,8px));margin-left:-5px;border-width:var(--tl,8px) 5px 0 5px;border-top-color:#FFF1D2}   /* v2.06: a drawn tail, as long as TUNE.tail */
 .sbub b{display:block;font-family:var(--pixel);font-size:8px;letter-spacing:.06em;margin-bottom:2px;color:#8A3A14}
 .sbub.below{transform-origin:var(--tx,50%) 0}
-.sbub.below::after{bottom:auto;top:-6px;transform:rotate(225deg)}
+.sbub.below::before{bottom:auto;top:calc(-1 * var(--tl,8px) - 3px);border-width:0 8px calc(var(--tl,8px) + 3px) 8px;border-color:transparent transparent #2A1408 transparent}
+.sbub.below::after{bottom:auto;top:calc(-1 * var(--tl,8px));border-width:0 5px var(--tl,8px) 5px;border-color:transparent transparent #FFF1D2 transparent}
 .sbub.cheer{font-family:var(--pixel);font-size:10px;padding:3px 6px;border-radius:7px}
 .sbub.out{animation:sbOut .25s ease-in both}
 @keyframes sbIn{0%{transform:scale(.5);opacity:0}100%{transform:none;opacity:1}}
@@ -1081,6 +1084,9 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
 #scr-backstage .bs-ui .win,#scr-backstage .bs-ui button{pointer-events:auto}
 /* v2.01 (playtest): pause and REPLAY were under the 44 px a thumb wants; an invisible touch area around them, the layout unchanged */
 #btnPause,#btnReplay{position:relative;z-index:5} #btnPause::after{content:'';position:absolute;inset:-9px -9px -7px -9px} #btnReplay::after{content:'';position:absolute;inset:-8px -8px}
+#tunePanel{position:fixed;left:6px;right:6px;bottom:6px;z-index:90;background:rgba(20,10,6,.94);border:2px solid var(--amber);padding:8px 10px;display:flex;flex-direction:column;gap:4px;font-family:var(--ui);font-size:12px;color:#F4E2C0;max-width:520px;margin:0 auto}
+#tunePanel label{display:flex;flex-direction:column} #tunePanel label span{display:flex;justify-content:space-between} #tunePanel i{font-style:normal;color:var(--amber)} #tunePanel input{width:100%}
+#tunePanel .tp-b{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px} #tunePanel .tp-out{font-size:11px;color:var(--amber);user-select:all}
 </style>
 </head>
 <body>
@@ -1100,7 +1106,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.05</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.06</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4769,7 +4775,7 @@ function roadTalk(lines,done){ const box=$('roadTalk'), rs=roadState; if(!box||!
     rs.speaker=w.i; rs.mood=L[2]||null; rs.lineT=performance.now()/1000;
     const p=document.createElement('div'); p.className='rt-line'+(w.i<0?' off':''); p.innerHTML='<b></b><span></span>'; p.querySelector('b').textContent=w.name;
     box.appendChild(p); p.querySelector('span').textContent=text; roadTalkFit();   // v2.05: the whole conversation stays while it fits (measured with the full line); the oldest goes first
-    const sp=p.querySelector('span'), a=w.i>=0?roadAnchor(w.i):null, after=()=>{ rs.typing=null; clearTimeout(rs.tt); rs.tt=setTimeout(next,Math.max(700,Math.min(1600,text.length*18))); };   // v2.05: a short beat to read, after the line has been said
+    const sp=p.querySelector('span'), a=w.i>=0?roadAnchor(w.i):null, after=()=>{ rs.typing=null; clearTimeout(rs.tt); rs.tt=setTimeout(next,(TUNE.beat+TUNE.read*text.length/10)*1000); };   // v2.05: a short beat to read, after the line has been said
     rs.typing=a?speak(w.voice,null,text,a,{mirror:sp,onDone:after}):typeVoiced(sp,text,w.voice,{onDone:after});
     if(!rs.typing) after(); };
   rs.skip=()=>{ if(!rs.talking) return; if(rs.typing){ const ty=rs.typing; rs.typing=null; ty.finish(); return; } bubblesClear(); next(); };   // a tap finishes the line; the next tap moves on
@@ -4791,13 +4797,32 @@ function devRoadShow(){ const D=DEVROAD; if(!D) return; const id=D.list[D.i], E=
 function devRoadEnd(stay){ const D=DEVROAD; if(!D) return; DEVROAD=null; const b=$('devRoadBar'); if(b) b.remove(); const sc=$('scr-road'); if(sc) sc.style.paddingTop='';
   try{ const S=JSON.parse(D.snap); Object.keys(META).forEach(k=>delete META[k]); Object.assign(META,S.meta); ['money','char','lineup','tour','roadMod','spares','broken','roadSeen','roadDone','gauge'].forEach(k=>state[k]=S[k]); state.pedals=D.pedals; save(); }catch(e){}
   if(!stay) goScreen('title'); }
+// v2.06: the TUNE panel (developer event browser): sliders for bubble placement and talk pacing, a sample bubble that updates as you drag,
+// PLAY AGAIN to hear the event with them, COPY to send Josh's numbers. Saved on this device (fbTune) and used everywhere bubbles appear.
+function tunePanel(){ let P=$('tunePanel'); if(P){ P.remove(); bubblesClear(); return; } P=document.createElement('div'); P.id='tunePanel';
+  const rows=[['gap','Distance above the head',0,60,1,'px'],['tail','Tail length',4,40,1,'px'],['dx','Sideways, toward the middle',-60,60,1,'px'],['speed','Speech speed',0.5,2,0.05,'x'],['beat','Pause after a line',0,3,0.05,'s'],['read','Extra time per 10 letters',0,1,0.02,'s']];
+  P.innerHTML='<b>Bubbles and pacing</b>'+rows.map(([k,l,a,b,st,u])=>'<label><span>'+l+' <i data-v="'+k+'"></i></span><input type="range" min="'+a+'" max="'+b+'" step="'+st+'" data-k="'+k+'" data-u="'+u+'"></label>').join('')+
+    '<div class="tp-b"><button class="btn small gold" data-t="play">PLAY AGAIN</button><button class="btn small blue" data-t="copy">COPY</button><button class="btn small blue" data-t="reset">RESET</button><button class="btn small" data-t="close">CLOSE</button></div><div class="tp-out"></div>';
+  document.body.appendChild(P);
+  const show=()=>{ P.querySelectorAll('input').forEach(i=>{ i.value=TUNE[i.dataset.k]; P.querySelector('[data-v="'+i.dataset.k+'"]').textContent=(+TUNE[i.dataset.k]).toFixed(i.step<1?2:0)+' '+i.dataset.u; });
+    P.querySelector('.tp-out').textContent='gap '+TUNE.gap+' · tail '+TUNE.tail+' · dx '+TUNE.dx+' · speed '+TUNE.speed+' · beat '+TUNE.beat+' · read '+TUNE.read; };
+  const sample=()=>{ if(!roadState) return; const rs=roadState, i=rs.speaker>=0?rs.speaker:rs.cast.findIndex(q=>q.side)>=0?rs.cast.findIndex(q=>q.side):0, a=roadAnchor(i); if(a) speak('?',null,'How far away should I be?',a,{silent:true,ms:60000}); };
+  const keep=()=>{ try{ localStorage.setItem('fbTune',JSON.stringify(TUNE)); }catch(e){} };
+  P.querySelectorAll('input').forEach(i=>i.oninput=()=>{ TUNE[i.dataset.k]=+i.value; keep(); show(); if(['gap','tail','dx'].includes(i.dataset.k)) sample(); });
+  P.querySelectorAll('[data-t]').forEach(x=>x.onclick=()=>{ const t=x.dataset.t; blip(700,0.04);
+    if(t==='play'){ bubblesClear(); devRoadShow(); }
+    if(t==='copy'){ const txt=P.querySelector('.tp-out').textContent; try{ navigator.clipboard.writeText(txt); }catch(e){} P.querySelector('.tp-out').textContent=txt+'  (copied)'; }
+    if(t==='reset'){ Object.assign(TUNE,TUNE_DEF); keep(); show(); sample(); }
+    if(t==='close'){ P.remove(); bubblesClear(); } });
+  show(); sample(); }
 function devRoadBar(){ const D=DEVROAD; let b=$('devRoadBar'); if(!b){ b=document.createElement('div'); b.id='devRoadBar'; document.body.appendChild(b); }
   const id=D.list[D.i], E=ROAD[id], C=CHARS[D.ci], bm=D.bands[D.bi], fr=E.caller==='friend'?devRoadCallers()[D.fi%devRoadCallers().length]:null;
   const btn=(a,t)=>'<button class="btn small blue" data-dr="'+a+'">'+t+'</button>';
-  b.innerHTML='<div>'+btn('pe','&lt;')+'<span class="dr-n">'+(D.i+1)+'/'+D.list.length+' '+E.t+'</span>'+btn('ne','&gt;')+btn('rp','REPLAY')+btn('x','EXIT')+'</div>'+
+  b.innerHTML='<div>'+btn('pe','&lt;')+'<span class="dr-n">'+(D.i+1)+'/'+D.list.length+' '+E.t+'</span>'+btn('ne','&gt;')+btn('rp','REPLAY')+btn('x','EXIT')+'</div>'+'<div>'+btn('tn','TUNE BUBBLES')+'</div>'+
     '<div>'+btn('pl','PLAYER: '+C.name.replace(/^The /,''))+btn('bd','BAND: '+(bm?(NICK[bm]||MEMBERS[bm].name):'nobody'))+(fr?btn('fr','FRIEND: '+titleCase(fr.rival)):'')+'</div>';
   b.querySelectorAll('[data-dr]').forEach(x=>x.onclick=()=>{ const a=x.dataset.dr; blip(700,0.04);
     if(a==='x'){ devRoadEnd(); return; }
+    if(a==='tn'){ tunePanel(); return; }
     if(a==='pe') D.i=(D.i+D.list.length-1)%D.list.length; if(a==='ne') D.i=(D.i+1)%D.list.length;
     if(a==='pl') D.ci=(D.ci+1)%D.chars.length; if(a==='bd') D.bi=(D.bi+1)%D.bands.length; if(a==='fr') D.fi++;
     devRoadShow(); });
@@ -5702,7 +5727,7 @@ function mumbleSyllables(text){ const out=[], T=String(text), skip=[]; let m; co
   for(let i=0;i<out.length;i++) out[i].first=i===0||!!(out[i-1].end&&out[i-1].end!==',');
   return out; }
 // v2.05: when each syllable starts and how long it sounds (seconds from the line's start). The voice plays from this and the text types from it, so they stay together.
-function mumbleTimes(V,syl){ const st=V.st, out=[]; let t=0; for(let k=0;k<syl.length;k++){ const nx=syl[k].end, d=st*(0.82+(syl[k].h>>>9)%5*0.05)*(nx==='?'||nx==='.'?1.35:1); out.push({t,d,ce:syl[k].ce}); t+=d+st*0.12+(nx===','?st*1.6:nx&&nx!==','?st*2.6:0); } out.end=t; return out; }
+function mumbleTimes(V,syl){ const st=V.st/(TUNE.speed||1), out=[]; let t=0; for(let k=0;k<syl.length;k++){ const nx=syl[k].end, d=st*(0.82+(syl[k].h>>>9)%5*0.05)*(nx==='?'||nx==='.'?1.35:1); out.push({t,d,ce:syl[k].ce}); t+=d+st*0.12+(nx===','?st*1.6:nx&&nx!==','?st*2.6:0); } out.end=t; return out; }
 function mumbleScale(){ // pitch classes (relative pc set) and a root: the duel's root, a road cue's first chord, or E minor on the title
   let root=40, set=[0,2,5,7,10];
   try{ if(CUE.on&&CUE.def&&CUE.def.ch){ const m=/^([A-G])([#b]?)(m(?!aj))?/.exec(CUE.def.ch.trim()); if(m){ root=48+({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0); set=m[3]?[0,3,5,7,10]:[0,2,4,7,9]; } } else if(state.screen==='duel'&&state.inVenue) root=tr.root; else if(state.screen==='title') set=[0,2,3,7,10]; }catch(e){}
@@ -5788,14 +5813,19 @@ function talkPick(a,salt){ return Array.isArray(a)?a[voiceHash(String(salt))%a.l
 function heroName(){ const C=CHARS.find(c=>c.id===state.char)||CHARS[0]; return C.name.toUpperCase(); }
 // a speech bubble over an anchor ({el, fx, fy}: a point inside the element, as fractions), and the mumble that goes with it.
 // Fixed position, clamped inside the screen, so it never makes anything scroll. One bubble at a time.
+// v2.06: bubble placement and talk pacing, tuned by Josh with the developer TUNE panel (kept in localStorage as fbTune).
+// gap: px from the top of the head to the tail's tip; tail: tail length px; dx: sideways shift of the box (px, + toward the screen's middle);
+// speed: speech speed (1 = the voices' own); beat: seconds of pause after a line has been said; read: extra seconds per 10 letters.
+const TUNE_DEF={gap:10,tail:8,dx:0,speed:1,beat:0.7,read:0.18}, TUNE=Object.assign({},TUNE_DEF,(()=>{ try{ return JSON.parse(localStorage.getItem('fbTune')||'{}'); }catch(e){ return {}; } })());
 function speak(id,name,text,anchor,o){ o=o||{}; if(!text) return null;
   bubblesClear(); const el=anchor&&anchor.el, voiceOnly=()=>o.mirror?typeVoiced(o.mirror,text,id,{side:o.voice&&o.voice.side,onDone:o.onDone}):(()=>{ try{ mumble(id,text,Object.assign({maxSec:99},o.voice)); }catch(e){} if(o.onDone) o.onDone(); return null; })();
   if(!el||!el.getBoundingClientRect) return voiceOnly(); const r=el.getBoundingClientRect(); if(!r.width||!r.height) return voiceOnly();
   const b=document.createElement('div'); b.className='sbub'+(o.below?' below':''); if(o.below) b.style.maxWidth=Math.round(Math.max(150,r.width+24))+'px'; b.innerHTML=(name?'<b></b>':'')+'<span></span>'; if(name) b.querySelector('b').textContent=name; b.querySelector('span').textContent=text;
   document.body.appendChild(b); const bw=b.offsetWidth, bh=b.offsetHeight, ax=r.left+r.width*(anchor.fx==null?0.5:anchor.fx), ay=r.top+r.height*(anchor.fy==null?0.2:anchor.fy);
-  const x=Math.max(6,Math.min(innerWidth-bw-6,ax-bw/2)), y=o.below?Math.min(innerHeight-bh-4,ay+9):Math.max(4,ay-bh-9);   // below: under the face, tail up (portraits)
+  const lift=TUNE.gap+TUNE.tail, side=o.below?0:TUNE.dx*(ax<innerWidth/2?1:-1); b.style.setProperty('--tl',TUNE.tail+'px');
+  const x=Math.max(6,Math.min(innerWidth-bw-6,ax-bw/2+side)), y=o.below?Math.min(innerHeight-bh-4,ay+lift):Math.max(4,ay-bh-lift);   // below: under the face, tail up (portraits)
   b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px'; b.style.setProperty('--tx',Math.round(Math.max(10,Math.min(bw-10,ax-x)))+'px');
-  const span=b.querySelector('span'), ty=typeVoiced(span,text,id,{side:o.voice&&o.voice.side,onChar:n=>{ if(o.mirror) o.mirror.textContent=text.slice(0,n); },onDone:o.onDone});   // v2.05: the bubble types as it is said; the box keeps its full size from the start
+  const span=b.querySelector('span'), ty=typeVoiced(span,text,id,{silent:o.silent,side:o.voice&&o.voice.side,onChar:n=>{ if(o.mirror) o.mirror.textContent=text.slice(0,n); },onDone:o.onDone});   // v2.05: the bubble types as it is said; the box keeps its full size from the start
   span.style.visibility='visible'; b.style.minHeight=bh+'px'; b.style.width=bw+'px';
   const ms=Math.max(o.ms||Math.max(2200,Math.min(4200,text.length*75)),ty.done*1000+1300); b._t=setTimeout(()=>{ b.classList.add('out'); setTimeout(()=>b.remove(),300); },ms); b._ty=ty; return ty; }
 function bubblesClear(){ document.querySelectorAll('.sbub').forEach(b=>{ clearTimeout(b._t); if(b._ty) b._ty.finish(); b.remove(); }); }

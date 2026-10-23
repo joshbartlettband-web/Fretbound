@@ -46,7 +46,7 @@ mi=Image.fromarray(m).filter(ImageFilter.MinFilter(3)).filter(ImageFilter.MaxFil
 print('moonbet sky rows per column, median', int(np.median((np.asarray(mi)>0).sum(0))))
 if '--embed' in sys.argv:
     b64=lambda p:'data:image/png;base64,'+base64.b64encode(open(p,'rb').read()).decode()
-    blk='/*SKY:BEGIN*/const SKY_STARS='+open(os.path.join(OUT,'stars.json')).read()+';const SKY_MW_SRC="'+b64(os.path.join(OUT,'milkyway.png'))+'";const SKY_MASK_SRC='+json.dumps({'moonbet':b64(os.path.join(OUT,'moonbet_skymask.png'))})+';/*SKY:END*/'
+    blk='/*SKY:BEGIN*/\nconst SKY_STARS='+open(os.path.join(OUT,'stars.json')).read()+';\nconst SKY_MW_SRC="'+b64(os.path.join(OUT,'milkyway.png'))+'";\nconst SKY_MASK_SRC='+json.dumps({'moonbet':b64(os.path.join(OUT,'moonbet_skymask.png'))})+';/*SKY:END*/'
     p=os.path.join(ROOT,'index.html'); s=open(p,encoding='utf-8').read()
     if '/*SKY:BEGIN*/' in s: i=s.index('/*SKY:BEGIN*/'); j=s.index('/*SKY:END*/')+len('/*SKY:END*/'); s=s[:i]+blk+s[j:]
     else: a='/*EVENTS:END*/'; assert s.count(a)==1; s=s.replace(a,a+'\n'+blk)

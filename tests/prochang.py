@@ -27,19 +27,20 @@ def build(cid,n=1):
     for m in masks:
         ys,xs=np.where(m); x0,y0,x1,y1=xs.min(),ys.min(),xs.max()+1,ys.max()+1
         rgba=np.dstack([a,(m*255).astype(np.uint8)])[y0:y1,x0:x1]; low=ys>ys.max()-max(4,int((y1-y0)*0.04)); sp.append((Image.fromarray(rgba),float(np.median(xs[low])-x0)))
-    H=GS.CH[cid]['height']; ref=float(np.median([s.height for i,(s,_) in enumerate(sp) if i!=7])); k=H/ref
+    D=int(os.environ.get('HANG_D','2'))   # v2.04: sheets are built at D times the stage's pixel size (2: crisper at road events and in the Van); the game divides by meta d
+    H=GS.CH[cid]['height']; ref=float(np.median([s.height for i,(s,_) in enumerate(sp) if i!=7])); k=H*D/ref
     sc=[(s.resize((max(1,round(s.width*k)),max(1,round(s.height*k))),Image.LANCZOS),fx*k) for s,fx in sp]
     left=max(fx for _,fx in sc); right=max(s.width-fx for s,fx in sc); cw=int(left+right)+6; ch=max(s.height for s,_ in sc)+4; fx0=int(left)+3
     out=Image.new('RGBA',(cw*8,ch),(0,0,0,0))
     for i,(s,fx) in enumerate(sc):
         arr=np.asarray(s).copy(); arr[:,:,3]=(arr[:,:,3]>150)*255; out.paste(Image.fromarray(arr),(i*cw+fx0-int(round(fx)),ch-2-s.height))
     arr=np.asarray(out); al=arr[:,:,3]>0
-    q=Image.fromarray(arr[:,:,:3]).quantize(colors=64,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
+    q=Image.fromarray(arr[:,:,:3]).quantize(colors=96,method=Image.Quantize.MEDIANCUT,dither=Image.Dither.NONE).convert('RGB')
     if os.environ.get('POSE_NEAREST'):   # as in procposes: a near-grey pixel that came out strongly coloured keeps its own grey (the Journeyman's beard)
         sa=arr[:,:,:3].astype(int); qa=np.asarray(q).copy(); sch=sa.max(axis=2)-sa.min(axis=2); bad=(sch<40)&((qa.astype(int).max(axis=2)-qa.astype(int).min(axis=2))>sch+20)
         qa[bad]=((sa//16)*16+8).clip(0,255).astype(np.uint8)[bad]; q=Image.fromarray(qa)
     o=np.dstack([np.asarray(q),(al*255).astype(np.uint8)])
-    return Image.fromarray(o),dict(cw=cw,ch=ch,fx=fx0,fy=ch-2,n=8,h=H)
+    return Image.fromarray(o),dict(cw=cw,ch=ch,fx=fx0,fy=ch-2,n=8,h=H,d=D)
 def embed(path='index.html'):
     src={}; meta={}
     for cid in IDS:

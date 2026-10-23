@@ -7692,7 +7692,7 @@ function drawVanScene(){
 }
 const HANG_IMG={}; Object.keys(HANG_SRC).forEach(id=>{ const im=new Image(); im.onload=()=>{ HANG_IMG[id]=im; }; im.src=HANG_SRC[id]; });
 const HANG_SEQ=[2,0,2,3,1,2,4,2,5,2,6,2,3,7];   // listening, chatting, laughing, hands in pockets, sipping, explaining, shrugging, stretching
-function vsHang(id,s,pose,mirror){ const M=HANG_META[id], im=HANG_IMG[id]; if(!M||!im) return null; const key='vh'+id+'@'+s.toFixed(3)+'_'+pose+(mirror?'m':''); if(vsCache[key]) return vsCache[key];
+function vsHang(id,s,pose,mirror){ const M=HANG_META[id], im=HANG_IMG[id]; if(!M||!im) return null; s/=M.d||1;   // v2.04: d is the sheet's density (2: painted at twice the pixels, drawn at the same size) const key='vh'+id+'@'+s.toFixed(3)+'_'+pose+(mirror?'m':''); if(vsCache[key]) return vsCache[key];
   const w=Math.max(1,Math.round(M.cw*s)), h=Math.max(1,Math.round(M.ch*s)), c=document.createElement('canvas'); c.width=w; c.height=h; const cg=c.getContext('2d'); cg.imageSmoothingEnabled=s<1.5; cg.imageSmoothingQuality='high';
   if(mirror){ cg.translate(w,0); cg.scale(-1,1); } cg.drawImage(im,pose*M.cw,0,M.cw,M.ch,0,0,w,h);
   return vsCache[key]={c,w,h,fx:(mirror?M.cw-M.fx:M.fx)*s,fy:M.fy*s}; }

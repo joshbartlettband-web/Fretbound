@@ -54,9 +54,9 @@ Suggested looks: Bard keeps the mint Strat; Journeyman a butterscotch Telecaster
 **Test page:** the game is over 16 MB, so build the artifact with `python3 tests/dev/artifact_split.py OUTDIR` and publish `OUTDIR/index.html` with its two `art_*.js` side files.
 
 ## 1. The APK
-- v1.43 to v1.55 APKs were built in cloud sessions with a throwaway key (`FRETBOUND_KEYSTORE_B64` in the environment settings was a 24-character placeholder, not a keystore). Josh's phone has the throwaway-key build; later builds from the same container install over it, a fresh container makes a new key and needs one uninstall.
-- To make builds update over each other for good: set `FRETBOUND_KEYSTORE_B64=<output of base64 -w0 fretbound.keystore>` (and `FRETBOUND_KEYSTORE_PASS` only if it is not "fretbound") in the environment settings, then `bash setup.sh` and `bash android/build.sh`. The phone gets one uninstall when it moves to the real key.
-- Security note: the old keystore is still in the git history (file `fretbound-keystore-base64.txt`, removed in commit e1dce1f). If the repo is ever shared, clean the history or make a new key. Do not try to read the key out of git history yourself; the session safety check blocks it.
+- A permanent signing key was made on 2026-10-23 (certificate SHA-256 03:56:FA:C1:20:CA:B6:77:AD:88:95:33:0C:3B:F0:D2:75:99:54:3C:6E:BF:AD:DA:34:26:AD:70:22:5C:91:7D). Josh has it as `fretbound-signing-key.txt` and puts its two lines into the environment settings as `FRETBOUND_KEYSTORE_B64` and `FRETBOUND_KEYSTORE_PASS`. A new session then builds with `bash android/build.sh` and every build updates over the last. Check: `apksigner verify --print-certs android/bin/fretbound.apk` shows the fingerprint above.
+- v2.03 was the first APK on this key: the phone needed one uninstall of the old throwaway-key build. Never commit the keystore (`android/fretbound.keystore` is gitignored).
+- Security note: an older keystore is still in the git history (file `fretbound-keystore-base64.txt`, removed in commit e1dce1f). It is no longer used. Do not try to read it out of git history; the session safety check blocks it.
 - The phone may save a downloaded APK as `.zip`; rename it to `.apk` instead of extracting.
 
 ## 2. Questions for Josh
@@ -66,7 +66,7 @@ Suggested looks: Bard keeps the mint Strat; Journeyman a butterscotch Telecaster
 3. **Crowded stages** (mess hall, Ghat) now show at most four band members a side (v1.47). Does that read better?
 4. **Depth scaling for the band.** Done in v1.80 (pre-shrunk pose atlases keep it crisp). Does it read right on the phone?
 5. **The Monk critical error** (strings, pedals and player vanished) was never reproduced. Ask for the device, browser, which night, and whether it was a resumed save. Resolved for now (2026-10-03): Josh never reproduced it; safeguards stay in place.
-6. **A real signing key** so builds update over each other (section 1).
+6. **A real signing key**: made 2026-10-23 (section 1); Josh to add it to the environment settings.
 
 ## 2b. Sound still to do (audit 2026-10-05, v1.77)
 - Done in v1.78: every screen has its own music now.

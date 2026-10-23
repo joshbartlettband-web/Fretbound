@@ -1099,7 +1099,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.02</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.03</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4850,7 +4850,7 @@ function drawRoadScene(){ const cv=$('roadScene'); if(!cv||!roadState) return; c
     const spr=get(A.cur); if(!spr) return; p.cxf=cx/W; p.topf=Math.max(0.06,(foot-spr.fy*0.92)/H);
     const br=1+0.007*Math.sin(t*2*Math.PI/(3.4+hfrac(p.id+'br')*1.4)+i*2.1);   // breathing, a slow rise of the chest anchored at the feet
     g.fillStyle='rgba(0,0,0,.35)'; g.fillRect(cx-Math.round(spr.w*0.22),foot,Math.round(spr.w*0.44),Math.max(2,Math.round(2*dpr)));
-    const put=(sp,a,k)=>{ if(!sp||a<=0) return; g.globalAlpha=a; const x0=Math.round(cx-sp.fx), y0=Math.round(foot-sp.fy*br+dpr), lit=RELIGHT.on&&p.hang?relit(p.id,sp,k,cx>mid,x0,y0,PL,t,W,H):null; g.drawImage(lit||sp.c,x0,y0,sp.w,sp.h*br); };
+    const put=(sp,a,k)=>{ if(!sp||a<=0) return; g.globalAlpha=a; const x0=Math.round(cx-sp.fx), y0=Math.round(foot-sp.fy*br+dpr), lit=RELIGHT.on&&p.hang?relit(p.id,sp,k,cx>mid,x0,y0,PL,t,W,H):null; if(lit) g.imageSmoothingEnabled=sp.w/lit.width<1.5; g.drawImage(lit||sp.c,x0,y0,sp.w,sp.h*br); g.imageSmoothingEnabled=true; };   // the lit figure is at the painting's own pixels: stretch it with hard edges, as the unlit sprite is (v2.03; v1.98 to v2.02 blurred it)
     const f=A.fade>0?Math.min(1,(t-A.t0)/A.fade):1;
     if(f<1) put(get(A.prev),1-f,A.prev); put(spr,f<1?f:1,A.cur); g.globalAlpha=1; });
   roadVignette(g,W,H); }   // v1.95: a soft edge vignette instead of the old 25% dark film over everything

@@ -1100,7 +1100,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.04</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.05</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -4767,12 +4767,14 @@ function roadTalk(lines,done){ const box=$('roadTalk'), rs=roadState; if(!box||!
     if(k>=lines.length){ rs.speaker=-1; rs.mood=null; rs.talking=false; rs.skip=null; if(done) done(); return; }
     const L=lines[k++], w=roadWho(L[0]), text=typeof L[1]==='function'?L[1]():L[1];
     rs.speaker=w.i; rs.mood=L[2]||null; rs.lineT=performance.now()/1000;
-    const p=document.createElement('div'); p.className='rt-line'+(w.i<0?' off':''); p.innerHTML='<b></b><span></span>'; p.querySelector('b').textContent=w.name; p.querySelector('span').textContent=text;
-    box.appendChild(p); while(box.children.length>2) box.removeChild(box.firstChild);
-    const a=w.i>=0?roadAnchor(w.i):null; if(a) speak(w.voice,null,text,a,{ms:Math.max(1400,Math.min(3200,text.length*44))}); else try{ mumble(w.voice,text); }catch(e){}
-    rs.tt=setTimeout(next,Math.max(1500,Math.min(3400,text.length*46))); };
-  rs.skip=()=>{ if(rs.talking){ bubblesClear(); next(); } };
+    const p=document.createElement('div'); p.className='rt-line'+(w.i<0?' off':''); p.innerHTML='<b></b><span></span>'; p.querySelector('b').textContent=w.name;
+    box.appendChild(p); p.querySelector('span').textContent=text; roadTalkFit();   // v2.05: the whole conversation stays while it fits (measured with the full line); the oldest goes first
+    const sp=p.querySelector('span'), a=w.i>=0?roadAnchor(w.i):null, after=()=>{ rs.typing=null; clearTimeout(rs.tt); rs.tt=setTimeout(next,Math.max(700,Math.min(1600,text.length*18))); };   // v2.05: a short beat to read, after the line has been said
+    rs.typing=a?speak(w.voice,null,text,a,{mirror:sp,onDone:after}):typeVoiced(sp,text,w.voice,{onDone:after});
+    if(!rs.typing) after(); };
+  rs.skip=()=>{ if(!rs.talking) return; if(rs.typing){ const ty=rs.typing; rs.typing=null; ty.finish(); return; } bubblesClear(); next(); };   // a tap finishes the line; the next tap moves on
   next(); }
+function roadTalkFit(){ const box=$('roadTalk'), t=box&&box.closest('.road-text'); if(!t) return; while(t.scrollHeight>t.clientHeight+1&&box.children.length>1) box.removeChild(box.firstChild); }
 function roadAnchor(i){ const p=roadState&&roadState.cast[i], cv=$('roadScene'); if(!p||p.cxf==null||!cv) return null; return {el:cv,fx:p.cxf,fy:p.topf}; }
 function roadVoice(){ const c=roadState&&roadState.cast.find(q=>q.side); return c?c.id:'road_'+(roadState?roadState.id:''); }
 // developer: the event browser (v1.92). Step through every road event with any player, band member and (for the old-friend event) caller.
@@ -4810,9 +4812,9 @@ function goRoad(next,force){
   roadState.calm=true; $('roadTalk').innerHTML='';
   if(E.quiz) roadQuiz(E.quiz); else (E.ch()||[]).filter(Boolean).forEach(c=>{ const b=document.createElement('button'); b.className='btn small '+(c.dis?'':'gold'); b.textContent=c.l; b.disabled=!!c.dis;
     b.onclick=()=>{ blip(880,0.06); const out=c.go(); box.innerHTML=''; $('roadOut').textContent=out||'';
-      if(c.talk){ $('roadTalk').innerHTML=''; roadTalk(c.talk,()=>roadDoneBtn()); } else { roadDoneBtn(); try{ const d=mumbleQuotes(roadVoice(),out); roadBandLine(id,d); }catch(e){} } }; box.appendChild(b); });
+      if(c.talk){ $('roadTalk').innerHTML=''; roadTalk(c.talk,()=>{ roadDoneBtn(); roadTalkFit(); }); } else { roadDoneBtn(); try{ const d=mumbleQuotes(roadVoice(),out); roadBandLine(id,d); }catch(e){} } }; box.appendChild(b); });
   if(E.talk){ box.classList.add('hidden'); roadState.started=false; }
-  goScreen('road'); if(!DEVROAD) saveRun(); try{ setTimeout(()=>{ if(state.screen!=='road'||!roadState||roadState.id!==id) return; if(E.talk) roadTalk(E.talk,()=>{ box.classList.remove('hidden'); }); else mumbleQuotes(roadVoice(),$('roadStory').textContent); },450); }catch(e){}
+  goScreen('road'); if(!DEVROAD) saveRun(); try{ setTimeout(()=>{ if(state.screen!=='road'||!roadState||roadState.id!==id) return; if(E.talk) roadTalk(E.talk,()=>{ box.classList.remove('hidden'); roadTalkFit(); }); else mumbleQuotes(roadVoice(),$('roadStory').textContent); },450); }catch(e){}
   const sk=()=>{ if(roadState&&roadState.skip) roadState.skip(); }; $('roadScene').onclick=sk; $('roadTalk').onclick=sk; try{ if(ctx&&ROAD_CUES[id]){ cueWarmDef(ROAD_CUES[id]); cueStart(ROAD_CUES[id],'road'); } }catch(e){}
   requestAnimationFrame(()=>{ drawRoadScene(); clearInterval(goRoad.iv); goRoad.iv=setInterval(()=>{ if(state.screen==='road') drawRoadScene(); else clearInterval(goRoad.iv); },40); });
 }
@@ -5626,18 +5628,31 @@ function renderAll(){
 
 /* dialog */
 let dlgTimer=null, typeTimer=null;
+// v2.05 (Josh: text boxes go letter by letter and that drives the mumbles): types text into el syllable by syllable, in step with the voice.
+// Each syllable's letters appear over the time it sounds; punctuation pauses where the voice pauses. Without sound (no audio, voices at 0) the
+// same timing types it silently. Returns {done:seconds, finish()} ; finish() shows the whole line and stops the voice.
+function typeVoiced(el,text,vid,o){ o=o||{}; text=String(text||''); const V=voiceOf(vid||'?'), TM=mumbleTimes(V,mumbleSyllables(text)), dur=TM.length?TM.end:0;
+  if(reduceMotion||!TM.length){ el.textContent=text; if(vid&&!o.silent) try{ mumble(vid,text,{maxSec:99}); }catch(e){} return {done:0,finish(){}}; }
+  if(vid&&!o.silent) try{ mumble(vid,text,{maxSec:99,side:o.side}); }catch(e){}
+  const t0=performance.now()+30; let tm=null, k=0, last=-1;
+  const tick=()=>{ const e=(performance.now()-t0)/1000; while(k<TM.length&&TM[k].t+TM[k].d<=e) k++;
+    let n; if(k>=TM.length) n=text.length; else { const a=k?TM[k-1].ce:0, S=TM[k]; n=e<S.t?a:Math.round(a+(S.ce-a)*Math.min(1,(e-S.t)/S.d)); }
+    if(n!==last){ el.textContent=text.slice(0,n); last=n; if(o.onChar) o.onChar(n); }
+    if(n>=text.length){ clearInterval(tm); tm=null; if(o.onDone) o.onDone(); } };
+  el.textContent=''; tm=setInterval(tick,16); tick();
+  return {done:dur, finish(){ if(!tm) return; clearInterval(tm); tm=null; el.textContent=text; try{ mumbleStop(); }catch(e){} if(o.onDone) o.onDone(); }}; }
 function say(who,text,ms,noType){
-  const d=$('dialog'); clearTimeout(dlgTimer); clearInterval(typeTimer); try{ mumbleStop(); }catch(e){}
+  const d=$('dialog'); clearTimeout(dlgTimer); clearInterval(typeTimer); if(SAY_TY){ SAY_TY.finish(); SAY_TY=null; } try{ mumbleStop(); }catch(e){}
   d.classList.add('show'); d.style.fontSize=''; d.style.height=''; d.innerHTML='<b></b><span></span>'; d.querySelector('b').textContent=who;
   const sp=d.querySelector('span');
   // the strip is two lines tall and must never grow (the layout below would jump): a long line is set a little smaller until it fits
   const H0=d.offsetHeight; sp.textContent=text; let fs=parseFloat(getComputedStyle(d).fontSize)||15, k=0; while(d.scrollHeight>H0+1&&k<8){ fs*=0.92; d.style.fontSize=fs.toFixed(1)+'px'; k++; } d.style.height=H0+'px';
-  if(noType||reduceMotion) sp.textContent=text;
-  else { let i=0; typeTimer=setInterval(()=>{ i+=2; sp.textContent=text.slice(0,i); if(i>=text.length) clearInterval(typeTimer); },22); }
-  if(ms>0) dlgTimer=setTimeout(hideDialog,ms);
-  if(!noType){ const vid=voiceIdFor(who); if(vid) try{ mumble(vid,text); }catch(e){} }   // the caller mumbles the line as it types
+  let ty=null; if(noType) sp.textContent=text;
+  else { ty=typeVoiced(sp,text,voiceIdFor(who)); typeTimer=null; SAY_TY=ty; }   // the line types out as it is mumbled (v2.05)
+  if(ms>0) dlgTimer=setTimeout(hideDialog,Math.max(ms,ty?ty.done*1000+900:0));   // never hidden before the line has been said
 }
-function hideDialog(){ clearInterval(typeTimer); $('dialog').classList.remove('show'); try{ mumbleStop(); }catch(e){} }
+let SAY_TY=null;
+function hideDialog(){ clearInterval(typeTimer); if(SAY_TY){ SAY_TY.finish(); SAY_TY=null; } $('dialog').classList.remove('show'); try{ mumbleStop(); }catch(e){} }
 /* ---------- mumble voices (v1.83): the callers "talk" in a synthesised mumble while their lines type out, no recordings.
    One sawtooth or pulse per line runs through two band-pass formants that follow the vowels (the trick behind Animalese-style voices).
    Each vowel group is a syllable; its pitch comes from a hash of the word (the same word always sounds the same) plus a contour over the
@@ -5679,12 +5694,15 @@ function voiceIdFor(who){ if(!who) return null; const all=TOURS.flatMap(T=>T.ven
   const W=String(who).toUpperCase(), C=CHARS.find(c=>c.name.toUpperCase()===W); if(C) return C.id; const m=Object.keys(MEMBERS).find(k=>MEMBERS[k].name.toUpperCase()===W); return m||null; }
 function voiceLevel(){ const v=store.settings.voices==null?0.7:store.settings.voices; return v*v; }
 // syllables from the text: one per vowel group (at most three a word), with pauses at commas and sentence ends
-function mumbleSyllables(text){ const out=[]; const words=String(text).replace(/\([^)]*\)/g,'').match(/[A-Za-z']+[^A-Za-z']*/g)||[];
-  words.forEach((wd,wi)=>{ const w=wd.match(/[A-Za-z']+/)[0].toLowerCase(), tail=wd.slice(w.length), g=w.match(/[aeiouy]+/g)||['a'];
-    const n=Math.min(3,g.length); for(let k=0;k<n;k++) out.push({v:g[k][0],h:voiceHash(w+'#'+k),end:null,first:false});
-    const p=/[?]/.test(tail)?'?':/[!]/.test(tail)?'!':/[.;:]/.test(tail)?'.':/[,]/.test(tail)?',':null; if(p) out[out.length-1].end=p; });
+function mumbleSyllables(text){ const out=[], T=String(text), skip=[]; let m; const pr=/\([^)]*\)/g; while((m=pr.exec(T))) skip.push([m.index,m.index+m[0].length]);
+  const re=/[A-Za-z']+[^A-Za-z']*/g; while((m=re.exec(T))){ const i0=m.index; if(skip.some(([a,b])=>i0>=a&&i0<b)) continue; const wd=m[0];
+    const w=wd.match(/[A-Za-z']+/)[0].toLowerCase(), tail=wd.slice(w.length), g=w.match(/[aeiouy]+/g)||['a'];
+    const n=Math.min(3,g.length); for(let k=0;k<n;k++) out.push({v:g[k][0],h:voiceHash(w+'#'+k),end:null,first:false,ce:k===n-1?i0+wd.length:i0+Math.round(w.length*(k+1)/n)});   // ce: the text is shown up to here once this syllable has sounded (v2.05)
+    const p=/[?]/.test(tail)?'?':/[!]/.test(tail)?'!':/[.;:]/.test(tail)?'.':/[,]/.test(tail)?',':null; if(p) out[out.length-1].end=p; }
   for(let i=0;i<out.length;i++) out[i].first=i===0||!!(out[i-1].end&&out[i-1].end!==',');
   return out; }
+// v2.05: when each syllable starts and how long it sounds (seconds from the line's start). The voice plays from this and the text types from it, so they stay together.
+function mumbleTimes(V,syl){ const st=V.st, out=[]; let t=0; for(let k=0;k<syl.length;k++){ const nx=syl[k].end, d=st*(0.82+(syl[k].h>>>9)%5*0.05)*(nx==='?'||nx==='.'?1.35:1); out.push({t,d,ce:syl[k].ce}); t+=d+st*0.12+(nx===','?st*1.6:nx&&nx!==','?st*2.6:0); } out.end=t; return out; }
 function mumbleScale(){ // pitch classes (relative pc set) and a root: the duel's root, a road cue's first chord, or E minor on the title
   let root=40, set=[0,2,5,7,10];
   try{ if(CUE.on&&CUE.def&&CUE.def.ch){ const m=/^([A-G])([#b]?)(m(?!aj))?/.exec(CUE.def.ch.trim()); if(m){ root=48+({C:0,D:2,E:4,F:5,G:7,A:9,B:11})[m[1]]+(m[2]==='#'?1:m[2]==='b'?-1:0); set=m[3]?[0,3,5,7,10]:[0,2,4,7,9]; } } else if(state.screen==='duel'&&state.inVenue) root=tr.root; else if(state.screen==='title') set=[0,2,3,7,10]; }catch(e){}
@@ -5710,18 +5728,18 @@ function mumble(id,text,opt){
   if(V.ech){ const d=ctx.createDelay(1), fb=G(0.38), wet=G(V.ech*0.7), lp=biq('lowpass',2400,0.7); lvl.connect(d); d.delayTime.value=0.17; d.connect(lp); lp.connect(fb); fb.connect(d); lp.connect(wet); wet.connect(MUM.out); }
   const {root,set}=mumbleScale(), notes=[]; for(let m=24;m<=100;m++) if(set.indexOf(((m-root)%12+12)%12)>=0) notes.push(m);
   let i0=0; notes.forEach((m,i)=>{ if(Math.abs(m-V.b)<Math.abs(notes[i0]-V.b)) i0=i; });
-  let t=t0, j=0, lastF=null, loud=1; const sp=V.sp||2;
+  let t=t0, j=0, lastF=null, loud=1; const sp=V.sp||2, TM=mumbleTimes(V,syl);
   for(let k=0;k<syl.length;k++){ const S=syl[k]; if(t-t0>maxSec) break;
     if(S.first){ loud=1; for(let q=k;q<syl.length;q++){ if(syl[q].end==='!'){ loud=1.2; break; } if(syl[q].end&&syl[q].end!==',') break; } }
     let deg=(S.h%(2*sp+1))-sp; const nx=syl[k].end, nx1=k+1<syl.length?syl[k+1].end:null;
     if(nx==='.') deg-=2; else if(nx1==='.') deg-=1; if(nx==='?') deg+=3; else if(nx1==='?') deg+=1; if(S.first&&loud>1) deg+=2;
     const f=440*Math.pow(2,(notes[Math.max(0,Math.min(notes.length-1,i0+deg))]-69)/12);
-    const d=st*(0.82+(S.h>>>9)%5*0.05)*(nx==='?'||nx==='.'?1.35:1), F=VOWEL_F[S.v]||VOWEL_F.a, a=Math.min(0.012,d*0.2);
+    t=t0+TM[k].t; const d=TM[k].d, F=VOWEL_F[S.v]||VOWEL_F.a, a=Math.min(0.012,d*0.2);
     if(lastF==null) src.frequency.setValueAtTime(f,t); else { src.frequency.setValueAtTime(lastF,t); src.frequency.exponentialRampToValueAtTime(f,t+Math.min(0.025,d*0.3)); }
     const fe=f*Math.pow(2,(V.gl||0)/12); src.frequency.exponentialRampToValueAtTime(fe,t+d); lastF=fe;
     f1.frequency.setTargetAtTime(F[0]*V.fs,t,0.012); f2.frequency.setTargetAtTime(F[1]*V.fs,t,0.012);
     env.gain.setValueAtTime(0,t); env.gain.linearRampToValueAtTime(loud,t+a); env.gain.linearRampToValueAtTime(loud*0.7,t+d*0.7); env.gain.linearRampToValueAtTime(0,t+d);
-    t+=d+st*0.12+(nx===','?st*1.6:nx&&nx!==','?st*2.6:0); j++; }
+    t=t0+(k+1<TM.length?TM[k+1].t:TM.end); j++; }
   src.start(t0); srcs.forEach(o=>{ try{ o.stop(t+0.05); }catch(e){} });
   const L={env,srcs,end:t}; if(opt.side){ MUM.log.push({id,side:1,at:+t0.toFixed(2)}); return t-t0; } MUM.line=L; MUM.log.push({id,at:+t0.toFixed(2),end:+t.toFixed(2)}); if(MUM.log.length>30) MUM.log.shift(); setTimeout(()=>{ if(MUM.line===L) MUM.line=null; },(t-ctx.currentTime)*1000+400);
   return t-t0; }
@@ -5770,14 +5788,17 @@ function talkPick(a,salt){ return Array.isArray(a)?a[voiceHash(String(salt))%a.l
 function heroName(){ const C=CHARS.find(c=>c.id===state.char)||CHARS[0]; return C.name.toUpperCase(); }
 // a speech bubble over an anchor ({el, fx, fy}: a point inside the element, as fractions), and the mumble that goes with it.
 // Fixed position, clamped inside the screen, so it never makes anything scroll. One bubble at a time.
-function speak(id,name,text,anchor,o){ o=o||{}; if(!text) return; try{ mumble(id,text,o.voice); }catch(e){}
-  bubblesClear(); const el=anchor&&anchor.el; if(!el||!el.getBoundingClientRect) return; const r=el.getBoundingClientRect(); if(!r.width||!r.height) return;
+function speak(id,name,text,anchor,o){ o=o||{}; if(!text) return null;
+  bubblesClear(); const el=anchor&&anchor.el, voiceOnly=()=>o.mirror?typeVoiced(o.mirror,text,id,{side:o.voice&&o.voice.side,onDone:o.onDone}):(()=>{ try{ mumble(id,text,Object.assign({maxSec:99},o.voice)); }catch(e){} if(o.onDone) o.onDone(); return null; })();
+  if(!el||!el.getBoundingClientRect) return voiceOnly(); const r=el.getBoundingClientRect(); if(!r.width||!r.height) return voiceOnly();
   const b=document.createElement('div'); b.className='sbub'+(o.below?' below':''); if(o.below) b.style.maxWidth=Math.round(Math.max(150,r.width+24))+'px'; b.innerHTML=(name?'<b></b>':'')+'<span></span>'; if(name) b.querySelector('b').textContent=name; b.querySelector('span').textContent=text;
   document.body.appendChild(b); const bw=b.offsetWidth, bh=b.offsetHeight, ax=r.left+r.width*(anchor.fx==null?0.5:anchor.fx), ay=r.top+r.height*(anchor.fy==null?0.2:anchor.fy);
   const x=Math.max(6,Math.min(innerWidth-bw-6,ax-bw/2)), y=o.below?Math.min(innerHeight-bh-4,ay+9):Math.max(4,ay-bh-9);   // below: under the face, tail up (portraits)
   b.style.left=Math.round(x)+'px'; b.style.top=Math.round(y)+'px'; b.style.setProperty('--tx',Math.round(Math.max(10,Math.min(bw-10,ax-x)))+'px');
-  const ms=o.ms||Math.max(2200,Math.min(4200,text.length*75)); b._t=setTimeout(()=>{ b.classList.add('out'); setTimeout(()=>b.remove(),300); },ms); }
-function bubblesClear(){ document.querySelectorAll('.sbub').forEach(b=>{ clearTimeout(b._t); b.remove(); }); }
+  const span=b.querySelector('span'), ty=typeVoiced(span,text,id,{side:o.voice&&o.voice.side,onChar:n=>{ if(o.mirror) o.mirror.textContent=text.slice(0,n); },onDone:o.onDone});   // v2.05: the bubble types as it is said; the box keeps its full size from the start
+  span.style.visibility='visible'; b.style.minHeight=bh+'px'; b.style.width=bw+'px';
+  const ms=Math.max(o.ms||Math.max(2200,Math.min(4200,text.length*75)),ty.done*1000+1300); b._t=setTimeout(()=>{ b.classList.add('out'); setTimeout(()=>b.remove(),300); },ms); b._ty=ty; return ty; }
+function bubblesClear(){ document.querySelectorAll('.sbub').forEach(b=>{ clearTimeout(b._t); if(b._ty) b._ty.finish(); b.remove(); }); }
 // a point on the stage canvas (640x240 stage coordinates) as an anchor
 function stageAnchor(x,y){ const el=document.querySelector('.screen.active #stage')||$('stage'); return {el,fx:x/640,fy:y/240}; }
 // someone in the player's band, seen on stage: [id, head x, head y] or null

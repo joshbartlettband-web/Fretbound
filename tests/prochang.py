@@ -61,7 +61,7 @@ if __name__=='__main__':
     else:
         os.makedirs('art/hang',exist_ok=True); os.makedirs(MASTER,exist_ok=True)
         for cid in (sys.argv[1:] or IDS):
-            ns=sorted(int(re.search(r'_(\d+)\.png',f).group(1)) for f in glob.glob(f'art/gemini_test/sheets/out/hang_{cid}_*.png'))
+            ns=sorted(int(m.group(1)) for f in glob.glob(f'art/gemini_test/sheets/out/hang_{cid}_*.png') for m in [re.search(r'_(\d+)\.png$',f)] if m)   # numbered candidates only (backups like _rejected are skipped)
             if not ns: continue
             n=ns[-1] if os.environ.get('N') is None else int(os.environ['N'])
             r,meta=build(cid,n)

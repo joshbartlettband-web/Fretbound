@@ -9,6 +9,8 @@ AUDIT="""(()=>{ const out=[]; const vw=innerWidth, vh=innerHeight;
    if(txt&&el.scrollWidth>el.clientWidth+1&&cs.overflowX!=='visible') out.push('CLIPX '+tag+' "'+el.textContent.trim().slice(0,24)+'" '+el.scrollWidth+'>'+el.clientWidth);
    if(txt&&el.tagName==='BUTTON'&&!el.dataset.hitpad&&el.scrollWidth>el.clientWidth+1) out.push('BTNOVER '+tag+' "'+el.textContent.trim().slice(0,24)+'"');
    if(r.right>vw+1.5||r.left<-1.5) out.push('OFFX '+tag+' '+Math.round(r.left)+'..'+Math.round(r.right));
+   if((cs.overflowY==='auto'||cs.overflowY==='scroll')&&el.scrollHeight>el.clientHeight+16) out.push('SCROLLY '+tag+' '+el.scrollHeight+'>'+el.clientHeight);
+   if(el.tagName==='BUTTON'&&(r.bottom>vh+1.5||r.top<-1.5)) out.push('OFFY '+tag+' "'+el.textContent.trim().slice(0,24)+'" '+Math.round(r.top)+'..'+Math.round(r.bottom));
    const w=el.parentElement&&el.parentElement.closest('.win,.pc,.pco,.modal-card'); if(w&&txt){ const R=w.getBoundingClientRect(); if(r.right>R.right+1.5||r.left<R.left-1.5) out.push('SPILL '+tag+' "'+el.textContent.trim().slice(0,20)+'" past '+(w.id||w.className.split(' ')[0])); }
  })); return [...new Set(out)]; })()"""
 def ready(pg):
@@ -30,7 +32,7 @@ def run(w,h):
         pg.click("#btnSound"); time.sleep(0.2); A('settings'); pg.click("#pRes")
         pg.click("#btnHowto2"); time.sleep(0.2); A('howto'); pg.click("#mOk")
         pg.evaluate("document.getElementById('btnReady').click()"); time.sleep(0.2)
-        ready(pg); A('venuecard'); pg.click("#vcGo"); time.sleep(4.5); A('duel')
+        ready(pg); time.sleep(1.2); A('venuecard'); pg.click("#vcGo"); time.sleep(4.5); A('duel')
         for i in range(3):
             for tries in range(5):
                 try: pg.query_selector_all("#board .pedal")[i].click(); break

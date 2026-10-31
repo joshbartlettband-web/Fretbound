@@ -1106,7 +1106,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.08</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.09</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -1647,7 +1647,7 @@ const STORE_KEY='fretbound.v1';
 let store={};
 try{ store=JSON.parse(localStorage.getItem(STORE_KEY)||'{}')||{}; }catch(e){ store={}; }
 store.stats=store.stats||{};
-store.settings=Object.assign({crt:true,names:false,latency:20,wood:'rosewood',vol:0.6,music:0.7,band:0.7,voices:0.7},store.settings||{});
+store.settings=Object.assign({crt:true,names:false,nameIt:false,latency:20,wood:'rosewood',vol:0.6,music:0.7,band:0.7,voices:0.7},store.settings||{});
 function save(){ try{ localStorage.setItem(STORE_KEY,JSON.stringify(store)); }catch(e){} }
 
 /* ---------- state ---------- */
@@ -3912,15 +3912,17 @@ function showPause(){
     '<div class="setrow"><span>CRT scanlines</span>'+knobBtn('sCrt',s.crt)+'</div>'+
     '<div class="setrow"><span>Note names<br><span class="dim">Training wheels. Each label fades once you know that spot; notes on labels score half Tone.</span></span>'+knobBtn('sNames',s.names)+'</div>'+
     '<div class="setrow"><span>Octave echo<br><span class="dim">A right note glows everywhere else it lives.</span></span>'+knobBtn('sEcho',s.echo!==false)+'</div>'+
+    '<div class="setrow"><span>Name the first note<br><span class="dim">After a true call, name its first note. Still in the works.</span></span>'+knobBtn('sNameIt',s.nameIt)+'</div>'+
     '<div class="setrow"><span>Tap offset<br><span class="dim">Adjust if Groove feels off.</span></span><span class="stepper"><button class="btn small blue" id="sLm">-</button><span id="sLv">'+s.latency+'ms</span><button class="btn small blue" id="sLp">+</button></span></div></div>'+
     '<div class="setbtns"><div class="row-btns"><button class="btn gold" id="pRes">RESUME</button><button class="btn blue" id="pHow">HOW TO PLAY</button>'+(state.screen==='duel'?'<button class="btn" id="pQuit">QUIT</button>':'')+'</div>'+(s.dev?'<div class="row-btns"><button class="btn small blue" id="pDev">DEV MENU</button>'+(state.screen==='duel'&&!state.practice?'<button class="btn small gold" id="pWin">WIN THIS NIGHT</button>':'')+'</div>':'')+
     '<div class="row-btns"><button class="btn small blue" id="pReset">RESET EAR STATS</button></div></div>');
-  setKnob('sCrt',s.crt); setKnob('sNames',s.names); setKnob('sEcho',s.echo!==false);
+  setKnob('sCrt',s.crt); setKnob('sNames',s.names); setKnob('sEcho',s.echo!==false); setKnob('sNameIt',s.nameIt);
   if($('pDev')) $('pDev').onclick=()=>{ blip(660,0.05); showDev(); }; if($('pWin')) $('pWin').onclick=()=>{ blip(990,0.08); devWinNight(); };
   const vol=(id,key)=>{ $(id).oninput=e=>{ s[key]=e.target.value/100; $(id+'V').textContent=e.target.value; applyVolume(); }; $(id).onchange=()=>{ save(); if(key==='vol') blip(660,0.06); if(key==='band') bandPreview(); if(key==='voices') try{ mumble(voiceIdFor(RIVAL)||'green','Like this? I can talk a little quieter.'); }catch(e){} }; };
   vol('sVol','vol'); vol('sMus','music'); vol('sBand','band'); vol('sVoice','voices');
   $('sCrt').onclick=()=>{ s.crt=!s.crt; save(); applySettings(); setKnob('sCrt',s.crt); blip(s.crt?660:440,0.04); };
   $('sEcho').onclick=()=>{ s.echo=s.echo===false; save(); setKnob('sEcho',s.echo!==false); blip(s.echo!==false?660:440,0.04); };
+  $('sNameIt').onclick=()=>{ s.nameIt=!s.nameIt; save(); setKnob('sNameIt',s.nameIt); blip(s.nameIt?660:440,0.04); };
   $('sNames').onclick=()=>{ s.names=!s.names; save(); applySettings(); setKnob('sNames',s.names); blip(s.names?660:440,0.04); };
   $('sLm').onclick=()=>{ s.latency=Math.max(-100,s.latency-10); save(); $('sLv').textContent=s.latency+'ms'; };
   $('sLp').onclick=()=>{ s.latency=Math.min(250,s.latency+10); save(); $('sLv').textContent=s.latency+'ms'; };
@@ -9380,7 +9382,7 @@ async function finishAnswer(){
   state.phase='score'; setPhase();
   if(state.answer.every((a,k)=>state.call.notes[k]&&a.midi===state.call.notes[k].midi)){ trStop(); crash(); } else tapeStop();
   await sleep(250); if(!alive(tok)) return;
-  state.nameRes=null; if(state.answer.every((a,k)=>state.call.notes[k]&&a.midi===state.call.notes[k].midi)&&(!namesOn()||(!state.practice&&cellLearned(state.call.notes[0].s,state.call.notes[0].f)))){ state.nameRes=await askName(tok); if(!alive(tok)) return; }
+  state.nameRes=null; if(store.settings.nameIt&&state.answer.every((a,k)=>state.call.notes[k]&&a.midi===state.call.notes[k].midi)&&(!namesOn()||(!state.practice&&cellLearned(state.call.notes[0].s,state.call.notes[0].f)))){ state.nameRes=await askName(tok); if(!alive(tok)) return; }
   earLog(); if(state.practice) return finishPractice(tok); const res=evaluate();
   await animateScore(res,tok); if(!alive(tok)) return;
   const c=state.call;

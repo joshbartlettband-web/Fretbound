@@ -62,3 +62,34 @@
 7. **Name pedals.** For example, an Owl Scribe pedal: +3 Hype if you name the first note (ties into idea 1). Or a Rosetta pedal: +5 Tone for each note whose name matches tonight's note.
 8. **Review in words.** The review already shows names. Add the step between them, for example "F to G#: a minor 3rd". The notes, the names and the intervals all appear together.
 9. **Encounters that teach.** The karaoke box, radio station and busking corner can be short name drills, such as "play an A on every string".
+
+## Idea jam, round one (2026-11-25, v2.03)
+A starting list for the jam with Josh. Each idea follows WORLD.md: the magic is small, worn and a bit useless, and it never fixes the problem. "Art" says what the scene would need: an existing painted plate, or new Gemini pictures (about $0.13 a scene and $0.13 a local on Pro, going by `spend.log`).
+
+**Built in v2.03** (they use the three practice scenes from v1.93, so no new art):
+- **The reunion special** (TV set). Gerald's show is taping a reunion and the house band quit. Play the counting song for $4, or the theme from the feelings season (nobody remembers it but Gerald) for +2 Tone a note.
+- **Wash day** (laundromat). The only free dryer is haunted by a nice ghost who dries a load in four minutes if you play it a song. Play it a slow one (+1 Hype), buy strings from the vending machine ($2), or wait for a normal dryer (+1 replay).
+- **The guild hall.** Dues are $3 "since the group chat moved". Pay and get first pick of the lost and found (an uncommon pedal), or sign up for the guild photo (+1 Fame; you blink).
+
+**Shared pool, ideas only**
+1. **The weather report.** The local news covers your van as the evening weather: "light honking, chance of a show". Go on air for Fame, or hide behind the van for nothing. Art: a news van and anchor (new local), any parking-lot plate.
+2. **The haunted ice machine.** The motel ice machine makes ghost-shaped cubes and is lonely. Keep it company (one fewer replay, it is a long night) and it gives you a cold pedal; or just take the ice. Art: motel plate exists; the machine could be code-drawn.
+3. **The van has a grudge.** The van refuses to stop at one particular gas station chain. Push on to the next one (-$2 for the dearer gas) or make it stop (it sulks: the next night's tempo is 4 BPM slower). Art: none new, the van only honks.
+4. **A wizard in a homemade robe** asks for directions to a gig across town. Give him a ride (he pays in a used pedal that only works on Tuesdays: random common) or point the way. Art: one new local.
+5. **Open mic sign-up.** A coffee shop open mic with a list of 40 names. Wait it out for a small Fame bump, or leave. A choice with no cost, just time, to make the road feel lived in.
+6. **The band member's cousin.** Whoever is in your van seat has a cousin in town who feeds everyone. Restring for free, and a line from that member. Art: none (uses the seated member).
+7. **Lost pick.** A pick on the pavement glows faintly. Keep it (+1 Hype on the first call of each night this leg) or hand it in at the guild hall (the hall gives a cash reward). A small item that sticks around.
+
+**Per continent, ideas only**
+- **North America: a drive-in movie** with a monster movie on. The monster in the film waves at you. Play the intermission for tips.
+- **Africa: a tro-tro bus** with painted slogans and a driver who programs the radio. Ride along: a call tonight is guaranteed in a key you have practised.
+- **South America: a football match on the radio** in every shop. If "your" team wins (a coin flip), the crowd tonight is huge (+door money); if not, they are kind but quiet.
+- **Europe: a night train** with a sleeper car. Sleep (+1 replay) or play in the corridor for the night staff ($).
+- **Asia: a convenience store at 3am** where the clerk knows every enka song. Name the step in a short quiz for snacks (a small heal: a spare string pack).
+- **Oceania: a ute with a broken stereo.** Fix it with a pedal from your board (lose a pedal, gain Fame) or lend them a capo.
+- **Antarctica: the penguin census.** Help count the penguins. The counting song comes back (Gerald callback), and you get +1 Hype a true call.
+
+**Questions for Josh**
+- Should some events have a small chance of a rare outcome, the way the old-friend event can give a pedal?
+- Do you want a recurring storyline across a run (Gerald showing up twice, or the van's grudge paying off later)?
+- Which of these would you most like painted first?

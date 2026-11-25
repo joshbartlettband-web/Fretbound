@@ -3,6 +3,15 @@
 Updated 2026-10-02 after v1.55 (painted pose sets for 34 of 35 characters: painted pose sets for the Bard and the Tiger) (developer menu: five taps on the version text). v1.43 is merged to main; v1.44 to v1.55 (stage lights, painted roadside objects with doubled variety, castle, guitars, arms, power lines) are on branch `claude/serene-curie-omhjrg` with a pull request open.
 Read this first, then the START HERE section of `HANDOFF.md`.
 
+## v2.03 (2026-11-25)
+- Built: Tour Complete screen, pedal mods (the money sink), the first-night tips with a starter board, and three road events on the unused TV set, laundromat and guild hall scenes. Details in HANDOFF v2.03.
+- **Josh to check on the phone:** win a world tour (or use the developer menu) and look at the Tour Complete screen; buy a mod or two late in a run and say whether $10 and $20 feel right; clear site data (or use a private window) to see the first night as a new player would.
+- **Balance to watch:** mods make late runs stronger, and single calls already end some nights (PLAYTEST.md). If nights get too short, raise `MOD_COST` or lower `MOD_MUL`, or make targets grow with mods.
+- **Idea jam:** a first list is in `IDEAS_ENCOUNTERS_NOTES.md` ("Idea jam, round one"), with three questions for Josh.
+- **Waiting on Josh's yes (Gemini spend):** the Journeyman and the Busker in guild costume (WORLD.md proposals). Each has a 16-pose stage sheet, an 8-pose road sheet (`sheets/*_hang.png`) and a portrait. A costume is a shape change, so Pro edits ($0.134 each): about 6 calls for the stage sheet (`atlas_edit.py ID DIR "..." gemini-3-pro-image`, four groups, some retried), 3 for the road sheet, 2 for the portrait (`port_edit.py`/`edit_img.py`). About $1.50 a player, $3 for both, stop at $4. Then `atlas_merge.py`, `posetween.py`, `breathfix.py`, `procposes.py --embed`, `grade.py`. The Gemini credential works (model list checked 2026-11-25, no charge).
+- **Guitars:** the "more distinct guitars" item looks done already. v1.87/v1.88 gave the 9 Strat players their own shapes, the Bard and the Dune Looper keep Strats by choice, and the Journeyman has his Telecaster. Ask Josh whether he meant new guitar types with their own sound and stats (gameplay work, plus 2 menu images each).
+- **APK:** this session still saw the 24-character placeholder in `FRETBOUND_KEYSTORE_B64`. The key made in the October session lived in that container's scratchpad and is gone unless Josh saved it. No build has shipped on the real key, so a fresh key costs nothing: make one, put its base64 in `FRETBOUND_KEYSTORE_B64` and its password in `FRETBOUND_KEYSTORE_PASS` (environment settings), start a new session, `bash android/build.sh`.
+
 ## v2.01 (2026-10-22)
 - Done from the list: band blinks, reaction in-betweens, dusk stars and clouds, menu sounds, a brighter neck while answering, shape-coded pocket/groove marks. Josh to check them on the phone.
 - The APK: Josh updated the environment; a NEW session picks up the real key (this one still had the 24-character placeholder). Build with `bash android/build.sh` there.

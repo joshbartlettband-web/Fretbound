@@ -121,6 +121,13 @@ with sync_playwright() as p:
                   if clickText(pg,'#smActs button',r'BUY'): buys.append(x['id'])
                   else: clickText(pg,'#smActs button',r'CLOSE')
                   time.sleep(0.4)
+              for _ in range(6):   # spend what is left on pedal mods (v2.03); the thrifty bot keeps $5 for interest
+                  m=ev(pg,"window.__fb.state.money"); tags=[e for e in pg.query_selector_all('#shopBoard .ptile') if e.query_selector('.modtag')]
+                  if not tags: break
+                  pg.locator('#shopBoard .ptile:has(.modtag)').first.click(); time.sleep(0.3)
+                  cost=ev(pg,"(()=>{ const b=[...document.querySelectorAll('#smActs button')].find(x=>/^MOD/.test(x.textContent)); return b&&!b.disabled?+b.textContent.replace(/\D/g,''):0 })()")
+                  if cost and m-cost>=(5 if STRAT=='thrifty' else 0) and clickText(pg,'#smActs button',r'^MOD'): buys.append('mod'); time.sleep(0.4)
+                  else: clickText(pg,'#smActs button',r'CLOSE'); time.sleep(0.3); break
               log['shop'].append(dict(after_night=nights,money=S['m'],board=S['n'],bought=buys))
               if nights>=MAXN: done=True; break
               if vis(pg,'#btnNextGig'): pg.click('#btnNextGig'); time.sleep(0.8)
@@ -135,6 +142,9 @@ with sync_playwright() as p:
               out=ev(pg,"document.getElementById('roadOut').textContent"); log['road'].append([title,story,out]); log['texts'].append(['road',title+': '+story+' / '+out])
               if vis(pg,'#roadGo'): pg.click('#roadGo'); time.sleep(0.8)
               continue
+          if sc=='tourdone':
+              shot(pg,'tourdone',True); log['texts'].append(['tourdone',ev(pg,"document.getElementById('scr-tourdone').innerText.slice(0,600)")])
+              done=True; break
           if sc=='results':
               shot(pg,'results_'+str(nights),True); log['texts'].append(['results',ev(pg,"document.getElementById('scr-results').innerText.slice(0,600)")])
               if vis(pg,'#btnNextLeg'): pg.click('#btnNextLeg'); time.sleep(0.8); continue

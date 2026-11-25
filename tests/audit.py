@@ -37,9 +37,13 @@ def run(w,h):
                 except Exception: time.sleep(0.3)
             time.sleep(0.15); A('pedalmodal'+str(i)); pg.click("#pmC")
         pg.evaluate("window.__fb.shop()"); time.sleep(0.4); A('shop')
+        pg.evaluate("window.__fb.state.money=40; window.__fb.shop()"); time.sleep(0.4); A('shopmodtip')
+        pg.locator('#shopBoard .ptile').first.click(); time.sleep(0.2); A('boardcard'); pg.query_selector_all("#smActs .btn")[-1].click(); time.sleep(0.1)
         for k in range(3): pg.query_selector_all("#shopOffer .ptile")[k].click(); time.sleep(0.15); A('shopcard'+str(k)); pg.query_selector_all("#smActs .btn, #bmActs .btn")[-1].click()
         pg.evaluate("window.__fb.state.over='win'; window.__fb.state.cleared=['spur','tide','juke']; window.__fb.results()"); time.sleep(0.3); A('results')
         pg.click("#scr-results .tab[data-t=notes]"); time.sleep(0.2); A('notes')
+        pg.evaluate("window.__fb.tourDoneTest()"); time.sleep(4.5); A('tourdone')
+        print("  tour complete overflow:",pg.evaluate("(()=>{const e=document.querySelector('#scr-tourdone .check'); return e.scrollHeight-e.clientHeight})()"))
         print("  results body overflow:",pg.evaluate("(()=>{const e=document.querySelector('#scr-results .tabbody'); return e.scrollHeight-e.clientHeight})()"),"chars overflow:",pg.evaluate("(()=>{const e=document.querySelector('#scr-chars .check'); return e.scrollHeight-e.clientHeight})()") if False else '')
         b.close()
     return res

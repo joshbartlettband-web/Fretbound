@@ -1076,6 +1076,49 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
 .bsm-pin b{font-family:var(--ui);font-weight:normal;font-size:clamp(8px,2.3vw,11px);line-height:1.1;color:#2A1A10;background:rgba(240,228,196,.88);padding:0 3px;margin-bottom:1px;white-space:nowrap;border:1px solid #8A6A3A}
 .bs-map:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
 
+/* v2.03: Tour Complete */
+#scr-tourdone .check{overflow:hidden}
+.td-head{text-align:center;padding:8px 10px 9px;flex:none}
+.td-head .kicker{margin-bottom:2px}
+.td-head h2{font-family:var(--display);font-size:clamp(34px,10.5vw,50px);line-height:.95;color:var(--gold);text-shadow:3px 3px 0 #2A0A06}
+.td-head .sub{margin-top:4px}
+.td-mid{display:flex;flex-direction:column;justify-content:center;gap:8px;flex:1 1 auto;min-height:0}
+.td-map{flex:0 1 auto;min-height:0;display:flex;align-items:center;justify-content:center;padding:8px}
+.td-mapbox{position:relative;flex:none;box-shadow:0 0 0 3px #5A3A1E,0 0 0 5px #1A0C04,0 6px 0 5px rgba(0,0,0,.45);--st:24px}
+.td-mapbox img{display:block;width:100%;height:100%}
+.td-mapbox svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+#tdPins{inset:0}
+.td-pin.off{opacity:.55}
+.td-pin.off i{background:#8A7A68}
+.td-pin.on i{background:#FFC857;border-color:#3A1A06}
+.td-pin{z-index:2}
+.td-seg{stroke:#B3322A;stroke-width:2.5px;stroke-dasharray:5 4;stroke-linecap:round;fill:none;opacity:0;animation:tdSeg .4s ease-out forwards}
+@keyframes tdSeg{to{opacity:.9}}
+.td-stamp{position:absolute;width:var(--st);height:var(--st);transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(2.2);opacity:0;image-rendering:pixelated;z-index:1;animation:tdStamp .32s cubic-bezier(.3,1.6,.5,1) forwards;pointer-events:none}
+@keyframes tdStamp{to{opacity:1;transform:translate(-50%,-50%) rotate(var(--rot,0deg)) scale(1)}}
+.td-band{flex:none;padding:8px 8px 7px}
+.td-faces{display:flex;justify-content:center;gap:6px}
+.td-face{display:flex;flex-direction:column;align-items:center;min-width:52px}
+.td-face img,.td-face i{display:block;width:50px;height:50px;image-rendering:pixelated;background:radial-gradient(circle at 45% 40%,#3A2016,#140806);border:2px solid var(--brass);box-shadow:0 0 0 2px var(--edge-dark)}
+.td-face span{font-family:var(--ui);font-size:14px;line-height:1;color:var(--ink);margin-top:5px;white-space:nowrap}
+.td-face.you img{border-color:var(--gold)}
+.td-band .terms{justify-content:center;margin-top:8px}
+@media (orientation:landscape) and (max-height:560px){
+  .td-head{padding:5px 10px 6px}
+  .td-head h2{font-size:30px}
+  .td-mid{flex-direction:row}
+  .td-map{flex:1 1 0}
+  .td-band{flex:0 0 40%;display:flex;flex-direction:column;justify-content:center}
+  .td-face img,.td-face i{width:42px;height:42px}
+}
+@media (prefers-reduced-motion:reduce){ .td-seg,.td-stamp{animation-duration:.01s;animation-delay:0s!important} }
+/* v2.03: first-night tips and pedal mods */
+.dialog.coach{background:#14200E}
+.dialog.coach b{color:#8ED36A}
+.modtag{position:absolute;left:1px;bottom:1px;font-family:var(--ui);font-size:12px;line-height:1;letter-spacing:.5px;color:#10200A;background:#8ED36A;border:1px solid #10200A;padding:1px 2px;pointer-events:none;z-index:2}
+.pedal span.modpip,.modpip{display:block;position:absolute;right:1px;bottom:1px;font-family:var(--ui);font-size:13px;line-height:1;color:#2A1206;background:#FFC857;border:1px solid #2A1206;padding:0 2px 1px;pointer-events:none;z-index:2}
+.modhint{margin-top:4px}
+
 #scr-backstage .bs-ui{pointer-events:none}
 #scr-backstage .bs-ui .win,#scr-backstage .bs-ui button{pointer-events:auto}
 /* v2.01 (playtest): pause and REPLAY were under the 44 px a thumb wants; an invisible touch area around them, the layout unchanged */
@@ -1099,7 +1142,7 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
     </div>
     <div class="title-scene" id="titleScene"><button class="ts-arr" id="tsPrev" aria-label="Previous title scene">&lt;</button><span class="ts-mid"><span id="tsName">NORTH AMERICA</span><span id="tsCount">1 / 7 SCENES</span></span><button class="ts-arr" id="tsNext" aria-label="Next title scene">&gt;</button></div>
     <div class="ts-toast" id="tsToast" aria-live="polite"></div>
-    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.02</div>
+    <div class="fine title-foot">Turn your sound on. Headphones help your ears.<br>Prototype v2.03</div>
   </section>
 
     <section id="scr-chars" class="screen" aria-label="Choose your player">
@@ -1217,6 +1260,25 @@ canvas.pm.lit,canvas.pbig-cv.lit{filter:drop-shadow(0 3px 5px rgba(255,120,50,.5
         <button class="btn gold" id="btnAgain">RUN IT BACK</button>
         <button class="btn blue" id="btnNewChar">NEW PLAYER</button>
         <button class="btn blue" id="btnTitle">TITLE</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="scr-tourdone" class="screen" aria-label="Tour complete">
+    <div class="check td">
+      <div class="win td-head">
+        <div class="kicker" id="tdKicker">World tour</div>
+        <h2 id="tdTitle">Tour Complete</h2>
+        <div id="tdLine" class="sub"></div>
+      </div>
+      <div class="td-mid">
+        <div class="win td-map" id="tdMapWin"><div class="td-mapbox" id="tdMapBox"><img alt="The world map, with the route of your tour" id="tdMapImg"><svg id="tdRoute" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"></svg><span class="bsm-pins" id="tdPins"></span></div></div>
+        <div class="win td-band"><div class="td-faces" id="tdFaces"></div><div class="terms" id="tdStats"></div></div>
+      </div>
+      <div class="row-btns cbtns">
+        <button class="btn blue" id="btnTdEars">YOUR EARS</button>
+        <button class="btn gold" id="btnTdAgain">RUN IT BACK</button>
+        <button class="btn blue" id="btnTdTitle">TITLE</button>
       </div>
     </div>
   </section>
@@ -2439,8 +2501,8 @@ function evaluate(){
     if(CH==='journey'&&!state.callReplayed) steps.push({op:{toneMul:1.25},target:{type:'char'},label:'ONE TAKE X1.25',col:'tone'});
     if(CH==='carto'){ const n=ans.filter(a=>a.f>=9).length; if(n) steps.push({op:{tone:6*n},target:{type:'char'},label:'SURVEY +'+6*n,col:'tone'}); }
     const c={call,ans};
-    state.pedals.forEach((p,pi)=>{ const r=FX[p.id](c); if(r) steps.push({op:r.op,target:{type:'pedal',pi},label:r.label,col:r.col});
-      if(pi===0&&state.board==='loop'){ const r2=FX[p.id](c); if(r2) steps.push({op:r2.op,target:{type:'pedal',pi},label:'LOOP '+r2.label,col:r2.col}); } });
+    state.pedals.forEach((p,pi)=>{ const r=modFx(p.id,FX[p.id](c)); if(r) steps.push({op:r.op,target:{type:'pedal',pi},label:r.label,col:r.col});
+      if(pi===0&&state.board==='loop'){ const r2=modFx(p.id,FX[p.id](c)); if(r2) steps.push({op:r2.op,target:{type:'pedal',pi},label:'LOOP '+r2.label,col:r2.col}); } });
     if(state.board==='rack'&&state.pedals.length) steps.push({op:{toneMul:1.5},target:{type:'hand'},label:'TUBE RACK X1.5',col:'tone'});
     if(CH==='hermit') steps.push({op:{hypeMul:2},target:{type:'char'},label:'BY EAR X2',col:'hype'});
   }
@@ -2455,7 +2517,7 @@ async function animateScore(res,tok){
     const tg=s.target;
     if(tg.type==='hand') setHand(s.label,s.sub,res.perfect?(state.call.hot?'hot':''):'bad');
     else if(tg.type==='note'){ const el=$('slots').children[tg.k]; if(el){ el.classList.add(res.correct[tg.k]?'ok':'no'); pop(el,s.label,colorOf(s.col)); } }
-    else if(tg.type==='pedal'){ try{ fxSignal(tg.pi); }catch(e){} firePedal(tg.pi); const el=pedalEl(tg.pi); if(el) pop(el,s.label,colorOf(s.col)); }
+    else if(tg.type==='pedal'){ state.tutPedal=true; try{ fxSignal(tg.pi); }catch(e){} firePedal(tg.pi); const el=pedalEl(tg.pi); if(el) pop(el,s.label,colorOf(s.col)); }
     else if(tg.type==='wheels') pop(tb,s.label,colorOf('tone'));
     else if(tg.type==='guitar'){ const el=document.querySelector('#board .board-gtr'); pop((el&&el.offsetParent)?el:tb,s.label,colorOf(s.col)); }
     else if(tg.type==='char'){ const r=$('stage').getBoundingClientRect(); popAt(r.left+r.width*0.25,r.top+r.height*0.45,s.label,colorOf(s.col)); }
@@ -3473,7 +3535,7 @@ function playBackdrop(){
 function updateBackdrop(n){
   const el=$('backdrop'); if(!el) return;
   let url=null;
-  try{ if(n==='shop'||n==='chars') url=merchRoom(); else if(n==='duel'||n==='results') url=playBackdrop(); else if(n==='check') url=venueBackdrop(VEN()); }catch(e){ console.error('backdrop error',e&&e.stack||e); url=null; }
+  try{ if(n==='shop'||n==='chars') url=merchRoom(); else if(n==='duel'||n==='results'||n==='tourdone') url=playBackdrop(); else if(n==='check') url=venueBackdrop(VEN()); }catch(e){ console.error('backdrop error',e&&e.stack||e); url=null; }
   el.style.backgroundImage=url?'url('+url+')':'none'; el.classList.toggle('on',!!url);
   const merch=n==='shop'||n==='chars'; el.style.backgroundPosition=merch?'center 100%':'';   // the merch table sits at the bottom of the room
 }
@@ -3710,6 +3772,8 @@ function pedalTile(p,o){
   { const r=document.createElement('span'); r.className='rgem r-'+rarOf(p.id); r.title=RARITY[rarOf(p.id)].name; b.appendChild(r); }
   if(o.badge!=null){ const s=document.createElement('span'); s.className='badge'; s.textContent=String(o.badge); b.appendChild(s); }
   if(o.price!=null){ const s=document.createElement('span'); s.className='price'; s.textContent=o.sold?'SOLD':'$'+o.price; b.appendChild(s); }
+  if(o.mod) b.appendChild(modPip(o.mod));
+  if(o.canMod){ const s=document.createElement('span'); s.className='modtag'; s.textContent='MOD'; b.appendChild(s); }
   return b;
 }
 function pedalEl(i){ return $('board').querySelectorAll('.pedal')[i]; }
@@ -3805,8 +3869,8 @@ function renderBoard(){
   const gw=document.createElement('div'); gw.className='board-gtr stand'; gw.title=curGuitar().name; { const gid=curGuitar().id, st=guitarStand(gid); gw.appendChild(st.className==='gp'?st:gpWhenReady(gid,st,()=>{ delete gsCache[gid]; return guitarStand(gid); })); } b.appendChild(gw);
   const tiles=state.pedals.map((p,i)=>{
     const el=document.createElement('button'); el.className='pedal';
-    el.setAttribute('aria-label',PEDAL_TYPE[p.id].name+'. '+p.text);
-    el.appendChild(pedalMini(p,false));
+    el.setAttribute('aria-label',PEDAL_TYPE[p.id].name+(modLv(p.id)?', modded':'')+'. '+p.text);
+    el.appendChild(pedalMini(p,false)); if(modLv(p.id)) el.appendChild(modPip(modLv(p.id)));
     return el;
   });
   dragReorder(tiles,i=>onPedalTap(i),(i,j)=>movePedalTo(i,j),()=>state.phase!=='score');
@@ -3862,12 +3926,15 @@ function shopModal(kind,idx){
   const short=window.innerHeight<560;
   openModal('<div class="mwrap'+(short?' row':'')+'"><div id="smWrap"></div><div class="row-btns mact" id="smActs"></div></div>');
   $('smWrap').appendChild(pedalCardEl(p,{lit:kind==='board',price:kind==='sale'?A.price:null,compact:short}));
+  if(kind==='board'&&modable(p.id)) $('smWrap').insertAdjacentHTML('beforeend','<div class="dim mhint modhint">'+modHint(p.id)+'</div>');
   const acts=$('smActs');
   const btn=(label,cls,dis,fn)=>{ const b=document.createElement('button'); b.className='btn small '+cls; b.innerHTML=label; b.disabled=!!dis; b.onclick=fn; acts.appendChild(b); };
   if(kind==='sale'){
     btn(it.sold?'SOLD':full?'BOARD FULL':'BUY $'+A.price,'gold',it.sold||full||state.money<A.price,()=>{ state.money-=A.price; state.pedals.push(p); it.sold=true; sfx('buy'); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); demoLick('pedal'); closeModal(); renderShop(); });
   } else {
-    btn('SELL $'+Math.floor(A.price/2),'',false,()=>{ state.money+=Math.floor(A.price/2); state.pedals.splice(idx,1); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); sfx('sell'); closeModal(); renderShop(); });
+    const lv=modLv(p.id), mc=MOD_COST[lv], sv=Math.floor(A.price/2)+modRefund(p.id);
+    if(modable(p.id)) btn(lv>=MOD_COST.length?'MAXED':'MOD $'+mc,'gold',lv>=MOD_COST.length||state.money<mc,()=>{ state.money-=mc; state.mods=state.mods||{}; state.mods[p.id]=lv+1; sfx('buy'); demoLick('pedal'); closeModal(); renderShop(); });
+    btn('SELL $'+sv,'',false,()=>{ state.money+=sv; if(state.mods) delete state.mods[p.id]; state.pedals.splice(idx,1); if(playerRig) playerRig.setPedals(state.pedals.map(q=>q.id)); sfx('sell'); closeModal(); renderShop(); });
   }
   btn('CLOSE','blue',false,()=>{ blip(440,0.04); closeModal(); });
 }
@@ -3885,8 +3952,9 @@ function renderShop(){
   const nb=state.broken.filter(Boolean).length;
   const rc=state.char==='luthier'?0:RESTRING; $('btnRestring').disabled=!nb||state.money<rc; $('btnRestring').textContent=nb?(rc?'RESTRING $'+rc:'RESTRING FREE'):'STRINGS OK'; $('btnPack').disabled=state.money<PACK||(state.spares||0)>=PACK_MAX; $('btnPack').textContent='PACK $'+PACK+((state.spares||0)?' ('+state.spares+')':'');
   $('boardNote').textContent=state.pedals.length+'/'+boardMax()+(full?', full':'')+', '+titleCase(curBoard().name);
+
   const bd=$('shopBoard'); bd.innerHTML='';
-  { const tl=state.pedals.map((p,i)=>pedalTile(p,{badge:i+1})); dragReorder(tl,i=>{ blip(700,0.04); shopModal('board',i); },(i,j)=>movePedalTo(i,j)); bd.appendChild(boardWrap(tl)); }
+  { const tl=state.pedals.map((p,i)=>pedalTile(p,{badge:i+1,mod:modLv(p.id),canMod:modable(p.id)&&modLv(p.id)<MOD_COST.length&&state.money>=MOD_COST[modLv(p.id)]})); dragReorder(tl,i=>{ blip(700,0.04); shopModal('board',i); },(i,j)=>movePedalTo(i,j)); bd.appendChild(boardWrap(tl)); }
   $('btnNextGig').textContent='NEXT SHOW: '+(N?N.short:'');
 }
 function sliderRow(id,label,val,sub){ return '<div class="setrow"><span>'+label+(sub?'<br><span class="dim">'+sub+'</span>':'')+'</span><span class="vol"><input type="range" min="0" max="100" step="1" id="'+id+'" value="'+Math.round(val*100)+'" aria-label="'+label+'"><b id="'+id+'V">'+Math.round(val*100)+'</b></span></div>'; }
@@ -4580,14 +4648,15 @@ function goShop(){
   let door=V.pay; const RM=state.roadMod; if(RM&&RM.doorBet) door=Math.random()<0.5?V.pay*2:0;
   state.earnRows=[[RM&&RM.doorBet?(door?'Door (bet won)':'Door (bet lost)'):'Door',door],['Calls left',callsLeft],['Replays left',state.replays],['Interest',interest]]; if(META.van.cooler) state.earnRows.push(['Cooler',1]); const wg=crewWages(); if(wg) state.earnRows.push(['Crew wages',-wg]);
   const cashBefore=state.money; state.money=Math.max(0,state.money+state.earnRows.reduce((a,r)=>a+r[1],0)); state.roadMod=null;
+  for(const k in (state.mods||{})) if(!state.pedals.some(p=>p.id===k)) delete state.mods[k];   // a pedal traded away on the road takes its mods with it
   state.shop=rollShop(); state.sfocus={kind:'sale',k:0};
-  renderShop(); goScreen('shop'); saveRun(); requestAnimationFrame(()=>{ try{ fxCashOut(cashBefore,state.money); }catch(e){} }); setTimeout(()=>{ try{ if(state.screen==='shop') maybeRecruit(); }catch(e){} },700);
+  renderShop(); goScreen('shop'); saveRun(); requestAnimationFrame(()=>{ try{ fxCashOut(cashBefore,state.money); }catch(e){} }); setTimeout(()=>{ try{ if(state.screen!=='shop') return; if(state.tutShop) tutPayday(); else maybeRecruit(); }catch(e){} },700);
   if(ctx){ trStop(); menuCue('shop'); }
 }
 const RUN_KEY='fretbound.run.v1';
 function saveRun(){ try{ localStorage.setItem(RUN_KEY,JSON.stringify({runSeed:state.runSeed,char:state.char,guitar:state.guitar,tour:state.tour,tourSel:state.tourSel,nextTour:state.nextTour,visited:state.visited,legNo:state.legNo,legPending:!!state.legPending,venueIdx:state.venueIdx,
   money:state.money,broken:state.broken,pedals:state.pedals.map(q=>q.id),board:state.board,streak:state.streak,loopCharge:state.loopCharge,afterMiss:!!state.afterMiss,trueCalls:state.trueCalls,grooveHits:state.grooveHits,notesPlayed:state.notesPlayed,best:state.best,callsTotal:state.callsTotal,
-  cleared:state.cleared,tourScore:state.tourScore,earnRows:state.earnRows,roadDone:!!state.roadDone,roadSeen:state.roadSeen||[],roadMod:state.roadMod||null,nameStreak:state.nameStreak||0,tough:state.tough||0,spares:state.spares||0,lineup:state.lineup||[],gauge:state.gauge||'standard',seven:!!state.seven,when:Date.now()})); }catch(e){} }
+  cleared:state.cleared,tourScore:state.tourScore,earnRows:state.earnRows,roadDone:!!state.roadDone,roadSeen:state.roadSeen||[],roadMod:state.roadMod||null,nameStreak:state.nameStreak||0,tough:state.tough||0,spares:state.spares||0,lineup:state.lineup||[],gauge:state.gauge||'standard',seven:!!state.seven,mods:state.mods||{},when:Date.now()})); }catch(e){} }
 function loadRun(){ try{ const r=JSON.parse(localStorage.getItem(RUN_KEY)||'null'); return r&&TOURS[r.tour]&&CHAR_BY[r.char]?r:null; }catch(e){ return null; } }
 function clearRun(){ try{ localStorage.removeItem(RUN_KEY); }catch(e){} renderContinue(); }
 function renderContinue(){ const b=$('btnContinue'); if(!b) return; const r=loadRun(); b.classList.toggle('hidden',!r);
@@ -4595,7 +4664,7 @@ function renderContinue(){ const b=$('btnContinue'); if(!b) return; const r=load
 function resumeRun(){
   if(state.practice) leavePractice();
   const r=loadRun(); if(!r) return false;
-  Object.assign(state,{runSeed:r.runSeed||7,nextTour:r.nextTour,visited:r.visited||[r.tour],char:r.char,guitar:r.guitar,tourSel:r.tourSel,legNo:r.legNo,legPending:r.legPending,venueIdx:r.venueIdx,money:r.money,broken:r.broken.slice(),seven:!!r.seven,tough:r.tough||0,spares:r.spares||0,lineup:r.lineup||[],gauge:r.gauge||'standard',
+  Object.assign(state,{runSeed:r.runSeed||7,nextTour:r.nextTour,visited:r.visited||[r.tour],char:r.char,guitar:r.guitar,tourSel:r.tourSel,legNo:r.legNo,legPending:r.legPending,venueIdx:r.venueIdx,money:r.money,broken:r.broken.slice(),seven:!!r.seven,tough:r.tough||0,spares:r.spares||0,lineup:r.lineup||[],gauge:r.gauge||'standard',mods:r.mods||{},
     pedals:r.pedals.map(id=>PEDALS.find(q=>q.id===id)).filter(Boolean),trueCalls:r.trueCalls,grooveHits:r.grooveHits,notesPlayed:r.notesPlayed,best:r.best,callsTotal:r.callsTotal,
     cleared:r.cleared.slice(),tourScore:r.tourScore,earnRows:r.earnRows||[],roadDone:!!r.roadDone,roadSeen:r.roadSeen||[],roadMod:r.roadMod||null,nameStreak:r.nameStreak||0,board:r.board||'classic',streak:r.streak||0,loopCharge:r.loopCharge||0,afterMiss:!!r.afterMiss,runId:state.runId+1,over:null});
   setTour(r.tour); applyTuning(); applyVenue(VEN());
@@ -4640,6 +4709,7 @@ function showResults(){
     lw.appendChild(bar); lw.appendChild(card); show(state.cleared.length-1);
   }
   setTab('ears');
+  if(all&&lastWin&&!NT){ showTourDone(); return; }
   goScreen('results'); menuCue(state.over==='win'?'win':'lose');
 }
 const LINER_TITLE={herald:'Who built rock and roll'};
@@ -5627,7 +5697,7 @@ function renderAll(){
 let dlgTimer=null, typeTimer=null;
 function say(who,text,ms,noType){
   const d=$('dialog'); clearTimeout(dlgTimer); clearInterval(typeTimer); try{ mumbleStop(); }catch(e){}
-  d.classList.add('show'); d.style.fontSize=''; d.style.height=''; d.innerHTML='<b></b><span></span>'; d.querySelector('b').textContent=who;
+  d.classList.add('show'); d.classList.toggle('coach',who==='TIP'); d.style.fontSize=''; d.style.height=''; d.innerHTML='<b></b><span></span>'; d.querySelector('b').textContent=who;
   const sp=d.querySelector('span');
   // the strip is two lines tall and must never grow (the layout below would jump): a long line is set a little smaller until it fits
   const H0=d.offsetHeight; sp.textContent=text; let fs=parseFloat(getComputedStyle(d).fontSize)||15, k=0; while(d.scrollHeight>H0+1&&k<8){ fs*=0.92; d.style.fontSize=fs.toFixed(1)+'px'; k++; } d.style.height=H0+'px';
@@ -9217,7 +9287,7 @@ async function voiceTest(id,text,raw){
 function goScreen(n){
   try{ if(n!==state.screen){ mumbleStop(); bubblesClear(); } if(n==='title') renderTitleStats(); if(DEVROAD&&n!=='road') devRoadEnd(true); }catch(e){}
   if(n!=='duel'&&state.practice) leavePractice();
-  try{ if(CUE.on&&CUE.screen!==n) cueStop(); }catch(e){}
+  try{ const grp=x=>x==='tourdone'?'results':x; if(CUE.on&&grp(CUE.screen)!==grp(n)) cueStop(); }catch(e){}
   try{ if(n==='title'){ if(ctx&&ctx.state==='running') startTitleSong(); } else stopTitleSong(); }catch(e){}
   try{ if(n==='duel'&&(VEN().rowdy||rivalHas('brass'))) startRowdy(); else stopRowdy(); }catch(e){}
   try{ updateBackdrop(n); }catch(e){}
@@ -9234,7 +9304,8 @@ function startRun(){
   if(state.practice) leavePractice();
   clearRun(); state.seven=!!(META.seven&&META.sevenOn); state.runSeed=1+Math.floor(Math.random()*999983);
   applyTuning(); setTour(state.tourSel||0);
-  Object.assign(state,{visited:[state.tourSel||0],nextTour:null,board:'classic',streak:0,loopCharge:0,afterMiss:false,legNo:1,legPending:false,money:state.char==='busker'?8:0,venueIdx:0,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:[],tourScore:0,roadDone:false,roadSeen:[],roadMod:null,nameStreak:0}); try{ renderStreakTag(false); }catch(e){}
+  Object.assign(state,{visited:[state.tourSel||0],nextTour:null,board:'classic',streak:0,loopCharge:0,afterMiss:false,legNo:1,legPending:false,money:state.char==='busker'?8:0,venueIdx:0,broken:Array(NS).fill(false),trueCalls:0,grooveHits:0,notesPlayed:0,best:0,callsTotal:0,cleared:[],tourScore:0,roadDone:false,roadSeen:[],roadMod:null,nameStreak:0,mods:{}}); try{ renderStreakTag(false); }catch(e){}
+  state.tut=!!state.tutNext; state.tutNext=false; state.tutSeen={}; state.tutPedal=false; state.tutSnap=false; state.tutShop=false;
   state.tough=Math.min(META.tough,META.toughMax); state.money+=2*(META.van.trunk||0); state.fameGain=0;
   state.gauge=META.rack?META.gauge:'standard'; state.lineup=(META.lineup||[]).filter(id=>META.hired[id]).slice(0,vanSeats()); state.spares=0;
   for(let k=0;k<7;k++){ vib[k]=null; press[k]=null; snap[k]=null; }
@@ -9266,7 +9337,7 @@ async function startVenue(){
   say(RIVAL,LINES.intro[1]);
   await sleep(2200); if(!alive(tok)) return;
   if(TALK[state.char]){ say(heroName(),talkPick(TALK[state.char].re,state.venueIdx+':'+(state.legNo||0)+':'+(state.runSeed||0))); await sleep(1900); if(!alive(tok)) return; }   // the player answers back (v1.84)
-  if(!window.__fbNoWarm&&state.tonight!=null){ hideDialog(); say('WARM UP','Find tonight\'s note, '+NN[state.tonight]+', three times anywhere on the neck. $1 for each.',0,true);
+  if(!window.__fbNoWarm&&state.tonight!=null&&!state.tut){ hideDialog(); say('WARM UP','Find tonight\'s note, '+NN[state.tonight]+', three times anywhere on the neck. $1 for each.',0,true);
     const n=await runHunt(state.tonight,3,12,'FIND',tok); if(!alive(tok)) return; hideDialog(); if(n){ RD.money(n); pop($('topCash'),'+$'+n,'#FFC857'); } await sleep(400); if(!alive(tok)) return; }
   startCall(tok);
 }
@@ -9284,11 +9355,11 @@ async function startCall(tok){
   const rf=c.notes[0].f; state.pos=state.win<=6?rf-1:rf-Math.floor(state.win/2); clampPos();
   renderAll();
   tr.root=c.root;   // before the taunt, so the caller's mumble is in the call's key
-  say(RIVAL,LINES.taunt[(state.callIdx-1)%LINES.taunt.length]);
+  if(!tutSlot('listen')) say(RIVAL,LINES.taunt[(state.callIdx-1)%LINES.taunt.length]);
   const t0=ctx.currentTime+0.12; trStart('duel',t0);
   const tc=t0+BAR; scheduleCall(c,tc); try{ mumbleStop(tc-0.08); }catch(e){}   // never talk over the call try{ bandKeysHint(c,t0); }catch(e){}
   await waitCtx(tc+(c.notes.length-1)*BEAT+0.3,tok); if(!alive(tok)) return;
-  if(state.phase==='listen'){ state.phase='answer'; setPhase(); grooveMix('answer'); hideDialog(); renderNeck(); }
+  if(state.phase==='listen'){ state.phase='answer'; setPhase(); grooveMix('answer'); if(!tutSlot('answer')) hideDialog(); renderNeck(); }
 }
 function onFretTap(s,f,e){
   if(!ctx||state.screen!=='duel') return;
@@ -9335,7 +9406,7 @@ async function finishAnswer(){
     const s=state.answer[res.firstWrong].s;
     if(state.char==='luthier'&&!state.spareUsed){ state.spareUsed=true; blip(990,0.08); const el=$('stringsUI').children[NS-1-s]; if(el) pop(el,'SPARE STRING','#8ED36A',true); }
     else if(state.gauge==='heavy'&&!state.heavySaved){ state.heavySaved=true; blip(520,0.1); const el=$('stringsUI').children[NS-1-s]; if(el) pop(el,'HEAVY GAUGE HELD','#8ED36A',true); }
-    else { state.broken[s]=true; startSnap(s,state.answer[res.firstWrong].f); sfxSnap(); heroFlinch(); state.shake=7;
+    else { state.broken[s]=true; state.tutSnap=true; startSnap(s,state.answer[res.firstWrong].f); sfxSnap(); heroFlinch(); state.shake=7;
       if(state.gauge==='light'){ const n2=[s+1,s-1].find(k=>k>=0&&k<NS&&!state.broken[k]); if(n2!=null){ state.broken[n2]=true; startSnap(n2,0); const e2=$('stringsUI').children[NS-1-n2]; if(e2) pop(e2,'LIGHT GAUGE','#FF4848',true); } }
       renderStrings(); const el=$('stringsUI').children[NS-1-s]; if(el) pop(el,'SNAP!','#FF4848',true); }
   }
@@ -9357,7 +9428,7 @@ async function finishAnswer(){
     await sleep(2800); if(!alive(tok)) return;
   }
   const win=state.total>=TARGET, lose=!win&&(state.callIdx>=SETLEN||state.broken.every(Boolean));
-  state.over=win?'win':lose?'lose':null; dexNight(state.over);
+  state.over=win?'win':lose?'lose':null; dexNight(state.over); if(state.over&&state.tut) tutEnd(win);
   if(win){ jingleWin(); state.cleared.push(VEN().id); state.tourScore+=state.total;
     try{ fxCrowdParty(true); const perfect=!state.nightMisses, head=!!VEN().headliner;
       if(head){ fxBanner('HEADLINER DOWN',titleCase(RIVAL)+' takes a bow','#FFC857'); fxFireworks(); }
@@ -9382,7 +9453,7 @@ function showHowto(cb){
     '<li>Tap near the beat for <b>Groove</b>. It only ever adds Hype.</li>'+
     '<li>Miss a note and that string snaps. You will have to find notes elsewhere.</li>'+
     '<li><b>Replay</b> plays the call again. You get 3 each night.</li>'+
-    '<li>Win a night to get paid. Spend it at the merch table on pedals and new strings.</li>'+
+    '<li>Win a night to get paid. Spend it at the merch table on pedals, pedal mods and new strings.</li>'+
     '</ol><p class="dim howto-p">Score is Tone x Hype. Reach the target before the setlist runs out. Slide along the neck with the arrows or the strip above it.</p>'+
     '<div class="row-btns"><button class="btn gold" id="mOk">GOT IT</button></div>');
   $('mOk').onclick=()=>{ blip(880,0.06); closeModal(); store.seenHowto=true; save(); if(cb) cb(); };
@@ -9503,7 +9574,7 @@ $('btnReroll').onclick=()=>{ if(state.money<rerollCost()) return; state.money-=r
 $('btnPack').onclick=()=>{ if(state.money<PACK||(state.spares||0)>=PACK_MAX) return; state.money-=PACK; state.spares=(state.spares||0)+1; blip(990,0.06); saveRun(); renderShop(); };
 $('btnRestring').onclick=()=>{ const s=state.broken.findIndex(Boolean), rc=state.char==='luthier'?0:RESTRING; if(s<0||state.money<rc) return; state.money-=rc; state.broken[s]=false; snap[s]=null; if(playerRig&&ctx){ playerRig.pluck(OPEN[s],s,ctx.currentTime+0.05); } blip(990,0.05); renderShop(); };
 $('roadGo').onclick=()=>{ blip(990,0.08); clearInterval(goRoad.iv); const n=roadState&&roadState.next; roadState=null; if(n) n(); };
-$('btnNextGig').onclick=()=>{ blip(990,0.08);
+$('btnNextGig').onclick=()=>{ blip(990,0.08); state.tutShop=false;
   if(state.legPending){ state.legPending=false; state.roadDone=false; setTour(state.nextTour); state.visited=(state.visited||[]).concat([state.nextTour]); state.legNo++; state.venueIdx=0; state.cleared=[]; startVenue(); return; }
   if(state.venueIdx===0&&!state.roadDone&&!state.practice){ state.venueIdx++; goRoad(()=>startVenue()); return; }
   state.venueIdx++; startVenue(); };
@@ -9521,7 +9592,7 @@ $('btnNextLeg').onclick=()=>{ blip(990,0.08); const left=unvisited();
 $('btnAgain').onclick=()=>{ blip(880,0.06); goCheck(); };
 $('btnNewChar').onclick=()=>{ blip(880,0.06); goChars(); };
 $('btnCharBack').onclick=()=>{ blip(440,0.05); trStop(); goScreen('title'); };
-$('btnCharGo').onclick=()=>{ const C=curChar(); state.guitar=C.guitar; store.settings.char=C.id; store.settings.guitar=C.guitar; store.settings.wood=GUITAR_BY[C.guitar].wood; save(); applyTuning(); if(playerRig) playerRig.setGuitar(curGuitar()); warmCache(curGuitar()); blip(990,0.08); goCheck(); };
+$('btnCharGo').onclick=()=>{ const C=curChar(); state.guitar=C.guitar; store.settings.char=C.id; store.settings.guitar=C.guitar; store.settings.wood=GUITAR_BY[C.guitar].wood; save(); applyTuning(); if(playerRig) playerRig.setGuitar(curGuitar()); warmCache(curGuitar()); blip(990,0.08); if(tutFirst()) tutBegin(); else goCheck(); };
 document.querySelectorAll('#scr-results .tab').forEach(b=>b.onclick=()=>{ blip(700,0.04); setTab(b.dataset.t); });
 $('btnTitle').onclick=()=>{ blip(440,0.06); trStop(); renderContinue(); goScreen('title'); };
 $('btnContinue').onclick=()=>{ initAudio(); jingleStart(); if(!resumeRun()) renderContinue(); };
@@ -9537,6 +9608,7 @@ window.fbBack=()=>{
   if(sc==='chars'){ $('btnCharBack').click(); return 'ok'; }
   if(sc==='check'){ blip(440,0.05); goChars(); return 'ok'; }
   if(sc==='results'){ $('btnTitle').click(); return 'ok'; }
+  if(sc==='tourdone'){ $('btnTdTitle').click(); return 'ok'; }
   if(sc==='shop'){ trStop(); renderContinue(); goScreen('title'); return 'ok'; }
   return 'ok';
 };
@@ -9587,6 +9659,108 @@ window.__dbg={GBnow:()=>GB,bp:()=>bandPreview(),bm:p=>bandMul(p)};window.__fb={h
     Object.assign(state,save); setTour(save.tour); return out; },snap:id=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); return stageSnapshot(V).toDataURL(); },stageAt:(id,t)=>{ const V=[...VENUES_NA,...VENUES_AF,...VENUES_SA,...VENUES_EU,...VENUES_AS,...VENUES_OC,...VENUES_AN].find(v=>v.id===id); buildBg(V); const t1=document.createElement('canvas'); t1.width=SW; t1.height=SH; const g=t1.getContext('2d'); ART[id].dyn(g,t); const c=document.createElement('canvas'); c.width=SW*2; c.height=SH*2; const cg=c.getContext('2d'); cg.drawImage(bgCanvas,0,0); cg.drawImage(up2(t1),0,0); stageLights(cg,t,id); drawBandStage(cg,t,'back',id); drawHero(cg,state.char||'bard',HERO_X,FIGHTER_Y,{t:0.4,strum:-1}); if(ART[id].vec){ drawRivalVec(cg,id,RIVAL_X,FIGHTER_Y,{t:0.4,strum:-1}); drawRivalProp(cg,id,t); } drawBandStage(cg,t,'front',id); drawCrowdFront(cg,t,V.hats); stageBlind(cg,V,t); return c.toDataURL(); },stagePlates:()=>Object.keys(STAGE_PLATE),mumble:(id,t,o)=>mumble(id,t,o), voiceTest:(id,t,raw)=>voiceTest(id,t,raw), voices:()=>Object.keys(VOICE), voiceTable:()=>VOICE, mumLog:()=>MUM.log.slice(), syl:t=>mumbleSyllables(t),
   talk:()=>TALK, speakTest:(id,t)=>speak(id,null,t,stageAnchor(HERO_X,FIGHTER_Y-92)), cheerTest:()=>bandCheer(), pedalFaceTest:ids=>{ const w=document.createElement('div'); w.id='pfTest'; w.style.cssText='position:fixed;inset:0;z-index:99;background:#1A0C0A;display:flex;flex-wrap:wrap;gap:8px;padding:8px;align-content:flex-start'; ids.forEach(id=>{ const p=PEDALS.find(q=>q.id===id); if(p) w.appendChild(pedalFace(p,{})); }); document.body.appendChild(w); }, memberTest:id=>memberModal(id), recruitTest:()=>{ state.lineup=[]; state.rivalBand=[]; state.recruitAsked=null; maybeRecruit(true); }, roadLineTest:(rid)=>roadBandLine(rid,0), heroLineTest:(w)=>{ const T=TALK[state.char||'bard']; speak(state.char||'bard',null,w?T.win:T.lose,stageAnchor(HERO_X,FIGHTER_Y-92)); },
   askNameTest:(first)=>{ if(!state.call) state.call={notes:[{midi:57}]}; if(first) state.nameNight=null; askName(state.runId); },depthInfo:(vid,ids,m)=>bandPlaces(ids,!!m,vid).map(([id,xy])=>({id,y:xy[1],s:+bandArtScale(xy[1]).toFixed(3)})),bandPNG:(id,q,m)=>{ const f=bandPaintedFrame(id,q||{},!!m); return f?{u:f.c.toDataURL(),ax:f.ax,ay:f.ay}:null; },heroAt:(cid,bl)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawHero(c.getContext('2d'),cid,100,210,{t:0.4,strum:-1,blink:!!bl}); return c.toDataURL(); },rivalAt:(id)=>{ const c=document.createElement('canvas'); c.width=200; c.height=220; drawRivalVec(c.getContext('2d'),id,100,210,{t:0.4,strum:-1}); return c.toDataURL(); },guitarMenu:(id,k)=>k==='card'?guitarPainted(id,true,34,96):k==='panel'?guitarPainted(id,false,150,60):guitarStand(id),pedalArt:()=>PEDAL_ART,rivalVec:()=>RIVAL_VEC,playBackdrop:()=>playBackdrop(),rivalFrame2:(id,q)=>rivalFrame2(id,q,true),rivalPNG:(id,q)=>rivalFrame2(id,q).toDataURL(),face:(id,o)=>pedalFace(PEDALS.find(q=>q.id===id),o||{compact:true}),sky:i=>{ skyIdx=i; titleStatic=null; },pcard:(id,o)=>pedalCardEl(PEDALS.find(p=>p.id===id),o||{compact:true}),boardArt:id=>boardArt(id),PEDALS,titleAt:t=>titleFrame(t),results:()=>showResults(),state,store,makeCall,evaluate,geo,levelTest,pitchTest,stackTest,rigs:()=>({playerRig,ctx}),get VENUES(){ return VENUES; },tour:i=>{ state.tourSel=i; setTour(i); },jump:i=>{ state.venueIdx=i; PEDALS.forEach(q=>{ if(state.pedals.length<5&&!state.pedals.includes(q)) state.pedals.push(q); }); startVenue(); },shop:()=>goShop()};
+
+/* ---------- v2.03: pedal mods, the Tour Complete screen, and tips on the first night ---------- */
+// Pedal mods, the late-game money sink: tap a pedal on your board at the merch table and pay to make its effect stronger.
+// Positive Tone and Hype scale and round up, and each level adds at least one more point (a +1 Hype pedal goes +2, then +3);
+// a multiplier scales its extra part (x1.5 becomes x1.75, then x2). Penalties never grow.
+const MOD_COST=[10,20], MOD_MUL=[1,1.5,2];
+function modLv(id){ return (state.mods&&state.mods[id])||0; }
+function modable(id){ return !!FX[id]; }
+function modRefund(id){ let s=0; for(let k=0;k<modLv(id);k++) s+=MOD_COST[k]; return Math.floor(s/2); }
+function modPip(lv){ const s=document.createElement('span'); s.className='modpip'; s.textContent=lv>1?'++':'+'; return s; }
+function modHint(id){ const lv=modLv(id);
+  return lv>=MOD_COST.length?'Fully modded: double the original effect.':lv?'Modded once. A second mod doubles the original effect.':'A mod makes this pedal’s effect 1.5 times as strong, and a second mod doubles it. Sell it and you get half the mods back.'; }
+function modFx(id,r){ const lv=modLv(id); if(!r||!lv||!r.op) return r; const m=MOD_MUL[lv], op=Object.assign({},r.op); let lab=r.label, fit=true;
+  const sw=(pre,a,b)=>{ const re=new RegExp('\\'+pre+String(a).replace('.','\\.')+'(?![\\d.])'); if(fit&&re.test(lab)) lab=lab.replace(re,pre+b); else fit=false; };
+  const up=v=>Math.max(Math.ceil(v*m),Math.ceil(v)+lv);
+  if(op.tone>0){ const v=up(op.tone); sw('+',op.tone,v); op.tone=v; }
+  if(op.hype>0){ const v=up(op.hype); sw('+',op.hype,v); op.hype=v; }
+  if(op.toneMul>1){ const v=+(1+(op.toneMul-1)*m).toFixed(2); sw('X',op.toneMul,v); op.toneMul=v; }
+  if(op.hypeMul>1){ const v=+(1+(op.hypeMul-1)*m).toFixed(2); sw('X',op.hypeMul,v); op.hypeMul=v; }
+  if(!fit){ const parts=[]; if(op.tone) parts.push((op.tone>0?'+':'')+op.tone+' TONE'); if(op.hype) parts.push((op.hype>0?'+':'')+op.hype+' HYPE'); if(op.toneMul) parts.push('X'+op.toneMul+' TONE'); if(op.hypeMul) parts.push('X'+op.hypeMul+' HYPE'); lab=parts.join(' ')||r.label; }
+  return {op,label:lab,col:r.col}; }
+
+// First night, first run: a starter board instead of the pedal pick, and the rules one line at a time in the stage's caption strip.
+// Off under automation (navigator.webdriver) so the test bots keep their usual path; window.__fbTut=true turns it on for a test.
+const TUT_STARTER=['iron','ogre','echo'];
+const TUT={
+  listen:'Listen. The caller plays a short phrase, and you only get to hear it.',
+  answer:'Your turn. Play it back note for note, anywhere on the neck. The first note glows gold.',
+  answerByEar:'Your turn. Play it back note for note. The first note does not glow for you, so find it by ear.',
+  snap:'A wrong note snaps its string. Find that note on another string.',
+  score:'Your score is Tone x Hype. Reach the target before the setlist runs out.',
+  replay:'Lost the tune? REPLAY plays the call again.',
+  groove:'Tap close to the beat for Groove. It only ever adds Hype.',
+  pedal:'Your pedals fire when their rule is met. Tap one to read it.',
+  shop:'Buy a pedal from the merch table, restring anything you snapped, then NEXT SHOW. Later, tap a pedal on your board to mod it.'
+};
+function tutPayday(){ state.tutShop=false; openModal('<h3>Payday</h3><p>'+TUT.shop+'</p><div class="row-btns"><button class="btn gold" id="mOk">GOT IT</button></div>'); $('mOk').onclick=()=>{ blip(880,0.06); closeModal(); }; }
+function tutFirst(){ return (!navigator.webdriver||!!window.__fbTut)&&!store.tutDone&&!store.seenHowto; }
+function tutBegin(){ state.pedals=TUT_STARTER.map(id=>PEDALS.find(p=>p.id===id)).filter(Boolean); state.tourSel=0; state.tutNext=true;
+  if(playerRig){ playerRig.setGuitar(curGuitar()); playerRig.setPedals(state.pedals.map(p=>p.id)); }
+  store.settings.wood=curGuitar().wood; save(); trStop(); startRun(); }
+function tutSlot(slot){ if(!state.tut||state.practice) return false; const S=state.tutSeen||(state.tutSeen={}), i=state.callIdx||0;
+  const k=slot==='listen'?(!S.listen?'listen':!S.score&&i>=2?'score':!S.pedal&&state.tutPedal?'pedal':null)
+    :(!S.answer?'answer':!S.snap&&state.tutSnap?'snap':!S.replay&&i>=2&&state.replays>0?'replay':!S.groove&&i>=3?'groove':null);
+  if(!k) return false; S[k]=true;
+  const txt=k==='answer'&&(state.char==='hermit'||state.noGlow)?TUT.answerByEar:k==='replay'?TUT.replay+' You have '+state.replays+' left tonight.':TUT[k];
+  say('TIP',txt,0,true); return true; }
+function tutEnd(win){ state.tut=false; store.tutDone=true; store.seenHowto=true; save(); if(win) state.tutShop=true; }
+
+// Tour Complete: the whole world played. The route on the painted map with a stamp for each leg, the band, and the numbers.
+function showTourDone(){
+  const C=curChar(), vis=(state.visited||[state.tour]).map(i=>TOURS[i]).filter(Boolean), order=vis.map(T=>T.id), nights=((state.legNo||1)-1)*3+(state.cleared?state.cleared.length:0);
+  $('tdKicker').textContent='World tour'+(state.tough?', Tough Crowd '+state.tough:'')+': '+vis.length+' legs, '+nights+' nights';
+  const T=TALK[state.char]; $('tdLine').textContent=T&&T.win?heroName()+': '+T.win:RIVAL+': '+LINES.win;
+  const face=(src,name,cls)=>'<div class="td-face'+(cls?' '+cls:'')+'">'+(src?'<img alt="" src="'+src+'">':'<i></i>')+'<span>'+name+'</span></div>';
+  const P=PORTRAIT_ART[state.char]; let fh=face(P&&P.card,C.name.split(' ').pop().toUpperCase(),'you');
+  (state.lineup||[]).forEach(id=>{ if(MEMBERS[id]) fh+=face(MEMBER_PORT[id],id.toUpperCase()); });
+  $('tdFaces').innerHTML=fh;
+  const gp=state.notesPlayed?Math.round(state.grooveHits/state.notesPlayed*100):0;
+  $('tdStats').innerHTML='<span>Score <b>'+state.tourScore+'</b></span><span>True calls <b>'+state.trueCalls+'/'+state.callsTotal+'</b></span><span>Groove <b>'+gp+'%</b></span><span>Best call <b>'+state.best+'</b></span><span>Cash <b>$'+state.money+'</b></span>'+(state.fameGain?'<span>Fame <b>+'+state.fameGain+' &#9733;</b></span>':'');
+  const im=$('tdMapImg'); if(!im.getAttribute('src')) im.src=WORLDMAP_SRC;
+  $('tdPins').innerHTML='<span class="bsm-title">WORLD TOUR</span>'+Object.keys(MAP_PINS).map(id=>{ const q=MAP_PINS[id], k=order.indexOf(id); return '<span class="bsm-pin td-pin '+(k>=0?'on':'off')+'" style="left:'+q[0]+'%;top:'+q[1]+'%"><b>'+(k>=0?(k+1)+'. ':'')+q[2]+'</b><i></i></span>'; }).join('');
+  const D0=0.7, DS=0.6;
+  $('tdRoute').innerHTML=order.slice(1).map((id,k)=>{ const a=MAP_PINS[order[k]], b=MAP_PINS[id]; return a&&b?'<line class="td-seg" vector-effect="non-scaling-stroke" x1="'+a[0]+'" y1="'+a[1]+'" x2="'+b[0]+'" y2="'+b[1]+'" style="animation-delay:'+(D0+DS*k+DS/2).toFixed(2)+'s"/>':''; }).join('');
+  const box=$('tdMapBox'); box.querySelectorAll('.td-stamp').forEach(e=>e.remove());
+  const tok=++state.tdTok;
+  vis.forEach((TT,k)=>{ const q=MAP_PINS[TT.id]; if(!q) return; const c=stampCv(TT,true); c.className='td-stamp'; c.style.left=q[0]+'%'; c.style.top=q[1]+'%'; c.style.setProperty('--rot',(((k*37)%17)-8)+'deg'); c.style.animationDelay=(D0+DS*k).toFixed(2)+'s'; box.appendChild(c);
+    setTimeout(()=>{ if(state.screen==='tourdone'&&state.tdTok===tok) try{ thud(); }catch(e){} },(D0+DS*k)*1000+200); });
+  goScreen('tourdone'); fitTdMap(); menuCue('win');
+  setTimeout(()=>{ if(state.screen==='tourdone'&&state.tdTok===tok) try{ fxConfetti(); }catch(e){} },(D0+DS*vis.length)*1000+300);
+}
+function fitTdMap(){ const mid=document.querySelector('.td-mid'), band=document.querySelector('.td-band'), box=$('tdMapBox'); if(!mid||!band||!box||state.screen!=='tourdone') return;
+  const row=getComputedStyle(mid).flexDirection==='row', m=mid.getBoundingClientRect(), bd=band.getBoundingClientRect(), AR=720/483, aw=(row?m.width-bd.width-8:m.width)-22, ah=(row?m.height:m.height-bd.height-8)-22;
+  const mw=Math.max(60,Math.min(aw,ah*AR)); box.style.width=Math.floor(mw)+'px'; box.style.height=Math.floor(mw/AR)+'px'; box.style.setProperty('--st',Math.max(16,Math.round(mw*0.075))+'px'); }
+state.tdTok=0;
+window.addEventListener('resize',()=>{ if(state.screen==='tourdone') fitTdMap(); });
+$('btnTdEars').onclick=()=>{ blip(700,0.05); goScreen('results'); };
+$('btnTdAgain').onclick=()=>{ blip(880,0.06); goCheck(); };
+$('btnTdTitle').onclick=()=>{ blip(440,0.06); trStop(); renderContinue(); goScreen('title'); };
+// Three shared road events (v2.03) for the painted scenes v1.93 made ahead of time: the TV set, the laundromat and the guild hall.
+Object.assign(ROAD,{
+  tvset:{t:'The reunion special',bg:'vsp',story:'The public TV station is taping a reunion: Counting with Gerald, twenty-five years on. The house band quit this morning.',
+    talk:[['gerald','You came! The house band left. Creative differences. They wanted to count in sevens.'],['you','We can count to four.'],['gerald','That is all I have ever asked of anyone.'],['band','Do we get paid?'],['gerald','Union scale. And there is a fruit plate.']],
+    ch:()=>[ {l:'Play the counting song',go:()=>{ RD.money(4); return 'One take. The floor crew counts along under their breath. +$4.'; }},
+      {l:'Play the theme from the feelings season',go:()=>{ RD.mod({tone:2}); return 'Nobody on the crew remembers it. Gerald does. He has to sit down for a minute. +2 Tone on every note tonight.'; },talk:[['gerald','Nobody ever asks for that one. Thank you. Truly.']]} ]},
+  laundromat:{t:'Wash day',bg:'vsp',story:'Every dryer at the laundromat is full except the one at the end, which hums to itself.',
+    talk:[['band','Every dryer is full except that one.'],['attendant','That one’s haunted. Nice ghost. Dries a load in four minutes if you play it a song.'],['you','And if we don’t?'],['attendant','Everything comes out one size smaller. Your call.']],
+    ch:()=>[ {l:'Play the dryer a slow one',go:()=>{ RD.mod({hype:1}); return 'The dryer hums along, a little flat. Your stage clothes come out warm and smelling faintly of 1974. +1 Hype on every true call tonight.'; }},
+      {l:'Buy strings from the vending machine ($2)',dis:state.money<2||(state.spares||0)>=PACK_MAX,go:()=>{ RD.money(-2); RD.spares(1); return 'Between the dryer sheets and the potato chips: one set of strings. +1 spare pack.'; }},
+      {l:'Wait for a normal dryer',go:()=>{ RD.mod({replays:1}); return 'An hour of folding and nothing else. You feel strangely rested. One extra replay tonight.'; }} ]},
+  guildhall:{t:'The guild hall',bg:'vsp',story:'The local guild hall is open late. The notice board is all gig flyers, lost capos and a sign-up sheet for the guild photo.',
+    talk:[['clerk','Name? Instrument? Have you paid your dues since the group chat moved?'],['you','Which group chat?'],['clerk','Exactly.'],['band','We have dues?'],['clerk','Three dollars. Members get first pick of the lost and found.']],
+    ch:()=>[ {l:'Pay your dues ($3)',dis:state.money<3,go:()=>{ RD.money(-3); const r=RD.pedal('uncommon'); return r?'The clerk stamps your card and points at the lost and found. A '+RD.pname(r)+' has been waiting there since spring.':'The clerk stamps your card. The lost and found is all capos today.'; }},
+      {l:'Sign up for the guild photo',go:()=>{ META.fame=(META.fame||0)+1; state.fameGain=(state.fameGain||0)+1; save(); return 'You stand in the back row. Somebody blinks. It is you. +1 Fame.'; }} ]}
+});
+LOCAL_CAST.tvset={gerald:'gerald'};
+ROAD_CUES.tvset=ROAD_CUES.radio; ROAD_CUES.laundromat=ROAD_CUES.motel; ROAD_CUES.guildhall=ROAD_CUES.session;   // borrowed grooves until they get their own
+Object.assign(window.__fb,{
+  tourDoneTest:(vis,lineup)=>{ const an=TOURS.findIndex(T=>T.id==='an'); setTour(an); state.visited=vis||[0,2,3,1,an]; state.legNo=state.visited.length; state.cleared=VENUES.map(V=>V.id); state.over='win';
+    state.tourScore=state.tourScore||48210; state.trueCalls=state.trueCalls||52; state.callsTotal=state.callsTotal||61; state.best=state.best||2310; state.lineup=lineup||['lou','dee','tech']; showResults(); },
+  mods:()=>state.mods, setMod:(id,lv)=>{ state.mods=state.mods||{}; state.mods[id]=lv; }, modFx:(id,r)=>modFx(id,r), tutState:()=>({tut:state.tut,seen:state.tutSeen,shop:state.tutShop,done:!!store.tutDone})
+});
 })();
 </script>
 </body>

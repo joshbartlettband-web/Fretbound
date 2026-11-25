@@ -11,6 +11,10 @@ print({b['name']:b['revision'] for b in j['browsers']}['chromium'])
 PY
 )
 [ -e $B/chromium-$NEW ] || ln -s $OLD $B/chromium-$NEW
-mkdir -p $B/chromium_headless_shell-$NEW/chrome-headless-shell-linux64
-ln -sf $OLDH/chrome-linux/headless_shell $B/chromium_headless_shell-$NEW/chrome-headless-shell-linux64/chrome-headless-shell
+if [ -d $OLDH/chrome-headless-shell-linux64 ]; then
+  [ "$OLDH" = "$B/chromium_headless_shell-$NEW" ] || { rm -rf $B/chromium_headless_shell-$NEW; ln -s $OLDH $B/chromium_headless_shell-$NEW; }
+else
+  mkdir -p $B/chromium_headless_shell-$NEW/chrome-headless-shell-linux64
+  ln -sf $OLDH/chrome-linux/headless_shell $B/chromium_headless_shell-$NEW/chrome-headless-shell-linux64/chrome-headless-shell
+fi
 echo "linked chromium $NEW -> $(basename $OLD)"
